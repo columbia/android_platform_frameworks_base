@@ -1082,6 +1082,11 @@ public class GpsLocationProvider implements LocationProviderInterface {
             if ((flags & LOCATION_HAS_LAT_LONG) == LOCATION_HAS_LAT_LONG) {
                 mLocation.setLatitude(Taint.addTaintDouble(latitude, tag));
                 mLocation.setLongitude(Taint.addTaintDouble(longitude, tag));
+
+                /* TMcomment: input instrumentation point for GPS locations */
+                /* TODO: set up control channel for these values */
+                Taint.TMLog("Latitude: " + latitude + " Longitude:" + longitude + " Taint: " + tag);
+		
                 mLocation.setTime(timestamp);
             }
             if ((flags & LOCATION_HAS_ALTITUDE) == LOCATION_HAS_ALTITUDE) {
