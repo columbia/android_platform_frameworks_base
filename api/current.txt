@@ -29422,6 +29422,22 @@ package dalvik.system {
 
 }
 
+package edu.columbia.service {
+
+  public abstract interface ITaintService implements android.os.IInterface {
+    method public abstract double getLatitude() throws android.os.RemoteException;
+    method public abstract double getLongitude() throws android.os.RemoteException;
+  }
+
+  public static abstract class ITaintService.Stub extends android.os.Binder implements edu.columbia.service.ITaintService {
+    ctor public ITaintService.Stub();
+    method public android.os.IBinder asBinder();
+    method public static edu.columbia.service.ITaintService asInterface(android.os.IBinder);
+    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
+  }
+
+}
+
 package java.awt.font {
 
   public final class NumericShaper implements java.io.Serializable {

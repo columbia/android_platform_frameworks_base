@@ -653,6 +653,14 @@ class ServerThread extends Thread {
                     reportWtf("starting DreamManagerService", e);
                 }
             }
+
+	    //Adding TaintService
+	    try {
+		Slog.i(TAG, "Taint Service");
+		ServiceManager.addService("TaintService", new TaintService(context));
+	    } catch (Throwable e) {
+		reportWtf("starting Taint management service", e);
+	    }
         }
 
         // Before things start rolling, be sure we have decided whether
