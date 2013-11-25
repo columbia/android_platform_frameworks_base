@@ -6,7 +6,7 @@ import android.os.IBinder;
 import android.content.Context;
 import android.util.Slog;
 
-import edu.columbia.service.ITaintService;
+import com.android.tm.service.ITaintService;
 
 
 public class TaintService extends ITaintService.Stub {

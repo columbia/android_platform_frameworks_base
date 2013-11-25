@@ -213,7 +213,7 @@ LOCAL_SRC_FILES += \
 	voip/java/android/net/sip/ISipSession.aidl \
 	voip/java/android/net/sip/ISipSessionListener.aidl \
 	voip/java/android/net/sip/ISipService.aidl \
-	tservice/java/edu/columbia/service/ITaintService.aidl \
+	tservice/java/com/android/tm/service/ITaintService.aidl \
 #
 
 
@@ -305,7 +305,7 @@ aidl_files := \
 	frameworks/base/telephony/java/android/telephony/ServiceState.aidl \
 	frameworks/base/telephony/java/com/android/internal/telephony/IPhoneSubInfo.aidl \
 	frameworks/base/telephony/java/com/android/internal/telephony/ITelephony.aidl \
-	frameworks/base/tservice/java/edu/columbia/service/ITaintService.aidl \
+	frameworks/base/tservice/java/com/android/tm/service/ITaintService.aidl \
 
 gen := $(TARGET_OUT_COMMON_INTERMEDIATES)/framework.aidl
 $(gen): PRIVATE_SRC_FILES := $(aidl_files)
