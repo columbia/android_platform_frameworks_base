@@ -656,13 +656,13 @@ class ServerThread extends Thread {
                 }
             }
 
-	    //Adding TMeasureService
-	    try {
-		Slog.i(TAG, "TMeasure Service");
-		ServiceManager.addService("TMService", new TMLocationService(context));
-	    } catch (Throwable e) {
-		reportWtf("starting Taint management service", e);
-	    }
+            //Adding TMeasureService
+            try {
+              Slog.i(TAG, "TMeasure Service");
+              ServiceManager.addService("TMService", new TMLocationService(context));
+            } catch (Throwable e) {
+              reportWtf("starting Taint management service", e);
+            }
         }
 
         // Before things start rolling, be sure we have decided whether
