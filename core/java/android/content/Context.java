@@ -1954,20 +1954,6 @@ public abstract class Context {
      */
     public static final String SCHEDULING_POLICY_SERVICE = "scheduling_policy";
 
-
-    /**
-     * Use with {@link #getSystemService} to retrieve a
-     * {@link edu.columbia.server.TaintService} that provide supporting API for 
-     * taint measure project.
-     *
-     * @see #getSystemService
-     * @see edu.columbia.server.TaintService
-     *
-     * @hide
-     */
-    public static final String TAINT_SERVICE = "taint_service";
-
-
     /**
      * Determine whether the given permission is allowed for a particular
      * process and user ID running in the system.
