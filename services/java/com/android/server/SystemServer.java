@@ -59,6 +59,8 @@ import com.android.server.pm.ShutdownThread;
 import com.android.server.usb.UsbService;
 import com.android.server.wm.WindowManagerService;
 
+import com.android.server.tmservice.TMLocationService;
+
 import dalvik.system.VMRuntime;
 import dalvik.system.Zygote;
 
@@ -654,10 +656,10 @@ class ServerThread extends Thread {
                 }
             }
 
-	    //Adding TaintService
+	    //Adding TMeasureService
 	    try {
-		Slog.i(TAG, "Taint Service");
-		ServiceManager.addService("TaintService", new TaintService(context));
+		Slog.i(TAG, "TMeasure Service");
+		ServiceManager.addService("TMService", new TMLocationService(context));
 	    } catch (Throwable e) {
 		reportWtf("starting Taint management service", e);
 	    }

@@ -1083,9 +1083,9 @@ public class GpsLocationProvider implements LocationProviderInterface {
                 mLocation.setLatitude(Taint.addTaintDouble(latitude, tag));
                 mLocation.setLongitude(Taint.addTaintDouble(longitude, tag));
 
-		/* TMcomment: input instrumentation point for GPS locations */
-		/* TODO: set up control channel for these values */
-		Taint.TMLog("Latitude: " + latitude + " Longitude:" + longitude + " Taint: " + tag);
+            /* TMcomment: input instrumentation point for GPS locations */
+		    /* TODO: set up control channel for these values */
+		    Taint.TMLog("Latitude: " + latitude + " Longitude:" + longitude + " Taint: " + tag);
 		
                 mLocation.setTime(timestamp);
             }

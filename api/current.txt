@@ -29030,6 +29030,30 @@ package com.android.internal.util {
 
 package com.android.tm.service {
 
+  public abstract interface ITMLocationService implements android.os.IInterface {
+    method public abstract double getLatitude() throws android.os.RemoteException;
+    method public abstract double getLongitude() throws android.os.RemoteException;
+  }
+
+  public static abstract class ITMLocationService.Stub extends android.os.Binder implements com.android.tm.service.ITMLocationService {
+    ctor public ITMLocationService.Stub();
+    method public android.os.IBinder asBinder();
+    method public static com.android.tm.service.ITMLocationService asInterface(android.os.IBinder);
+    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
+  }
+
+  public abstract interface ITaintLocationService implements android.os.IInterface {
+    method public abstract double getLatitude() throws android.os.RemoteException;
+    method public abstract double getLongitude() throws android.os.RemoteException;
+  }
+
+  public static abstract class ITaintLocationService.Stub extends android.os.Binder implements com.android.tm.service.ITaintLocationService {
+    ctor public ITaintLocationService.Stub();
+    method public android.os.IBinder asBinder();
+    method public static com.android.tm.service.ITaintLocationService asInterface(android.os.IBinder);
+    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
+  }
+
   public abstract interface ITaintService implements android.os.IInterface {
     method public abstract double getLatitude() throws android.os.RemoteException;
     method public abstract double getLongitude() throws android.os.RemoteException;
