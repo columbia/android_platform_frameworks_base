@@ -1087,7 +1087,7 @@ public class GpsLocationProvider implements LocationProviderInterface {
             /* TODO: set up control channel for these values */
             Taint.TMLog("Latitude: " + latitude + " Longitude:" + longitude + " Taint: " + tag);
         
-                mLocation.setTime(timestamp);
+            mLocation.setTime(timestamp);
             }
             if ((flags & LOCATION_HAS_ALTITUDE) == LOCATION_HAS_ALTITUDE) {
                 mLocation.setAltitude(Taint.addTaintDouble(altitude, tag));
