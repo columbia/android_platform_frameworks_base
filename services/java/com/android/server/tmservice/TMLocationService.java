@@ -33,6 +33,7 @@ public class TMLocationService extends ITMLocationService.Stub {
   }
 
   private void socketOutputCaptured(String dstr, String tstr) {
+    Taint.TMLog("socketOutputCaptured called:" + dstr + ":" + tstr);
   }
 
   private class TMListenerThread implements Runnable {
@@ -41,9 +42,15 @@ public class TMLocationService extends ITMLocationService.Stub {
     private Socket incoming = null;
 
     public void run() {
+      Taint.TMLog("Server thread begin");
       try {
         serverSocket = new ServerSocket(tmport);
         while (true) {
+
+          //FIXME: this part shouldn't block the original operations.
+          //try to re-implement this later using some non-block 
+          //primitives such as AsyncTask. 
+
           incoming = serverSocket.accept();
           while (true) {
             BufferedReader reader = new BufferedReader(
@@ -58,6 +65,7 @@ public class TMLocationService extends ITMLocationService.Stub {
             } else {
               //not expecting to reach this point
               //assert false;
+              Taint.TMLog("unexpected input: " + line);
               ;
             }
           }
