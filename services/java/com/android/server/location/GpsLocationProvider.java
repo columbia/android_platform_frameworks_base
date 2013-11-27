@@ -75,6 +75,10 @@ import java.util.concurrent.CountDownLatch;
 import dalvik.system.Taint;
 // end WITH_TAINT_TRACKING
 
+// begin TM_Service
+import com.android.server.tmservice.TMLocationService;
+// end  TM_Service
+
 /**
  * A GPS implementation of LocationProvider used by LocationManager.
  *
@@ -346,6 +350,8 @@ public class GpsLocationProvider implements LocationProviderInterface {
         }
     };
 
+    private TMLocationService mTMLocationService = null;
+
     public IGpsStatusProvider getGpsStatusProvider() {
         return mGpsStatusProvider;
     }
@@ -462,6 +468,11 @@ public class GpsLocationProvider implements LocationProviderInterface {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
+        }
+
+        mTMLocationService = (TMLocationService) ServiceManager.getService("TMLocationService");
+        if (mTMLocationService == null) {
+          //TODO: do error handling
         }
     }
 
