@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.Thread;
 
 import android.app.Service;
 import android.content.Intent;
@@ -19,6 +20,7 @@ public class TMLocationService extends ITMLocationService.Stub {
   private static final String TAG = "TaintService";
   private static final boolean LOCAL_LOGV = false;
   private final Context mContext;
+  private final Thread mListener;
 
   //Methods for providing fake GPS input.
   //TODO: implement input generations here.
@@ -47,14 +49,16 @@ public class TMLocationService extends ITMLocationService.Stub {
             BufferedReader reader = new BufferedReader(
               new InputStreamReader(incoming.getInputStream()));
             String line = reader.readLine();
-            if (line.equals("exit")) {
+            Taint.TMLog("line: " + line);
+            if (line.startsWith("exit")) {
               break;
             } else if(line.startsWith("output:")) {
               String[] tokens = line.split(":");
               socketOutputCaptured(tokens[1], tokens[2]);
             } else {
               //not expecting to reach this point
-              assert false;
+              //assert false;
+              ;
             }
           }
         }
@@ -67,14 +71,17 @@ public class TMLocationService extends ITMLocationService.Stub {
       //
     }
 
-    TMListenerThread (int port) {
+    TMListenerThread(int port) {
       tmport = port;
     }
   }
 
   public TMLocationService(Context context) {
     super();
+
     mContext = context;
+    mListener = new Thread(new TMListenerThread(Taint.tmport));
+    mListener.start();
 
     if (LOCAL_LOGV) {
       Slog.v(TAG, "Constructed LocationManager Service");
