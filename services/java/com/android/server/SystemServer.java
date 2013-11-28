@@ -59,6 +59,8 @@ import com.android.server.pm.ShutdownThread;
 import com.android.server.usb.UsbService;
 import com.android.server.wm.WindowManagerService;
 
+import com.android.server.tmservice.TMLocationService;
+
 import dalvik.system.VMRuntime;
 import dalvik.system.Zygote;
 
@@ -652,6 +654,14 @@ class ServerThread extends Thread {
                 } catch (Throwable e) {
                     reportWtf("starting DreamManagerService", e);
                 }
+            }
+
+            //Adding TMeasureService
+            try {
+              Slog.i(TAG, "TMeasure Service");
+              ServiceManager.addService("TMService", new TMLocationService(context));
+            } catch (Throwable e) {
+              reportWtf("starting Taint management service", e);
             }
         }
 
