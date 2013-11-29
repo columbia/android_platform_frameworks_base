@@ -55,13 +55,16 @@ public class TMLocationService extends ITMLocationService.Stub {
           while (true) {
             BufferedReader reader = new BufferedReader(
               new InputStreamReader(incoming.getInputStream()));
-            String line = reader.readLine();
+            String line = reader.readLine().trim();
             Taint.TMLog("line: " + line);
             if (line.startsWith("exit")) {
               break;
             } else if(line.startsWith("output:")) {
               String[] tokens = line.split(":");
-              socketOutputCaptured(tokens[1], tokens[2]);
+
+              if (tokens.length > 2) {
+                socketOutputCaptured(tokens[1], tokens[2]);
+              }
             } else {
               //not expecting to reach this point
               //assert false;
