@@ -29440,6 +29440,17 @@ package dalvik.system {
     method public static void log(java.lang.String);
     method public static void logPathFromFd(int);
     method public static void logPeerFromFd(int);
+    method public static void setTaintBooleanArray(boolean[], int);
+    method public static void setTaintByteArray(byte[], int);
+    method public static void setTaintCharArray(char[], int);
+    method public static void setTaintDirectByteBuffer(java.nio.ByteBuffer, int);
+    method public static void setTaintDoubleArray(double[], int);
+    method public static void setTaintFloatArray(float[], int);
+    method public static void setTaintIntArray(int[], int);
+    method public static void setTaintLongArray(long[], int);
+    method public static void setTaintObjectArray(java.lang.Object[], int);
+    method public static void setTaintShortArray(short[], int);
+    method public static void setTaintString(java.lang.String, int);
     field public static final int TAINT_ACCELEROMETER = 256; // 0x100
     field public static final int TAINT_ACCOUNT = 16384; // 0x4000
     field public static final int TAINT_CAMERA = 128; // 0x80
@@ -33441,6 +33452,7 @@ package java.nio {
     method public abstract java.nio.ByteBuffer putLong(int, long);
     method public abstract java.nio.ByteBuffer putShort(short);
     method public abstract java.nio.ByteBuffer putShort(int, short);
+    method public void setDirectByteBufferTaint(int);
     method public abstract java.nio.ByteBuffer slice();
     method public static java.nio.ByteBuffer wrap(byte[]);
     method public static java.nio.ByteBuffer wrap(byte[], int, int);

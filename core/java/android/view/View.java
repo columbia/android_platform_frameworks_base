@@ -91,6 +91,8 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import dalvik.system.Taint;
+
 /**
  * <p>
  * This class represents the basic building block for user interface components. A View
@@ -4099,6 +4101,7 @@ public class View implements Drawable.Callback, Drawable.Callback2, KeyEvent.Cal
     public boolean callOnClick() {
         ListenerInfo li = mListenerInfo;
         if (li != null && li.mOnClickListener != null) {
+            Taint.TMLog("callOnClick");
             li.mOnClickListener.onClick(this);
             return true;
         }
