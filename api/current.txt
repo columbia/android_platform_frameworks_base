@@ -29440,15 +29440,23 @@ package dalvik.system {
     method public static void log(java.lang.String);
     method public static void logPathFromFd(int);
     method public static void logPeerFromFd(int);
+    method public static boolean setTaintBoolean(boolean, int);
     method public static void setTaintBooleanArray(boolean[], int);
+    method public static byte setTaintByte(byte, int);
     method public static void setTaintByteArray(byte[], int);
+    method public static char setTaintChar(char, int);
     method public static void setTaintCharArray(char[], int);
     method public static void setTaintDirectByteBuffer(java.nio.ByteBuffer, int);
+    method public static double setTaintDouble(double, int);
     method public static void setTaintDoubleArray(double[], int);
+    method public static float setTaintFloat(float, int);
     method public static void setTaintFloatArray(float[], int);
+    method public static int setTaintInt(int, int);
     method public static void setTaintIntArray(int[], int);
+    method public static long setTaintLong(long, int);
     method public static void setTaintLongArray(long[], int);
     method public static void setTaintObjectArray(java.lang.Object[], int);
+    method public static short setTaintShort(short, int);
     method public static void setTaintShortArray(short[], int);
     method public static void setTaintString(java.lang.String, int);
     field public static final int TAINT_ACCELEROMETER = 256; // 0x100
