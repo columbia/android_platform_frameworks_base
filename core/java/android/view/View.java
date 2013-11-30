@@ -4101,7 +4101,6 @@ public class View implements Drawable.Callback, Drawable.Callback2, KeyEvent.Cal
     public boolean callOnClick() {
         ListenerInfo li = mListenerInfo;
         if (li != null && li.mOnClickListener != null) {
-            Taint.TMLog("callOnClick");
             li.mOnClickListener.onClick(this);
             return true;
         }

@@ -42,7 +42,6 @@ public class TMLocationService extends ITMLocationService.Stub {
     private Socket incoming = null;
 
     public void run() {
-      Taint.TMLog("Server thread begin");
       try {
         serverSocket = new ServerSocket(tmport);
         while (true) {
@@ -56,20 +55,19 @@ public class TMLocationService extends ITMLocationService.Stub {
             BufferedReader reader = new BufferedReader(
               new InputStreamReader(incoming.getInputStream()));
             String line = reader.readLine().trim();
-            Taint.TMLog("line: " + line);
             if (line.startsWith("exit")) {
               break;
             } else if(line.startsWith("output:")) {
               String[] tokens = line.split(":");
-
               if (tokens.length > 2) {
                 socketOutputCaptured(tokens[1], tokens[2]);
+              } else {
+                //error handling required
               }
             } else {
               //not expecting to reach this point
               //assert false;
               Taint.TMLog("unexpected input: " + line);
-              ;
             }
           }
         }
@@ -78,7 +76,7 @@ public class TMLocationService extends ITMLocationService.Stub {
         System.err.println(e);
       }
       //
-      //TODO: add thread join event here
+      //TODO: implement thread join event here
       //
     }
 
