@@ -91,6 +91,8 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import dalvik.system.Taint;
+
 /**
  * <p>
  * This class represents the basic building block for user interface components. A View

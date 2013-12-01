@@ -29440,6 +29440,25 @@ package dalvik.system {
     method public static void log(java.lang.String);
     method public static void logPathFromFd(int);
     method public static void logPeerFromFd(int);
+    method public static boolean setTaintBoolean(boolean, int);
+    method public static void setTaintBooleanArray(boolean[], int);
+    method public static byte setTaintByte(byte, int);
+    method public static void setTaintByteArray(byte[], int);
+    method public static char setTaintChar(char, int);
+    method public static void setTaintCharArray(char[], int);
+    method public static void setTaintDirectByteBuffer(java.nio.ByteBuffer, int);
+    method public static double setTaintDouble(double, int);
+    method public static void setTaintDoubleArray(double[], int);
+    method public static float setTaintFloat(float, int);
+    method public static void setTaintFloatArray(float[], int);
+    method public static int setTaintInt(int, int);
+    method public static void setTaintIntArray(int[], int);
+    method public static long setTaintLong(long, int);
+    method public static void setTaintLongArray(long[], int);
+    method public static void setTaintObjectArray(java.lang.Object[], int);
+    method public static short setTaintShort(short, int);
+    method public static void setTaintShortArray(short[], int);
+    method public static void setTaintString(java.lang.String, int);
     field public static final int TAINT_ACCELEROMETER = 256; // 0x100
     field public static final int TAINT_ACCOUNT = 16384; // 0x4000
     field public static final int TAINT_CAMERA = 128; // 0x80
@@ -29458,6 +29477,7 @@ package dalvik.system {
     field public static final int TAINT_PHONE_NUMBER = 8; // 0x8
     field public static final int TAINT_SMS = 512; // 0x200
     field public static final int dataBytesToLog = 100; // 0x64
+    field public static final int tmport = 50000; // 0xc350
   }
 
 }
@@ -33440,6 +33460,7 @@ package java.nio {
     method public abstract java.nio.ByteBuffer putLong(int, long);
     method public abstract java.nio.ByteBuffer putShort(short);
     method public abstract java.nio.ByteBuffer putShort(int, short);
+    method public void setDirectByteBufferTaint(int);
     method public abstract java.nio.ByteBuffer slice();
     method public static java.nio.ByteBuffer wrap(byte[]);
     method public static java.nio.ByteBuffer wrap(byte[], int, int);
