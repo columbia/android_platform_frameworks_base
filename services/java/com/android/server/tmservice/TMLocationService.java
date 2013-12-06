@@ -16,11 +16,15 @@ import android.util.Slog;
 import com.android.tm.service.ITMLocationService;
 import dalvik.system.Taint;
 
+//import com.android.server.tmservice.MRunnerClient;
+
 public class TMLocationService extends ITMLocationService.Stub {
   private static final String TAG = "TaintService";
   private static final boolean LOCAL_LOGV = false;
   private final Context mContext;
   private final Thread mListener;
+
+  private TMLogcat tmLogcat;
 
   //Methods for providing fake GPS input.
   //TODO: implement input generations here.
