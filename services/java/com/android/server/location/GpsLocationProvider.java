@@ -1078,13 +1078,22 @@ public class GpsLocationProvider implements LocationProviderInterface {
         return ((mEngineCapabilities & capability) != 0);
     }
 
+  /**
+   *
+   */
+  public void reportLocationP(int flags, double latitude, double longitude, double altitude,
+                              float speed, float bearing, float accuracy, long timestamp) {
+    reportLocation(flags, latitude, longitude, altitude, speed, bearing,accuracy, timestamp);
+  }
+
     /**
      * called from native code to update our position.
      */
     private void reportLocation(int flags, double latitude, double longitude, double altitude,
             float speed, float bearing, float accuracy, long timestamp) {
-        if (VERBOSE) Log.v(TAG, "reportLocation lat: " + latitude + " long: " + longitude +
-                " timestamp: " + timestamp);
+      //if (VERBOSE) Log.v(TAG, "reportLocation lat: " + latitude + " long: " + longitude +
+      // Taint.TMLog("reportLocation: " + " flags:" + flags + " lat: " + latitude + " long: " + longitude +
+      //          " alt: " + altitude + "speed: " + speed + "bearing: " + bearing + "accuracy: " + accuracy + "  timestamp: " + timestamp);
 
         synchronized (mLocation) {
             mLocationFlags = flags;
@@ -1096,7 +1105,7 @@ public class GpsLocationProvider implements LocationProviderInterface {
 
             /* TMcomment: input instrumentation point for GPS locations */
             /* TODO: set up control channel for these values */
-            Taint.TMLog("Latitude: " + latitude + " Longitude:" + longitude + " Taint: " + tag);
+            Taint.TMLog("GpsLocationProvider.reportLocation: Latitude: " + latitude + " Longitude:" + longitude + " Taint: " + tag);
         
             mLocation.setTime(timestamp);
             }
@@ -1193,6 +1202,8 @@ public class GpsLocationProvider implements LocationProviderInterface {
             // send an intent to notify that the GPS is receiving fixes.
             Intent intent = new Intent(LocationManager.GPS_FIX_CHANGE_ACTION);
             intent.putExtra(LocationManager.EXTRA_GPS_ENABLED, true);
+            //jikk: geo fix command received
+            Taint.TMLog("GpsLocationProvider.reportLocation:broadcast message");
             mContext.sendBroadcast(intent);
             updateStatus(LocationProvider.AVAILABLE, mSvCount);
         }

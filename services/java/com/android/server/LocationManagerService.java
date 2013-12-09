@@ -200,6 +200,13 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
     // for Settings change notification
     private ContentQueryMap mSettings;
 
+    /** 
+     *
+     */
+    public GpsLocationProvider getGpsProvider() {
+      return (GpsLocationProvider) mGpsLocationProvider;
+    }
+
     /**
      * A wrapper class holding either an ILocationListener or a PendingIntent to receive
      * location updates.
