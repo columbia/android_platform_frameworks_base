@@ -3,24 +3,22 @@ package com.android.server.tmservice;
 import java.util.*;
 
 class PConstraint {
-  //private List<String> lineList = null;
   private List<PConstElement> PConstList = null;
+  private int pConstId = -1;
 
   public PConstraint(List<String> lineList_)  {
-    //lineList = lineList_;
-
     PConstList = new ArrayList<PConstElement>();
 
     for (String line : lineList_) {
-      String[] tmp0 = line.split(":")[1].split("|");
+      String[] tmp0  = line.split("[:|]");
+      int tm_counter = Integer.parseInt(tmp0[1].trim());
+      int tid = Integer.parseInt(tmp0[2].trim());
+      int offset = Integer.parseInt(tmp0[3].trim(), 16);
+      String clazz = tmp0[4];
+      String instr = tmp0[5];
+      int brchoice = tmp0[6].trim() == ">" ? 1 : 0;
 
-      int tid = Integer.parseInt(tmp0[0]);
-      int offset = Integer.parseInt(tmp0[1]);
-      String clazz = tmp0[2];
-      String instr = tmp0[3];
-      int brchoice = tmp0[4] == ">" ? 1 : 0;
-
-      PConstList.add(new PConstElement(clazz, tid, offset, instr, brchoice));
+      PConstList.add(new PConstElement(tm_counter, clazz, tid, offset, instr, brchoice));
     }
 
     Collections.sort(PConstList, new Comparator<PConstElement>() {
@@ -33,18 +31,29 @@ class PConstraint {
   public boolean equals(PConstraint other) {
     return true;
   }
+
+  public String toString() {
+    String ret = "";
+    for (PConstElement pConst: PConstList) {
+      ret += pConst;
+    }
+    return ret;
+  }
+
 }
 
 class PConstElement {
+  private int tm_counter;
   private String clazz = null;
   private int tid = 0;
   private int offset = 0;
   private String instr = null;
   private int brchoice  = -1;
 
-  public PConstElement(String clazz_, int tid_, int offset_, String instr_,
+  public PConstElement(int tm_counter_, String clazz_, int tid_, int offset_, String instr_,
                        int brchoice_)
-{
+  {
+    tm_counter = tm_counter_;
     clazz = clazz_;
     tid = tid_;
     offset = offset_;
@@ -59,24 +68,12 @@ class PConstElement {
 
   //to have some determinism with PConstList
   public int compare(PConstElement other) {
-    int clazzCmp = clazz.compareTo(other.clazz);
-    if (clazzCmp == 0) {
-      if (offset > other.offset)  {
-        return 1;
-      } else if (offset < other.offset) {
-        return -1;
-      } else {
-        if (brchoice > other.brchoice)  {
-          return 1;
-        } else if (brchoice < other.brchoice) {
-          return -1;
-        } else {
-          return 0;
-        }
-      }
-    } else {
-      return clazzCmp;
-    }
+    return tm_counter - other.tm_counter;
+  }
+
+  public String toString() {
+    String ret = tm_counter + " :: " + clazz + " :: (" + tid +") :: " +"\n";
+    return ret;
   }
 }
 
