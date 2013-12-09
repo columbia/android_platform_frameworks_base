@@ -3,11 +3,11 @@ package com.android.server.tmservice;
 import java.util.*;
 
 class PConstraint {
-  private List<PConstElement> PConstList = null;
+  private List<PConstElement> PConstElList = null;
   private int pConstId = -1;
 
   public PConstraint(List<String> lineList_)  {
-    PConstList = new ArrayList<PConstElement>();
+    PConstElList = new ArrayList<PConstElement>();
 
     for (String line : lineList_) {
       String[] tmp0  = line.split("[:|]");
@@ -16,18 +16,18 @@ class PConstraint {
       int offset = Integer.parseInt(tmp0[3].trim(), 16);
       String clazz = tmp0[4];
       String instr = tmp0[5];
-      int brchoice = tmp0[6].trim() == ">" ? 1 : 0;
+      int brchoice = tmp0[7].trim().equals(">") ? 1 : 0;
 
-      PConstList.add(new PConstElement(tm_counter, clazz, tid, offset, instr, brchoice));
+      PConstElList.add(new PConstElement(tm_counter, clazz, tid, offset, instr, brchoice));
     }
 
-    Collections.sort(PConstList, new Comparator<PConstElement>() {
+    Collections.sort(PConstElList, new Comparator<PConstElement>() {
       public int compare(PConstElement a, PConstElement b) {
         return a.compare(b);
       }
     });
 
-    pConstId = PConstList.get(0).get_tm_counter();
+    pConstId = PConstElList.get(0).get_tm_counter();
   }
 
   public boolean equals(PConstraint other) {
@@ -36,12 +36,11 @@ class PConstraint {
 
   public String toString() {
     String ret = "PConstID<" + pConstId + "> ";
-    for (PConstElement pConst: PConstList) {
+    for (PConstElement pConst: PConstElList) {
       ret += pConst;
     }
     return ret;
   }
-
 }
 
 class PConstElement {
@@ -72,13 +71,14 @@ class PConstElement {
       (brchoice == other.brchoice);
   }
 
-  //to have some determinism with PConstList
+  //to have some determinism with PConstElList
   public int compare(PConstElement other) {
     return tm_counter - other.tm_counter;
   }
 
   public String toString() {
-    String ret = tm_counter + " :: " + clazz + " :: (" + tid +") :: " +"\n";
+    String ret = tm_counter + " :: " + clazz + "@" + offset + 
+      " :: (" + tid +") :: " + brchoice + "\n";
     return ret;
   }
 }

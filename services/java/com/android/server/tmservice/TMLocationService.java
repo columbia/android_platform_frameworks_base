@@ -13,10 +13,9 @@ import android.os.IBinder;
 import android.content.Context;
 import android.util.Slog;
 
-import com.android.tm.service.ITMLocationService;
+import com.android.tm.service.*;
+import com.android.server.tmservice.*;
 import dalvik.system.Taint;
-
-//import com.android.server.tmservice.MRunnerClient;
 
 public class TMLocationService extends ITMLocationService.Stub {
   private static final String TAG = "TaintService";
@@ -93,6 +92,7 @@ public class TMLocationService extends ITMLocationService.Stub {
     super();
 
     mContext = context;
+    tmLogcat = new TMLogcat();
     mListener = new Thread(new TMListenerThread(Taint.tmport));
     mListener.start();
 
