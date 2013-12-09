@@ -26,6 +26,8 @@ class PConstraint {
         return a.compare(b);
       }
     });
+
+    pConstId = PConstList.get(0).get_tm_counter();
   }
 
   public boolean equals(PConstraint other) {
@@ -33,7 +35,7 @@ class PConstraint {
   }
 
   public String toString() {
-    String ret = "";
+    String ret = "PConstID<" + pConstId + "> ";
     for (PConstElement pConst: PConstList) {
       ret += pConst;
     }
@@ -59,6 +61,10 @@ class PConstElement {
     offset = offset_;
     instr = instr_;
     brchoice = brchoice_;
+  }
+
+  public int get_tm_counter() {
+    return tm_counter;
   }
 
   public boolean equals(PConstElement other) {

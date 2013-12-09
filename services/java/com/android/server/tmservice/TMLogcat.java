@@ -9,13 +9,18 @@ import java.util.*;
 
 class TMLogcat {
   private Process logcat = null;
-  private String command = "/system/bin/logcat -s dalvikvmtm";
+  private String command = null;
   private BufferedReader input = null;
   private PConstraint pConst = null;
+
+  public TMLogcat() {
+    this("/system/bin/logcat -s dalvikvmtm");
+  }
  
   //singleton?
-  public TMLogcat() {
+  public TMLogcat(String cmd) {
     try {
+      command = cmd;
       logcat = new ProcessBuilder(command.split(" ")).redirectErrorStream(true).start();
 
       try { logcat.getOutputStream().close(); } catch (IOException e) {}
@@ -28,13 +33,14 @@ class TMLogcat {
   }
 
   public List<String> getLineList() {
+    //FIXME: threshold -- make it right
+    long end=System.currentTimeMillis()+60*10;
     List<String> ret = new ArrayList<String>();
-    for (int i = 0; ; i++) {
+
+    while (System.currentTimeMillis() < end) {
       try {
-        String  line = input.readLine().trim();
-        if (line == null) {
-          break;
-        } else {
+        if (input.ready()) {
+          String  line = input.readLine().trim();
           ret.add(line);
         }
       } catch(IOException e) {

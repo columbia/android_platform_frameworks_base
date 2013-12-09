@@ -15,6 +15,7 @@ class TMLogcatTester {
       System.err.println("Invalid usage");
       System.exit(0);
     }
+
     try {
       FileInputStream fis = new FileInputStream(fname);
       BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -37,6 +38,14 @@ class TMLogcatTester {
       }
     } catch (IOException e) {
       e.printStackTrace();
+    }
+
+
+    TMLogcat tmLogcat = new TMLogcat("adb logcat -s dalvikvmtm");
+    List<String> lineList = tmLogcat.getLineList();
+ 
+    for(String line: lineList) {
+      System.out.println("DBG:" + line);
     }
   }
 }
