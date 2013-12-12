@@ -1078,34 +1078,41 @@ public class GpsLocationProvider implements LocationProviderInterface {
         return ((mEngineCapabilities & capability) != 0);
     }
 
-  /**
-   *
-   */
-  public void reportLocationP(int flags, double latitude, double longitude, double altitude,
-                              float speed, float bearing, float accuracy, long timestamp) {
-    reportLocation(flags, latitude, longitude, altitude, speed, bearing,accuracy, timestamp);
-  }
+    public void tmReportGpsLocation(double latitude, double longitude, double altitude,
+                                    int tag) {
 
-    /**
-     * called from native code to update our position.
-     */
-    private void reportLocation(int flags, double latitude, double longitude, double altitude,
+      long timestamp = (new Date()).getTime();
+      reportLocationImpl(1, latitude, longitude, altitude, (float) 1.0,
+                      (float) 1.0, (float) 1.0, timestamp, tag);
+    }
+  
+
+  private void reportLocation(int flags, double latitude, double longitude, double altitude,
             float speed, float bearing, float accuracy, long timestamp) {
-      //if (VERBOSE) Log.v(TAG, "reportLocation lat: " + latitude + " long: " + longitude +
-      // Taint.TMLog("reportLocation: " + " flags:" + flags + " lat: " + latitude + " long: " + longitude +
-      //          " alt: " + altitude + "speed: " + speed + "bearing: " + bearing + "accuracy: " + accuracy + "  timestamp: " + timestamp);
+         int tag = Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
+         reportLocationImpl(flags, latitude, longitude, altitude, speed, bearing,  accuracy, timestamp, tag);
+  }
+  
+  private void reportLocationImpl (int flags, double latitude, double longitude, double altitude,
+                              float speed, float bearing, float accuracy, long timestamp, int tag) {
+        if (VERBOSE) Log.v(TAG, "reportLocation lat: " + latitude + " long: " + longitude +
+                           " timestamp: " + timestamp);
 
+        Log.v(TAG, "reportLocation_ called - latitude: " + latitude + " longitude: " + longitude);
+        
         synchronized (mLocation) {
             mLocationFlags = flags;
 // begin WITH_TAINT_TRACKING
-            int tag = Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
+   
             if ((flags & LOCATION_HAS_LAT_LONG) == LOCATION_HAS_LAT_LONG) {
                 mLocation.setLatitude(Taint.addTaintDouble(latitude, tag));
                 mLocation.setLongitude(Taint.addTaintDouble(longitude, tag));
 
             /* TMcomment: input instrumentation point for GPS locations */
             /* TODO: set up control channel for these values */
-            Taint.TMLog("GpsLocationProvider.reportLocation: Latitude: " + latitude + " Longitude:" + longitude + " Taint: " + tag);
+            Taint.TMLog("GpsLocationProvider.reportLocation: Latitude: " + 
+                        latitude + " Longitude:" + longitude + " Taint: " + 
+                        tag);
         
             mLocation.setTime(timestamp);
             }

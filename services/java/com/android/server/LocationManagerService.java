@@ -1938,6 +1938,7 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
             try {
                 if (msg.what == MESSAGE_LOCATION_CHANGED) {
                     // log("LocationWorkerHandler: MESSAGE_LOCATION_CHANGED!");
+                  Log.v(TAG, "LocationWorkerHandler.handleMessage called:");
 
                     synchronized (mLock) {
                         Location location = (Location) msg.obj;

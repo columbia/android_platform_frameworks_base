@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.io.DataOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 
 import android.app.Service;
 import android.content.Intent;
@@ -20,8 +21,8 @@ import android.content.Context;
 import android.util.Slog;
 import android.util.Log;
 
-import com.android.tm.service.*;
-import com.android.server.tmservice.*;
+import com.android.tmservice.*;
+import com.android.server.tmservice.TMLogcat;
 import dalvik.system.Taint;
 
 import com.android.server.LocationManagerService;
@@ -54,7 +55,8 @@ public class TMLocationService extends ITMLocationService.Stub {
   private final Context mContext;
   private final Thread mListener;
 
-  private List<Pair<Double, Double>> coordList;
+  private List<Pair<Double, Double>> coordList =
+    new ArrayList<Pair<Double, Double>>();
   private int coordPtr = 0;
 
   private TMLogcat tmLogcat;
@@ -69,12 +71,30 @@ public class TMLocationService extends ITMLocationService.Stub {
     return 2.0;
   }
 
+  private boolean IsGpsProviderAvailable() {
+    if (gpsProvider != null ||
+        (gpsProvider != locationManager.getGpsProvider())) {
+      gpsProvider = locationManager.getGpsProvider();
+
+    }
+    return  gpsProvider != null ? true : false;
+  }
+
+  private void invokeReportGpsLocation(double longitude, double latitude, int tag) {
+    if (IsGpsProviderAvailable()) {
+      gpsProvider.tmReportGpsLocation(longitude, latitude, (double) 1.0, tag);
+    } else {
+      Log.v(TAG, "GpsProvider not available yet");
+    }
+  }
+
+
   /**
    *
    */
-  private void sockClient(int port, String[] msgs) throws IOException{
+  private void sockClient(String addr, int port, String[] msgs) throws IOException{
     try {
-      Socket client = new Socket(InetAddress.getLoopbackAddress(), port);
+      Socket client = new Socket(addr, port);
       DataOutputStream outToTMSvc = new DataOutputStream(client.getOutputStream());
       for (String msg : msgs) {
         outToTMSvc.writeUTF(msg);
@@ -96,75 +116,46 @@ public class TMLocationService extends ITMLocationService.Stub {
     //iterate over prepared <lati, long> pairs
     coordPtr = (coordPtr + 1) % ENTRY_MAX;
 
-    Taint.TMLog("location:" + latitude + " :" + longitude);
+    Log.v(TAG, "run_over - location:" + latitude + " :" + 
+                longitude + "::" + locationManager.getGpsProvider());
 
-    //emulating native device
-    gpsProvider.reportLocationP(1, 
-                                latitude.doubleValue(), 
-                                longitude.doubleValue(), 
-                                (double) 0.0, 
-                                (float) 0.0, (float) 0.0, (float) 0.0, 
-                                new Date().getTime());
+    int tag = Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
+    invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
 
-    //initiating run_over
-    String[] msgs = {"run_over"};
-    try {
-      sockClient(10000, msgs);
-    } catch (IOException e) {
-      Log.e(TAG, "run_over: failed with socket connection error " + e.toString());
-      return;
-    }
+
+    // //initiating run_over
+    // String[] msgs = {"run_over"};
+    // try {
+    //   sockClient("sos15.cs.columbia.edu", 10000, msgs);
+    // } catch (IOException e) {
+    //   Log.e(TAG, "run_over: failed with socket connection error " + e.toString());
+    //   return;
+    // }
     
-    List<String> lines = tmLogcat.getLineList();
-    for (String line: lines) {
-      Log.v(TAG, "DBG: " + line);
+
+    Log.v(TAG, "tmLogcat: " + tmLogcat);
+    
+    try {
+      List<String> lines = tmLogcat.getLineList();
+      for (String line: lines) {
+        Log.v(TAG, "DBG: " + line);
+      }
+    } catch (NullPointerException ne) {
+      Log.v(TAG, "nullPointerExeption raised:");
+      ne.printStackTrace();
     }
   }
 
+  public static int randInt(int min, int max) {
 
-  private class TMListenerThread implements Runnable {
-    private int tmport = 0;
-    private ServerSocket serverSocket = null;
-    private Socket incoming = null;
+    // Usually this can be a field rather than a method variable
+    Random rand = new Random();
 
-    public void run() {
-      try {
-        serverSocket = new ServerSocket(tmport);
-        while (true) {
+    // nextInt is normally exclusive of the top value,
+    // so add 1 to make it inclusive
+    int randomNum = rand.nextInt((max - min) + 1) + min;
 
-          //FIXME: this part shouldn't block the original operations.
-          //try to re-implement this later using some non-block 
-          //primitives such as AsyncTask. 
-
-          incoming = serverSocket.accept();
-          while (true) {
-            BufferedReader reader = new BufferedReader(
-              new InputStreamReader(incoming.getInputStream()));
-            String line = reader.readLine().trim();
-
-            if (line.startsWith("exit")) {
-              break;
-            } else if(line.trim().equals("run_over")) {
-              run_over();
-            } else {
-              //not expecting to reach this point
-              //assert false;
-              Taint.TMLog("unexpected input: " + line);
-            }
-          }
-        }
-      }  catch (IOException e) {
-        //FIXME: need proper error handling
-        System.err.println(e);
-      }
-      //
-      //TODO: implement thread join event here
-      //
-    }
-
-    TMListenerThread(int port) {
-      tmport = port;
-    }
+    return randomNum;
   }
 
   public TMLocationService(Context context) {
@@ -176,20 +167,75 @@ public class TMLocationService extends ITMLocationService.Stub {
       ServiceManager.getService(Context.LOCATION_SERVICE);
 
     GpsLocationProvider gpsProvider = locationManager.getGpsProvider();
+    Log.v(TAG, "LocationManager:" + locationManager +  " gpsProvider:" + gpsProvider);
 
     //init random coordinates
     for (int i = 0 ; i < ENTRY_MAX; i++) {
-      coordList.add(new Pair<Double, Double>(Math.random() * 36000 - 18000, 
-                                             Math.random() * 36000 - 18000));
+      coordList.add(new Pair<Double, Double>(new Double(randInt(0, 20)) , 
+                                             new Double(randInt(0, 20)) ));
     }
 
     tmLogcat = new TMLogcat();
     mListener = new Thread(new TMListenerThread(Taint.tmport));
     mListener.start();
+    
+    Log.v(TAG, "mListener started: " + Taint.tmport + ":" + mListener);
 
     if (LOCAL_LOGV) {
       Slog.v(TAG, "Constructed LocationManager Service");
     }
   }
+
+  private class TMListenerThread implements Runnable {
+    private int tmport = 0;
+    private ServerSocket serverSocket = null;
+    private Socket incoming = null;
+
+    public void run() {
+      try {
+        serverSocket = new ServerSocket(tmport);
+        while (true) {
+          // FIXME: And now it only supports a single connection at a time.
+
+          incoming = serverSocket.accept();
+          Log.v(TAG, "inside listener thread -- it's running");
+          BufferedReader reader = new BufferedReader(
+            new InputStreamReader(incoming.getInputStream()));
+
+          PrintWriter writer = new PrintWriter(
+            incoming.getOutputStream(), true);
+
+          while (true) {
+            String line = reader.readLine().trim();
+
+            if (line.startsWith("disc")) {
+              reader.close();
+              writer.close();
+              incoming.close();
+              
+              break;
+            } else if(line.equals("run_over")) {
+              run_over();
+
+            } else {
+              Taint.TMLog("unexpected input: " + line);
+            }
+            writer.println("RECV: " + line.trim());
+          }
+        }
+      }  catch (IOException e) {
+        //FIXME: need proper error handling
+        Log.v(TAG, "socket error: " + e.toString());
+      }
+      //
+      //TODO: implement thread join event here
+      //
+    }
+
+    TMListenerThread(int port) {
+      tmport = port;
+    }
+  }
 }
+
 
