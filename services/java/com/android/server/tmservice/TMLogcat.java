@@ -33,15 +33,15 @@ public class TMLogcat {
   }
 
   public List<String> getLineList() {
-    //FIXME: making it somewhat non-blocking
-    //need some improvements.
-    long end=System.currentTimeMillis() + 60*10;
+    //FIXME: emulating non-blocking return of the call.
+    //Need some improvements.
+    long end=System.currentTimeMillis() + 60 * 10;
     List<String> ret = new ArrayList<String>();
 
     while (System.currentTimeMillis() < end) {
       try {
         if (input.ready()) {
-          end=System.currentTimeMillis() + 60*10;
+          end=System.currentTimeMillis() + 60 * 10;
           String  line = input.readLine().trim();
           ret.add(line);
         }

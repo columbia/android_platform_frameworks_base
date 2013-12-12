@@ -93,12 +93,21 @@ public class TMLocationService extends ITMLocationService.Stub {
    *
    */
   private void sockClient(String addr, int port, String[] msgs) throws IOException{
+    Log.v(TAG, "sockClient is called with " + addr + " and " + port);
     try {
       Socket client = new Socket(addr, port);
-      DataOutputStream outToTMSvc = new DataOutputStream(client.getOutputStream());
+      DataOutputStream writer = new DataOutputStream(client.getOutputStream());
+      BufferedReader reader = new BufferedReader(
+        new InputStreamReader(client.getInputStream()));
+
       for (String msg : msgs) {
-        outToTMSvc.writeUTF(msg);
+        writer.writeBytes(msg);
       }
+
+      //blocking for response
+      String response = reader.readLine();
+      Log.v(TAG, "recv'd response : " + response);
+      
     } catch(IOException e) {
       Log.e(TAG, "sockClient:IOException:" + e.toString());
       throw e;
@@ -108,10 +117,18 @@ public class TMLocationService extends ITMLocationService.Stub {
   /**
    *
    */
-  private void run_over() {
+  private void run_over(int port_) {
+    Log.v(TAG, "run_over invoked with " + port_);
+
     //fake value pair for GPS location
     Double latitude = coordList.get(coordPtr).x;
     Double longitude = coordList.get(coordPtr).y;;
+
+    //Default port to connect for monkey control
+    int port = 10000;
+    if (port_ != 0) {
+      port = port_;
+    }
 
     //iterate over prepared <lati, long> pairs
     coordPtr = (coordPtr + 1) % ENTRY_MAX;
@@ -123,16 +140,15 @@ public class TMLocationService extends ITMLocationService.Stub {
     invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
 
 
-    // //initiating run_over
-    // String[] msgs = {"run_over"};
-    // try {
-    //   sockClient("sos15.cs.columbia.edu", 10000, msgs);
-    // } catch (IOException e) {
-    //   Log.e(TAG, "run_over: failed with socket connection error " + e.toString());
-    //   return;
-    // }
+    //initiating run_over
+    String[] msgs = {"run_over"};
+    try {
+      sockClient("10.0.2.2", port, msgs);
+    } catch (IOException e) {
+      Log.e(TAG, "run_over: failed with socket connection error: " + e.toString());
+      return;
+    }
     
-
     Log.v(TAG, "tmLogcat: " + tmLogcat);
     
     try {
@@ -214,11 +230,22 @@ public class TMLocationService extends ITMLocationService.Stub {
               incoming.close();
               
               break;
-            } else if(line.equals("run_over")) {
-              run_over();
-
+            } else if(line.startsWith("run_over")) {
+              String[] tokens = line.split(" ");
+              int port = 0;
+              if (tokens.length == 1) {
+                run_over(port);
+              } else if (tokens.length == 2) {
+                try {
+                  port = Integer.parseInt(tokens[1]);
+                  run_over(port);
+                } catch(NumberFormatException e) {
+                  Log.v(TAG, "run_over: NumberFormatException raised with " 
+                        + tokens[1]);
+                }
+              }
             } else {
-              Taint.TMLog("unexpected input: " + line);
+              Log.v(TAG, "unexpected input: " + line);
             }
             writer.println("RECV: " + line.trim());
           }
@@ -237,5 +264,3 @@ public class TMLocationService extends ITMLocationService.Stub {
     }
   }
 }
-
-
