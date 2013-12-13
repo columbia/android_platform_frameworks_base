@@ -14,7 +14,7 @@ public class TMLogcat {
   private PConstraint pConst = null;
 
   TMLogcat() {
-    this("/system/bin/logcat -s dalvikvmtm");
+    this("/system/bin/logcat -s dalvikvmtm -s TMLog");
   }
  
   TMLogcat(String cmd) {
@@ -59,4 +59,3 @@ public class TMLogcat {
     return pConst;
   }
 }
-

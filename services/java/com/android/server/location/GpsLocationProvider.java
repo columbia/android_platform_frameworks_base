@@ -1098,7 +1098,7 @@ public class GpsLocationProvider implements LocationProviderInterface {
         if (VERBOSE) Log.v(TAG, "reportLocation lat: " + latitude + " long: " + longitude +
                            " timestamp: " + timestamp);
 
-        Log.v(TAG, "reportLocation_ called - latitude: " + latitude + " longitude: " + longitude);
+        Log.v(TAG, "reportLocationImpl called - latitude: " + latitude + " longitude: " + longitude);
         
         synchronized (mLocation) {
             mLocationFlags = flags;
@@ -1110,9 +1110,9 @@ public class GpsLocationProvider implements LocationProviderInterface {
 
             /* TMcomment: input instrumentation point for GPS locations */
             /* TODO: set up control channel for these values */
-            Taint.TMLog("GpsLocationProvider.reportLocation: Latitude: " + 
-                        latitude + " Longitude:" + longitude + " Taint: " + 
-                        tag);
+            Log.v(TAG, "GpsLocationProvider.reportLocationImpl: Latitude: " + 
+                  latitude + " Longitude:" + longitude + " Taint: " + 
+                  tag);
         
             mLocation.setTime(timestamp);
             }
@@ -1210,7 +1210,7 @@ public class GpsLocationProvider implements LocationProviderInterface {
             Intent intent = new Intent(LocationManager.GPS_FIX_CHANGE_ACTION);
             intent.putExtra(LocationManager.EXTRA_GPS_ENABLED, true);
             //jikk: geo fix command received
-            Taint.TMLog("GpsLocationProvider.reportLocation:broadcast message");
+            Log.v(TAG, "GpsLocationProvider.reportLocation:broadcast message");
             mContext.sendBroadcast(intent);
             updateStatus(LocationProvider.AVAILABLE, mSvCount);
         }

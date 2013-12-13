@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.lang.Thread;
 import java.util.*;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.io.DataOutputStream;
 import java.io.OutputStream;
@@ -94,8 +94,11 @@ public class TMLocationService extends ITMLocationService.Stub {
    */
   private void sockClient(String addr, int port, String[] msgs) throws IOException{
     Log.v(TAG, "sockClient is called with " + addr + " and " + port);
+    int timeout = 30;
+
     try {
-      Socket client = new Socket(addr, port);
+      Socket client = new Socket();
+      client.connect(new InetSocketAddress(addr, port), 30);
       DataOutputStream writer = new DataOutputStream(client.getOutputStream());
       BufferedReader reader = new BufferedReader(
         new InputStreamReader(client.getInputStream()));
@@ -124,21 +127,25 @@ public class TMLocationService extends ITMLocationService.Stub {
     Double latitude = coordList.get(coordPtr).x;
     Double longitude = coordList.get(coordPtr).y;;
 
+    //iterate over prepared <lati, long> pairs
+    coordPtr = (coordPtr + 1) % ENTRY_MAX;
+
+    int tag = Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
+
     //Default port to connect for monkey control
     int port = 10000;
     if (port_ != 0) {
       port = port_;
     }
 
-    //iterate over prepared <lati, long> pairs
-    coordPtr = (coordPtr + 1) % ENTRY_MAX;
-
     Log.v(TAG, "run_over - location:" + latitude + " :" + 
                 longitude + "::" + locationManager.getGpsProvider());
 
-    int tag = Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
-    invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
+    //signals that we begin another iteration
+    Taint.TMLog("runover |" + Taint.incTmCounter() + "|" + latitude + "| " + longitude + "| " + Integer.toHexString(tag));
 
+    //update maded to GpsLocation service
+    invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
 
     //initiating run_over
     String[] msgs = {"run_over"};
@@ -163,7 +170,6 @@ public class TMLocationService extends ITMLocationService.Stub {
   }
 
   public static int randInt(int min, int max) {
-
     // Usually this can be a field rather than a method variable
     Random rand = new Random();
 
