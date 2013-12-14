@@ -31,17 +31,19 @@ import com.android.server.location.GpsLocationProvider;
 import android.os.ServiceManager;
 
 
-/**
- * Custom tuple definition
- */
-class Pair<X, Y> { 
-  public final X x; 
-  public final Y y; 
-  public Pair(X x, Y y) { 
-    this.x = x; 
-    this.y = y; 
-  } 
-} 
+// /**
+//  * Custom tuple definition
+//  */
+// class Tuple<X, Y, Z> { 
+//   public final X x; 
+//   public final Y y; 
+//   public final Z z; 
+//   public Tuple(X x, Y y, Z z) { 
+//     this.x = x; 
+//     this.y = y; 
+//     this.z = z; 
+//   } 
+// } 
 
 public class TMLocationService extends ITMLocationService.Stub {
 
@@ -55,8 +57,8 @@ public class TMLocationService extends ITMLocationService.Stub {
   private final Context mContext;
   private final Thread mListener;
 
-  private List<Pair<Double, Double>> coordList =
-    new ArrayList<Pair<Double, Double>>();
+  private List<Tuple<Double, Double, Integer>> coordList =
+    new ArrayList<Tuple<Double, Double, Integer>>();
   private int coordPtr = 0;
 
   private TMLogcat tmLogcat;
@@ -142,7 +144,8 @@ public class TMLocationService extends ITMLocationService.Stub {
                 longitude + "::" + locationManager.getGpsProvider());
 
     //signals that we begin another iteration
-    Taint.TMLog("runover |" + Taint.incTmCounter() + "|" + latitude + "| " + longitude + "| " + Integer.toHexString(tag));
+    Taint.TMLog("runover |" + Taint.incTmCounter() + "|" + latitude + "| " 
+                + longitude + "| " + Integer.toHexString(tag));
 
     //update maded to GpsLocation service
     invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
@@ -193,8 +196,10 @@ public class TMLocationService extends ITMLocationService.Stub {
 
     //init random coordinates
     for (int i = 0 ; i < ENTRY_MAX; i++) {
-      coordList.add(new Pair<Double, Double>(new Double(randInt(0, 20)) , 
-                                             new Double(randInt(0, 20)) ));
+      coordList.add(new Tuple<Double, Double, Integer>(
+                      new Double(randInt(0, 20)), 
+                      new Double(randInt(0, 20)), 
+                      new Integer(randInt(0, 32))));
     }
 
     tmLogcat = new TMLogcat();

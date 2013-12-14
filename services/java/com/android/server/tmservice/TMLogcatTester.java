@@ -1,13 +1,12 @@
 package com.android.server.tmservice;
 import java.io.*;
 import java.util.*;
-//import com.android.server.tmservice.PConstraint;
+import com.android.server.tmservice.PConstraint;
 
 class TMLogcatTester {
   public static void main(String[] args) {
     String fname  = null;
     List<PConstraint> pConstList = new ArrayList<PConstraint>();
-
 
     if (args.length == 1) {
       fname = args[0];
@@ -19,22 +18,26 @@ class TMLogcatTester {
     try {
       FileInputStream fis = new FileInputStream(fname);
       BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-      String line = br.readLine();
       ArrayList<String> lineList = new ArrayList<String>();
+      String line = br.readLine();
+
+      //eat up lines until we meet the first header line 
+      while(!PConstraint.isHeaderLine(line))  
+        line = br.readLine();
 
       while(line != null) {
-        if (line.startsWith("V/")) {
+        if (PConstraint.isHeaderLine(line)) {
           if (lineList.size() != 0) {
             PConstraint pConst = new PConstraint(lineList);
-            System.out.println("<DBG:PConst>\n" +  pConst);
             pConstList.add(pConst);
           }
           lineList = new ArrayList<String>();
-        } else if (line.startsWith("E/")) {
+          lineList.add(line);
+        } else if (PConstraint.isBrLine(line) || 
+                   PConstraint.isOutputLine(line)) {
           lineList.add(line);
         }
         line = br.readLine();
-
       }
     } catch (IOException e) {
       e.printStackTrace();

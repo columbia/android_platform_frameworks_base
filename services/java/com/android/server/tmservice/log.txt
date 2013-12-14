@@ -1,38 +1,6 @@
-V/dalvikvmtm(  628): 84|1 |0000|Ledu/columbia/gpsapp/MainActivity;.sendMessage:APP_NAME:edu.columbia.gpsapp  Ledu/columbia/gpsapp
-E/dalvikvmtm(  628): 85|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLatitude|| if-eqz| >
-E/dalvikvmtm(  628): 86|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLongitude|| if-eqz| >
-E/dalvikvmtm(  628): 87|13|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
-E/dalvikvmtm(  628): 88|13|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
-E/dalvikvmtm(  628): 89|13|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
-E/dalvikvmtm(  628): 90|13|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| >
-V/dalvikvmtm(  628): 91|1 |0000|Ledu/columbia/gpsapp/MainActivity;.<init>:APP_NAME:edu.columbia.gpsapp  Ledu/columbia/gpsapp
-E/dalvikvmtm(  628): 92|1 |0022|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
-E/dalvikvmtm(  628): 93|1 |0030|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
-E/dalvikvmtm(  628): 94|1 |0063|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
-E/dalvikvmtm(  628): 95|1 |0067|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| <
-E/dalvikvmtm(  628): 96|1 |007f|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
-E/dalvikvmtm(  628): 97|1 |0094|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
-V/dalvikvmtm(  628): 98|1 |0000|Ledu/columbia/gpsapp/MainActivity;.sendMessage:APP_NAME:edu.columbia.gpsapp  Ledu/columbia/gpsapp
-E/dalvikvmtm(  628): 99|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLatitude|| if-eqz| >
-E/dalvikvmtm(  628): 100|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLongitude|| if-eqz| >
-E/dalvikvmtm(  628): 101|14|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
-E/dalvikvmtm(  628): 102|14|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
-E/dalvikvmtm(  628): 103|14|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
-E/dalvikvmtm(  628): 104|14|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| >
-V/dalvikvmtm(  628): 105|1 |0000|Ledu/columbia/gpsapp/MainActivity;.<init>:APP_NAME:edu.columbia.gpsapp  Ledu/columbia/gpsapp
-E/dalvikvmtm(  628): 106|1 |0022|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
-E/dalvikvmtm(  628): 107|1 |0030|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
-E/dalvikvmtm(  628): 108|1 |0063|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
-E/dalvikvmtm(  628): 109|1 |0067|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| <
-E/dalvikvmtm(  628): 110|1 |007f|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
-E/dalvikvmtm(  628): 111|1 |0094|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
-V/dalvikvmtm(  628): 112|1 |0000|Ledu/columbia/gpsapp/MainActivity;.sendMessage:APP_NAME:edu.columbia.gpsapp  Ledu/columbia/gpsapp
-E/dalvikvmtm(  628): 113|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLatitude|| if-eqz| >
-E/dalvikvmtm(  628): 114|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLongitude|| if-eqz| >
-E/dalvikvmtm(  628): 115|15|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
-E/dalvikvmtm(  628): 116|15|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
-E/dalvikvmtm(  628): 117|15|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
-E/dalvikvmtm(  628): 118|15|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| >
+E/dalvikvmtm(  616): 20|13|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
+E/dalvikvmtm(  616): 21|13|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
+E/dalvikvmtm(  616): 22|13|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| >
 W/TMLog   (  156): runover |2|14.0| 13.0| 17
 E/dalvikvmtm(  616): 23|1 |0029|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
 E/dalvikvmtm(  616): 24|1 |0037|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
