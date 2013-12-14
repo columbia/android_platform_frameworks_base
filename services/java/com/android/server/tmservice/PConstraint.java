@@ -22,21 +22,14 @@ class PConstraint {
 
     String[] tmp = line.split("[|:]");
     String pat = "W/TMLog\\s*\\(\\s*(.+)\\)";
-    Pattern r = Pattern.compile(pat);
-    Matcher m = r.matcher(tmp[0]);
-    
-    if (!m.find()) {return false;};
-
-    try {
-      int pid = Integer.parseInt(m.group(1));
-    } catch (NumberFormatException ne) {
+    int pId = getPIdFromLine(tmp[0], pat);
+    if (pId < 0) {
       return false;
     }
 
     if (tmp[1].trim().equals("runover")) {
       return true;
     }
-
     return false;
   }
 
@@ -50,18 +43,11 @@ class PConstraint {
 
     String[] tmp = line.split("[|:]");
     String pat = "W/TMLog\\s*\\(\\s*(.+)\\)";
-
-    Pattern r = Pattern.compile(pat);
-    Matcher m = r.matcher(tmp[0]);
-    
-    if (!m.find()) {return false;};
-
-    try {
-      int pid = Integer.parseInt(m.group(1));
-    } catch (NumberFormatException ne) {
+    int pId = getPIdFromLine(tmp[0], pat);
+    if (pId < 0) {
       return false;
     }
-
+    
     if (Arrays.asList(outputList).contains(tmp[1].trim())) {
       return true;
     }
@@ -71,26 +57,22 @@ class PConstraint {
   static public boolean isBrLine(String line) {
     if (line == null) return false;
 
-    String[] tmp0  = line.split("[:|\\|]");
+    String[] tmp  = line.split("[:|\\|]");
 
-    //extracting pid
-    String pat = "E/dalvikvmtm\\s*\\( (.+)\\)";
-    Pattern r = Pattern.compile(pat);
-    Matcher m = r.matcher(tmp0[0]);
-    int pid = 0;
-
-    if (!m.find()) {return false;};
-
-    try {
-      pid = Integer.parseInt(m.group(1).trim());
-    } catch (NumberFormatException ne) {
-      //TODO: have proper error handling here.
+    String pat = "E/dalvikvmtm\\s*\\(\\s*(.+)\\)";
+    int pId = getPIdFromLine(tmp[0], pat);
+    if (pId < 0) {
       return false;
     }
     return true;
   }
 
-  private int getPid(String line) {
+  static private int getPIdFromLine(String line) {
+    String pat = "./.+\\s*\\(\\s*(.+)\\)";
+    return getPIdFromLine(line, pat);
+  }
+
+  static private int getPIdFromLine(String line, String pat) {
     String tok = null;
     int pid = -1;
     if (Arrays.asList(line).contains(":")) {
@@ -98,10 +80,9 @@ class PConstraint {
     } else {
       tok = line;
     }
-
-    String pat = "./.+\\s*\\(\\s*(.+)\\)";
+    //System.err.println("DBG:" + tok + ":" + pat);
     Pattern r = Pattern.compile(pat);
-    Matcher m = r.matcher(tok);
+    Matcher m = r.matcher(tok.trim());
     
     if (!m.find()) {return pid;};
     try {
@@ -122,7 +103,7 @@ class PConstraint {
     //Parse header line.
     String hline = lineList_.get(0);
     assert(isHeaderLine(hline));
-    tmSvcProcId = getPid(hline);
+    tmSvcProcId = getPIdFromLine(hline);
 
     String[] tmp = hline.split("[\\|]");
 
@@ -137,7 +118,7 @@ class PConstraint {
 
     for (int i = 1;  i < lineList_.size(); i++) {
       String line = lineList_.get(i);
-      int pId = getPid(line);
+      int pId = getPIdFromLine(line);
       
       if (appProcId == 0) {
         appProcId = pId;
