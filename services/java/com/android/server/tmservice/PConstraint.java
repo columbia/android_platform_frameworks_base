@@ -1,5 +1,6 @@
 package com.android.server.tmservice;
 
+import com.android.server.tmservice.Tuple;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -16,6 +17,9 @@ class PConstraint {
   private int appProcId = 0;
 
   static public boolean isHeaderLine(String line) {
+
+    if (line == null) return false;
+
     String[] tmp = line.split("[|:]");
     String pat = "W/TMLog\\s*\\(\\s*(.+)\\)";
     Pattern r = Pattern.compile(pat);
@@ -29,13 +33,16 @@ class PConstraint {
       return false;
     }
 
-    if (tmp[1].trim().equals("run_over")) {
+    if (tmp[1].trim().equals("runover")) {
       return true;
     }
+
     return false;
   }
 
   static public boolean isOutputLine(String line) {
+    if (line == null) return false;
+
     String[] outputList = new String[] {"sendtoBytes" 
                                       /* other output locations will follow
                                        * here */
@@ -62,11 +69,12 @@ class PConstraint {
   }
 
   static public boolean isBrLine(String line) {
+    if (line == null) return false;
 
     String[] tmp0  = line.split("[:|\\|]");
 
     //extracting pid
-    String pat = "./.+\\( (.+)\\)";
+    String pat = "E/dalvikvmtm\\s*\\( (.+)\\)";
     Pattern r = Pattern.compile(pat);
     Matcher m = r.matcher(tmp0[0]);
     int pid = 0;
@@ -74,12 +82,11 @@ class PConstraint {
     if (!m.find()) {return false;};
 
     try {
-      pid = Integer.parseInt(m.group(1));
+      pid = Integer.parseInt(m.group(1).trim());
     } catch (NumberFormatException ne) {
       //TODO: have proper error handling here.
       return false;
     }
-
     return true;
   }
 
@@ -117,17 +124,17 @@ class PConstraint {
     assert(isHeaderLine(hline));
     tmSvcProcId = getPid(hline);
 
-    String[] tmp = hline.split("|");
-    tmSvcTmId = Integer.parseInt(tmp[1]);
-    double latitude = Integer.parseInt(tmp[2]);
-    double longitude = Integer.parseInt(tmp[3]);
-    int tag = Integer.parseInt(tmp[4]);
+    String[] tmp = hline.split("[\\|]");
 
-    inputVal = new Tuple(new Double(latitude),
-                         new Double(longitude),
-                         new Integer(tag));
+    tmSvcTmId = Integer.parseInt(tmp[1].trim());
+    double latitude = Double.parseDouble(tmp[2].trim());
+    double longitude = Double.parseDouble(tmp[3].trim());
+    int tag = Integer.parseInt(tmp[4].trim());
 
-    //for (String line : lineList_) {
+    inputVal = new Tuple<Double, Double, Integer>
+      (new Double(latitude), new Double(longitude),
+       new Integer(tag));
+
     for (int i = 1;  i < lineList_.size(); i++) {
       String line = lineList_.get(i);
       int pId = getPid(line);
@@ -138,6 +145,7 @@ class PConstraint {
         assert(pId == appProcId);
       }
       
+      System.out.println("DBG: " + line + ":" + isBrLine(line) + ":" + isOutputLine(line));
       String[] tmp0  = line.split("[:|\\|]");
 
       int tm_id = Integer.parseInt(tmp0[1].trim());

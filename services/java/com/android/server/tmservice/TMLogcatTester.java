@@ -22,8 +22,9 @@ class TMLogcatTester {
       String line = br.readLine();
 
       //eat up lines until we meet the first header line 
-      while(!PConstraint.isHeaderLine(line))  
+      while(line !=null && !PConstraint.isHeaderLine(line)) {
         line = br.readLine();
+      }
 
       while(line != null) {
         if (PConstraint.isHeaderLine(line)) {
@@ -35,6 +36,7 @@ class TMLogcatTester {
           lineList.add(line);
         } else if (PConstraint.isBrLine(line) || 
                    PConstraint.isOutputLine(line)) {
+          System.out.println("DBG0: " + line);
           lineList.add(line);
         }
         line = br.readLine();
@@ -43,6 +45,7 @@ class TMLogcatTester {
       e.printStackTrace();
     }
 
+    System.err.println("DBG3");
 
     TMLogcat tmLogcat = new TMLogcat("adb logcat -s dalvikvmtm");
     List<String> lineList = tmLogcat.getLineList();
