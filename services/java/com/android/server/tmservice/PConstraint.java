@@ -264,27 +264,65 @@ class PConstraint {
     return ret;
   }
 
-  public boolean isFN(PConstraint other) {
-    return true;
-  } 
 
-  public boolean isFP(PConstraint other) {
+  /*
+   *  Return 
+   *  1: FP
+   *  0: Correct
+   * -1: FN
+   */
+  public int  compareTo(PConstraint other) {
     //different path, different inputs -- don't care
     if (!compareBrElement(other) && inputVal != other.inputVal) {
-      return false;
+      return 0;
 
       //same paths, same inputs -- don't care 
     } else if (compareBrElement(other) && inputVal == other.inputVal) {
       //outputs should match -- deterministic execution model.
       assert(compareOutput(other));
-      return false;
+      return 0;
       //same path for different inputs 
-    } else if (compareBrElement(other) && inputVal != other.inputVal) {
+    } else if (compareBrElement(other) && !inputVal.equals(other.inputVal)) {
       //tag value differs
       if (inputVal.z != other.inputVal.z) {
-        //output compare -- todo
+        if (outputElList.size() ==  other.outputElList.size()) {
+          boolean sameOutputLoc = true;
+
+          for (int i = 0 ; i < outputElList.size(); i++) {
+            outLoc0 = outputElList.get(i);
+            outLoc1 = other.outputElList.get(i);
+
+            //check for same output locations
+            if (! outLoc0.getOutputLoc().equals(outLoc1.getOutputLoc())) {
+
+              //TODO: think how to deal with this case.
+              sameOutputLoc = false;
+              break;
+            }
+
+            //change made by input changes
+            if (outLoc0.getData() != outLoc1.getData) {
+              //FP detected
+              if (outLoc0.getTag() != inputVal.z) {
+                return True;
+              }
+            } else {
+              if (outLoc0.getTag() != outLoc1.getTag()) {
+                return True;
+            }
+            
+
+          }
+
+          return false;
+
+        } else {
+          //TODO: think how to deal with this case.
+        }
+        
      
       } else {
+        //tag value should vary.
         return false;
       }
       //different paths for same inputs -- doesn't seem likely
@@ -376,6 +414,10 @@ class OutputElement extends PConstElement {
     }
     return false;
   }
+
+  public String getOutputLoc() {return outputLoc;)
+  public String getData() {return data;)
+  public int getTag() {return tag;)
 
   public String toString() {
     String ret = "OUT::" + pid + " (" + tid + ") :: "  + tm_id + "::" + outputLoc + "::"
