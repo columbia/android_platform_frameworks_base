@@ -31,20 +31,6 @@ import com.android.server.location.GpsLocationProvider;
 import android.os.ServiceManager;
 
 
-// /**
-//  * Custom tuple definition
-//  */
-// class Tuple<X, Y, Z> { 
-//   public final X x; 
-//   public final Y y; 
-//   public final Z z; 
-//   public Tuple(X x, Y y, Z z) { 
-//     this.x = x; 
-//     this.y = y; 
-//     this.z = z; 
-//   } 
-// } 
-
 public class TMLocationService extends ITMLocationService.Stub {
 
   private LocationManagerService locationManager = null;
