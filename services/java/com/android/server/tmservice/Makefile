@@ -8,9 +8,10 @@ all:
 	$(JAVAC) -classpath $(CLASSPATH) TMLocationAnalyzer.java
 	$(JAVAC) -classpath $(CLASSPATH) TMLogcat.java
 
-test: log0.txt log1.txt
+test: log0.txt log1.txt log2.txt all
 	$(JAVA) -classpath $(CLASSPATH) com.android.server.tmservice.TMLocationAnalyzer log0.txt
 	$(JAVA) -classpath $(CLASSPATH) com.android.server.tmservice.TMLocationAnalyzer log1.txt
+	$(JAVA) -classpath $(CLASSPATH) com.android.server.tmservice.TMLocationAnalyzer log2.txt
 
 clean:
 	rm -f *.class

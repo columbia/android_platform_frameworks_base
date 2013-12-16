@@ -5,18 +5,24 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.Process;
 import java.lang.ProcessBuilder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Class bound to logcat channel to read events generated.
+ *
+ * @author Kangkook Jee
+ */
 public class TMLogcat {
   private Process logcat = null;
   private String command = null;
   private BufferedReader input = null;
-  private PConstraint pConst = null;
+
 
   TMLogcat() {
     this("/system/bin/logcat -s dalvikvmtm -s TMLog");
   }
- 
+
   TMLogcat(String cmd) {
     try {
       command = cmd;
@@ -32,9 +38,13 @@ public class TMLogcat {
     }
   }
 
+  /**
+   * Read logcat events non-blocking way.
+   * @return
+   */
   public List<String> getLineList() {
-    //FIXME: emulating non-blocking return of the call.
-    //Need some improvements.
+    //FIXME: The method emulates non-blocking return of the call.
+    //This can be done in better way.
     long end=System.currentTimeMillis() + 60 * 10;
     List<String> ret = new ArrayList<String>();
 
@@ -50,12 +60,5 @@ public class TMLogcat {
       }
     }
     return ret;
-  }
-
-  public PConstraint getPConstList() {
-    if (pConst == null) {
-      pConst = new PConstraint(getLineList());
-    }
-    return pConst;
   }
 }
