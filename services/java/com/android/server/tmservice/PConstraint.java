@@ -7,17 +7,24 @@ import java.util.regex.Matcher;
 
 class PConstraint {
   /* TMeasure service related infos */
-  private int tmSvcTmId = 0;
+  private int tmSvcId = -1;
   private int tmSvcProcId = 0;
   Tuple<Double, Double, Integer> inputVal  = null;
 
   /* APP related infos */
-  private List<PConstElement> PConstElList = null;
-  private int pConstTMId = -1;
+  private List<PConstElement> pConstElList = null;
+  private List<OutputElement> outputElList = null;
+  private Map<Integer, ArrayList<BrElement>> tIdBrElMap = null;
+
+
+  private int pConstId = -1;
   private int appProcId = 0;
 
-  static public boolean isHeaderLine(String line) {
+  public int getTmSvcId() {
+    return tmSvcId;
+  }
 
+  static public boolean isHeaderLine(String line) {
     if (line == null) return false;
 
     String[] tmp = line.split("[|:]");
@@ -80,7 +87,7 @@ class PConstraint {
     } else {
       tok = line;
     }
-    //System.err.println("DBG:" + tok + ":" + pat);
+
     Pattern r = Pattern.compile(pat);
     Matcher m = r.matcher(tok.trim());
     
@@ -95,10 +102,12 @@ class PConstraint {
   }
 
   /**
-   * Constructor method.
+   * Constructor.
    */
   public PConstraint(List<String> lineList_)  {
-    PConstElList = new ArrayList<PConstElement>();
+    pConstElList = new ArrayList<PConstElement>();
+    outputElList = new ArrayList<OutputElement>();
+    tIdBrElMap = new HashMap<Integer, ArrayList<BrElement>>();
 
     //Parse header line.
     String hline = lineList_.get(0);
@@ -107,7 +116,7 @@ class PConstraint {
 
     String[] tmp = hline.split("[\\|]");
 
-    tmSvcTmId = Integer.parseInt(tmp[1].trim());
+    tmSvcId = Integer.parseInt(tmp[1].trim());
     double latitude = Double.parseDouble(tmp[2].trim());
     double longitude = Double.parseDouble(tmp[3].trim());
     int tag = Integer.parseInt(tmp[4].trim());
@@ -126,39 +135,163 @@ class PConstraint {
         assert(pId == appProcId);
       }
       
-      System.out.println("DBG: " + line + ":" + isBrLine(line) + ":" + isOutputLine(line));
-      String[] tmp0  = line.split("[:|\\|]");
+      if (isBrLine(line)) {
+        String[] tmp0  = line.split("[:|\\|]");
 
-      int tm_id = Integer.parseInt(tmp0[1].trim());
-      int tid = Integer.parseInt(tmp0[2].trim());
-      int offset = Integer.parseInt(tmp0[3].trim(), 16);
-      String clazz = tmp0[4];
-      String instr = tmp0[5];
-      int brchoice = tmp0[7].trim().equals(">") ? 1 : 0;
+        int tm_id = Integer.parseInt(tmp0[1].trim());
+        int tid = Integer.parseInt(tmp0[2].trim());
+        int offset = Integer.parseInt(tmp0[3].trim(), 16);
+        String clazz = tmp0[4];
+        String instr = tmp0[5];
+        int brchoice = tmp0[7].trim().equals(">") ? 1 : 0;
 
-      PConstElList.add(new BrElement(pId, tm_id, clazz, tid, offset, 
-                                         instr, brchoice));
+        pConstElList.add(new BrElement(pId, tm_id, clazz, tid, offset, 
+                                       instr, brchoice));
+      } else if (isOutputLine(line)) {
+        String[] tmp0  = line.split("[:|\\|]");
+
+        String outputLoc = tmp0[1].trim();
+        int tm_id = Integer.parseInt(tmp0[2].trim());
+        int tid = Integer.parseInt(tmp0[3].trim());
+        String data = tmp0[4].trim();
+        int tag_ = Integer.parseInt(tmp0[5].trim().replace("0x","") ,16);
+        pConstElList.add(new OutputElement(pId, tm_id, tid, outputLoc, tag_, data));
+      }
     }
 
-    Collections.sort(PConstElList, new Comparator<PConstElement>() {
+    Collections.sort(pConstElList, new Comparator<PConstElement>() {
       public int compare(PConstElement a, PConstElement b) {
         return a.compare(b);
       }
     });
-    pConstTMId = PConstElList.get(0).get_tm_id();
+    if (pConstElList.size() > 0) {
+      pConstId = pConstElList.get(0).get_tm_id();
+ 
+      for (PConstElement el_: pConstElList) {
+        if (OutputElement.class.isInstance(el_)) {
+          OutputElement el = (OutputElement) el_;
+          outputElList.add(el);
+        } else if (BrElement.class.isInstance(el_)) {
+          BrElement el = (BrElement) el_;
+          int tid = el.getTId();
+          if (tIdBrElMap.containsKey(tid)) {
+            ArrayList<BrElement> brList = tIdBrElMap.get(tid);
+            brList.add(el);
+          } else {
+            ArrayList<BrElement> brList = new ArrayList<BrElement>();
+            brList.add(el);
+            tIdBrElMap.put(tid, brList);
+          }
+        } else {
+          assert( false /* not valid branch */);
+        }
+      }
+    }
+  }
+
+  public void dbgOutput() {
+    System.out.println("=== pConstElList : " + pConstElList.size() + "===" );
+    for (PConstElement pConstEl: pConstElList) {
+      System.out.print(pConstEl);
+    }
+    System.out.println("=== outputElList : "+outputElList.size()+ "===" );
+    for (OutputElement outputEl: outputElList) {
+      System.out.print(outputEl);
+    }
+
+    System.out.println("=== tIdBrElMap : "+ tIdBrElMap.size() + "===" );
+    printMap(tIdBrElMap);
+    System.out.println("=== End ===");
+  }
+
+  public static void printMap(Map mp) {
+    Iterator it = mp.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry pairs = (Map.Entry)it.next();
+      System.out.println(pairs.getKey() + " = " + pairs.getValue());
+      it.remove(); // avoids a ConcurrentModificationException
+    }
+  }
+
+  private boolean compareInput(PConstraint other) {
+    return inputVal.equals(other.inputVal);
+  }
+
+
+  private boolean compareBrElement(PConstraint other) {
+    //FIXME: now it isn't considering threads and scheduling factors. Fix it
+    //using tIdBrElMap.
+   
+    if (pConstElList.size() != other.pConstElList.size()) 
+      return false;
+
+    boolean ret = true;
+    for (int i = 0; i < pConstElList.size(); i++) {
+      if (!pConstElList.get(i).equals( other.pConstElList.get(i)) ) {
+        ret = false;
+        break;
+      }
+    }
+    return ret;
+  }
+
+  private boolean compareOutput(PConstraint other) {
+    //Here, we care about the execution sequence of output
+    if (outputElList.size() != other.outputElList.size()) 
+      return false;
+
+    boolean ret = true;
+    for (int i = 0; i < outputElList.size(); i++) {
+      if (outputElList.get(i).equals(other.outputElList.get(i)) ) {
+        ret = false;
+        break;
+      }
+    }
+    return ret;
   }
 
   public boolean equals(PConstraint other) {
-    /* TODO: */
-    return true;
+    return compareInput(other) && compareBrElement(other)
+      && compareOutput(other);
+
   }
 
   public String toString() {
-    String ret = "PConstTMID<" + pConstTMId + "> ";
-    for (PConstElement pConst: PConstElList) {
+    String ret = "PConstID<" + tmSvcId + "::" + pConstId + "> \n";
+    for (PConstElement pConst: pConstElList) {
       ret += pConst;
     }
     return ret;
+  }
+
+  public boolean isFN(PConstraint other) {
+    return true;
+  } 
+
+  public boolean isFP(PConstraint other) {
+    //different path, different inputs -- don't care
+    if (!compareBrElement(other) && inputVal != other.inputVal) {
+      return false;
+
+      //same paths, same inputs -- don't care 
+    } else if (compareBrElement(other) && inputVal == other.inputVal) {
+      //outputs should match -- deterministic execution model.
+      assert(compareOutput(other));
+      return false;
+      //same path for different inputs 
+    } else if (compareBrElement(other) && inputVal != other.inputVal) {
+      //tag value differs
+      if (inputVal.z != other.inputVal.z) {
+        //output compare -- todo
+     
+      } else {
+        return false;
+      }
+      //different paths for same inputs -- doesn't seem likely
+    }  else {
+      assert(false);
+      return false;
+    }
   }
 }
 
@@ -177,6 +310,7 @@ abstract class PConstElement {
   public int get_tm_id() {
     return tm_id;
   }
+  abstract public boolean equals(PConstElement other);
 }
 
 class BrElement extends PConstElement {
@@ -197,14 +331,21 @@ class BrElement extends PConstElement {
     brchoice = brchoice_;
   }
 
+  public int getTId() {
+    return tid;
+  }
 
-  public boolean equals(BrElement other) {
-    return (clazz == other.clazz) && (offset == other.offset) &&
-      (brchoice == other.brchoice);
+  public boolean equals(PConstElement other_) {
+    if (BrElement.class.isInstance(other_)) {
+      BrElement other  = (BrElement) other_;
+      return (clazz == other.clazz) && (offset == other.offset) &&
+        (brchoice == other.brchoice);
+    } 
+    return false;
   }
 
   public String toString() {
-    String ret = tm_id + " :: " + clazz + "@" + offset + 
+    String ret = "BR::" + pid + " (" + tid + ") :: " + tm_id + " :: " + clazz + "@" + offset + 
       " :: (" + tid +") :: " + brchoice + "\n";
     return ret;
   }
@@ -224,8 +365,20 @@ class OutputElement extends PConstElement {
     tag = tag_;
     data = data_;
   }
+
+  public boolean equals(PConstElement other_) {
+    if (OutputElement.class.isInstance(other_)) {
+      OutputElement other = (OutputElement) other_;
+      return (outputLoc == other.outputLoc)
+        && (data == other.data) 
+        // && (tag == other.tag) 
+        ;
+    }
+    return false;
+  }
+
   public String toString() {
-    String ret = pid + " (" + tid + ") :: "  + tm_id + "::" + outputLoc + "::"
+    String ret = "OUT::" + pid + " (" + tid + ") :: "  + tm_id + "::" + outputLoc + "::"
       + tag +"::" + data + "\n";
     return ret;
   }

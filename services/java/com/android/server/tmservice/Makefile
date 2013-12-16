@@ -1,10 +1,16 @@
-all:
-	javac -classpath ~/tdroid/tdroid-4.1.1_r6/frameworks/base/services/java/ PConstraint.java
-	javac -classpath ~/tdroid/tdroid-4.1.1_r6/frameworks/base/services/java/ TMLogcatTester.java
-	javac -classpath ~/tdroid/tdroid-4.1.1_r6/frameworks/base/services/java/ TMLogcat.java
+JAVAC=/usr/bin/javac
+JAVA=/usr/bin/java
 
-test:
-	java -classpath ~/tdroid/tdroid-4.1.1_r6/frameworks/base/services/java/ com.android.server.tmservice.TMLogcatTester log.txt
+CLASSPATH=~/tdroid/tdroid-4.1.1_r6/frameworks/base/services/java/
+
+all:
+	$(JAVAC) -classpath $(CLASSPATH) PConstraint.java
+	$(JAVAC) -classpath $(CLASSPATH) TMLocationAnalyzer.java
+	$(JAVAC) -classpath $(CLASSPATH) TMLogcat.java
+
+test: log0.txt log1.txt
+	$(JAVA) -classpath $(CLASSPATH) com.android.server.tmservice.TMLocationAnalyzer log0.txt
+	$(JAVA) -classpath $(CLASSPATH) com.android.server.tmservice.TMLocationAnalyzer log1.txt
 
 clean:
 	rm -f *.class

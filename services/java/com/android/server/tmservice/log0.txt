@@ -1,0 +1,44 @@
+W/TMLog   (  156): runover |0|2.0| 16.0| 11
+E/dalvikvmtm(  617): 0|1 |0029|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
+E/dalvikvmtm(  617): 1|1 |0037|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
+E/dalvikvmtm(  617): 2|1 |006a|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
+E/dalvikvmtm(  617): 3|1 |0075|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| <
+E/dalvikvmtm(  617): 4|1 |008d|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
+E/dalvikvmtm(  617): 5|1 |00a2|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
+W/TMLog   (  156): runover |1|17.0| 6.0| 11
+W/TMLog   (  156): runover |2|18.0| 10.0| 11
+E/dalvikvmtm(  617): 6|1 |0029|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
+E/dalvikvmtm(  617): 7|1 |0037|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
+E/dalvikvmtm(  617): 8|1 |006a|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
+E/dalvikvmtm(  617): 9|1 |0075|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| <
+E/dalvikvmtm(  617): 10|1 |008d|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
+E/dalvikvmtm(  617): 11|1 |00a2|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
+E/dalvikvmtm(  617): 12|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLatitude|| if-eqz| <
+E/dalvikvmtm(  617): 13|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLongitude|| if-eqz| <
+E/dalvikvmtm(  617): 14|12|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
+W/TMLog   (  617): sendtoBytes|15|67|..18.0,10.0|0x11
+E/dalvikvmtm(  617): 16|12|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
+E/dalvikvmtm(  617): 17|12|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
+E/dalvikvmtm(  617): 18|12|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| >
+E/dalvikvmtm(  617): 19|1 |0029|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
+E/dalvikvmtm(  617): 20|1 |0037|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
+E/dalvikvmtm(  617): 21|1 |006a|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
+E/dalvikvmtm(  617): 22|1 |0075|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
+E/dalvikvmtm(  617): 23|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLatitude|| if-eqz| <
+E/dalvikvmtm(  617): 24|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLongitude|| if-eqz| <
+E/dalvikvmtm(  617): 25|13|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
+W/TMLog   (  617): sendtoBytes|26|68|..18.0,10.0|0x11
+E/dalvikvmtm(  617): 27|13|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
+E/dalvikvmtm(  617): 28|13|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
+E/dalvikvmtm(  617): 29|13|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| >
+E/dalvikvmtm(  617): 30|1 |0029|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
+E/dalvikvmtm(  617): 31|1 |0037|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| >
+E/dalvikvmtm(  617): 32|1 |006a|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-eqz| <
+E/dalvikvmtm(  617): 33|1 |0075|Ledu/columbia/gpsapp/GPSTracker;.getLocation|| if-nez| >
+E/dalvikvmtm(  617): 34|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLatitude|| if-eqz| <
+E/dalvikvmtm(  617): 35|1 |0002|Ledu/columbia/gpsapp/GPSTracker;.getLongitude|| if-eqz| <
+E/dalvikvmtm(  617): 36|14|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
+W/TMLog   (  617): sendtoBytes|37|69|..18.0,10.0|0x11
+E/dalvikvmtm(  617): 38|14|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
+E/dalvikvmtm(  617): 39|14|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
+E/dalvikvmtm(  617): 40|14|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| >
