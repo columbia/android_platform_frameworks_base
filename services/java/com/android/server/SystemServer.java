@@ -668,7 +668,7 @@ class ServerThread extends Thread {
             //Adding TMDevIdService
             try {
               Slog.i(TAG, "TMDevIdService");
-              ServiceManager.addService("TMDevIdService", new TMLocationService(context));
+              ServiceManager.addService("TMDevIdService", new TMDevIdService(context));
             } catch (Throwable e) {
               reportWtf("starting TMDevIdService", e);
             }
