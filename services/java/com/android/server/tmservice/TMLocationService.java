@@ -27,7 +27,7 @@ public class TMLocationService extends TMService{
     new ArrayList<Tuple<Double, Double, Integer>>();
   private int coordPtr = 0;
 
-  protected static String TAG = "TaintLocationService";
+  protected static String TAG = "TMLocationService";
   
   /**
    * 

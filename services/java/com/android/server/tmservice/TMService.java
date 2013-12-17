@@ -167,7 +167,7 @@ public abstract class TMService extends ITMService.Stub {
         }
       }  catch (IOException e) {
         //FIXME: need proper error handling
-        Log.v(TAG, "socket error: " + e.toString());
+        Log.v(TAG, "socket error - port: " + tmport + e.toString());
       }
       //
       //TODO: implement thread join event here
