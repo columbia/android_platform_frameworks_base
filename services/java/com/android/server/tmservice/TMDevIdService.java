@@ -27,7 +27,7 @@ import dalvik.system.Taint;
 import android.os.ServiceManager;
 
 
-public class TMDevIdService extends ITMDevIdService.Stub {
+public class TMDevIdService extends TMService {
 
   private static final String TAG = "TMDevIdService";
   private static final boolean LOCAL_LOGV = false;
