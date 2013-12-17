@@ -1,64 +1,38 @@
 package com.android.server.tmservice;
 
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.Thread;
 import java.util.*;
 
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.io.DataOutputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
 import android.content.Context;
-import android.util.Slog;
 import android.util.Log;
-
-import com.android.tmservice.*;
-import com.android.server.tmservice.TMLogcat;
-import dalvik.system.Taint;
-
 import com.android.server.LocationManagerService;
 import com.android.server.location.GpsLocationProvider;
 
+import com.android.server.tmservice.TMLogcat;
+import dalvik.system.Taint;
+
 import android.os.ServiceManager;
 
-
-public class TMLocationService extends ITMLocationService.Stub {
+/**
+ * TM Class for Location service. 
+ * @author Kangkook Jee
+ *
+ */
+public class TMLocationService extends TMService{
 
   private LocationManagerService locationManager = null;
   private GpsLocationProvider gpsProvider = null;
-
-  private static final String TAG = "TaintService";
-  private static final boolean LOCAL_LOGV = false;
-  private static final int ENTRY_MAX = 10;
-
-  private final Context mContext;
-  private final Thread mListener;
-
   private List<Tuple<Double, Double, Integer>> coordList =
     new ArrayList<Tuple<Double, Double, Integer>>();
   private int coordPtr = 0;
 
-  private TMLogcat tmLogcat;
-
-  //Methods for providing fake GPS input.
-  //TODO: implement input generations here.
-  public double getLatitude() {
-    return 1.0;
-  }
-
-  public double getLongitude() {
-    return 2.0;
-  }
-
+  protected static String TAG = "TaintLocationService";
+  
+  /**
+   * 
+   * @return
+   */
   private boolean IsGpsProviderAvailable() {
     if (gpsProvider != null ||
         (gpsProvider != locationManager.getGpsProvider())) {
@@ -75,42 +49,10 @@ public class TMLocationService extends ITMLocationService.Stub {
       Log.v(TAG, "GpsProvider not available yet");
     }
   }
-
-
-  /**
-   *
-   */
-  private void sockClient(String addr, int port, String[] msgs) throws IOException{
-    Log.v(TAG, "sockClient is called with " + addr + " and " + port);
-    int timeout = 30;
-
-    try {
-      Socket client = new Socket();
-      client.connect(new InetSocketAddress(addr, port), 30);
-      DataOutputStream writer = new DataOutputStream(client.getOutputStream());
-      BufferedReader reader = new BufferedReader(
-        new InputStreamReader(client.getInputStream()));
-
-      for (String msg : msgs) {
-        writer.writeBytes(msg);
-      }
-
-      //blocking for response
-      String response = reader.readLine();
-      Log.v(TAG, "recv'd response : " + response);
-      
-    } catch(IOException e) {
-      Log.e(TAG, "sockClient:IOException:" + e.toString());
-      throw e;
-    }
-  }
-
-  /**
-   *
-   */
-  private void run_over(int port_) {
-    Log.v(TAG, "run_over invoked with " + port_);
-
+ 
+  protected void run_over(int port_, String cmd) {
+    Log.v(TAG, "run_over invoked with " + port_ + " and " + cmd);
+    
     //fake value pair for GPS location
     Double latitude = coordList.get(coordPtr).x;
     Double longitude = coordList.get(coordPtr).y;;
@@ -129,11 +71,11 @@ public class TMLocationService extends ITMLocationService.Stub {
     Log.v(TAG, "run_over - location:" + latitude + " :" + 
                 longitude + "::" + locationManager.getGpsProvider());
 
-    //signals that we begin another iteration
+    //Signals that we begin another iteration
     Taint.TMLog("runover |" + Taint.incTmCounter() + "|" + latitude + "| " 
                 + longitude + "| " + Integer.toHexString(tag));
 
-    //update maded to GpsLocation service
+    //update made to GpsLocation service
     invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
 
     //initiating run_over
@@ -143,19 +85,7 @@ public class TMLocationService extends ITMLocationService.Stub {
     } catch (IOException e) {
       Log.e(TAG, "run_over: failed with socket connection error: " + e.toString());
       return;
-    }
-    
-    Log.v(TAG, "tmLogcat: " + tmLogcat);
-    
-    try {
-      List<String> lines = tmLogcat.getLineList();
-      for (String line: lines) {
-        Log.v(TAG, "DBG: " + line);
-      }
-    } catch (NullPointerException ne) {
-      Log.v(TAG, "nullPointerExeption raised:");
-      ne.printStackTrace();
-    }
+    }    
   }
 
   public static int randInt(int min, int max) {
@@ -180,7 +110,7 @@ public class TMLocationService extends ITMLocationService.Stub {
     GpsLocationProvider gpsProvider = locationManager.getGpsProvider();
     Log.v(TAG, "LocationManager:" + locationManager +  " gpsProvider:" + gpsProvider);
 
-    //init random coordinates
+    // Init. random coordinates
     for (int i = 0 ; i < ENTRY_MAX; i++) {
       coordList.add(new Tuple<Double, Double, Integer>(
                       new Double(randInt(0, 20)), 
@@ -193,71 +123,5 @@ public class TMLocationService extends ITMLocationService.Stub {
     mListener.start();
     
     Log.v(TAG, "mListener started: " + Taint.tmport + ":" + mListener);
-
-    if (LOCAL_LOGV) {
-      Slog.v(TAG, "Constructed LocationManager Service");
-    }
-  }
-
-  private class TMListenerThread implements Runnable {
-    private int tmport = 0;
-    private ServerSocket serverSocket = null;
-    private Socket incoming = null;
-
-    public void run() {
-      try {
-        serverSocket = new ServerSocket(tmport);
-        while (true) {
-          // FIXME: And now it only supports a single connection at a time.
-
-          incoming = serverSocket.accept();
-          Log.v(TAG, "inside listener thread -- it's running");
-          BufferedReader reader = new BufferedReader(
-            new InputStreamReader(incoming.getInputStream()));
-
-          PrintWriter writer = new PrintWriter(
-            incoming.getOutputStream(), true);
-
-          while (true) {
-            String line = reader.readLine().trim();
-
-            if (line.startsWith("disc")) {
-              reader.close();
-              writer.close();
-              incoming.close();
-              
-              break;
-            } else if(line.startsWith("run_over")) {
-              String[] tokens = line.split(" ");
-              int port = 0;
-              if (tokens.length == 1) {
-                run_over(port);
-              } else if (tokens.length == 2) {
-                try {
-                  port = Integer.parseInt(tokens[1]);
-                  run_over(port);
-                } catch(NumberFormatException e) {
-                  Log.v(TAG, "run_over: NumberFormatException raised with " 
-                        + tokens[1]);
-                }
-              }
-            } else {
-              Log.v(TAG, "unexpected input: " + line);
-            }
-            writer.println("RECV: " + line.trim());
-          }
-        }
-      }  catch (IOException e) {
-        //FIXME: need proper error handling
-        Log.v(TAG, "socket error: " + e.toString());
-      }
-      //
-      //TODO: implement thread join event here
-      //
-    }
-
-    TMListenerThread(int port) {
-      tmport = port;
-    }
   }
 }
