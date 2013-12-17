@@ -118,10 +118,15 @@ public class TMLocationService extends TMService{
                       new Integer(randInt(0, 32))));
     }
 
-    tmLogcat = new TMLogcat();
-    mListener = new Thread(new TMListenerThread(Taint.tmport));
-    mListener.start();
+    if (tmLogcat == null) { 
+        tmLogcat = new TMLogcat();
+    }
+        
+    if (mListener == null) {
+        mListener = new Thread(new TMListenerThread(Taint.tmport));
+        mListener.start();
     
-    Log.v(TAG, "mListener started: " + Taint.tmport + ":" + mListener);
+        Log.v(TAG, "mListener started: " + Taint.tmport + ":" + mListener);
+    }
   }
 }

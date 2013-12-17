@@ -27,10 +27,16 @@ public class TMDevIdService extends TMService {
 
     mContext = context;
 
-    //To prevent port number conflict
-    mListener = new Thread(new TMListenerThread(Taint.tmport + 1));
-    mListener.start();
+    //Singleton
+    if (tmLogcat == null) { 
+        tmLogcat = new TMLogcat();
+    }
     
-    Log.v(TAG, "mListener started: " + (Taint.tmport + 1) + ":" + mListener);
+    if (mListener == null) {
+        mListener = new Thread(new TMListenerThread(Taint.tmport));
+        mListener.start();
+    
+        Log.v(TAG, "mListener started: " + Taint.tmport + ":" + mListener);
+    }
   }
 }

@@ -30,8 +30,10 @@ public abstract class TMService extends ITMService.Stub {
   protected static int ENTRY_MAX = 10;
 
   protected Context mContext = null;
-  protected Thread mListener = null;
-  protected TMLogcat tmLogcat = null;
+
+  //Singleton pattern
+  protected static Thread mListener = null;
+  protected static TMLogcat tmLogcat = null;
 
   /**
    * Default implementation
