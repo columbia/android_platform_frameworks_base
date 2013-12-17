@@ -117,11 +117,13 @@ public abstract class TMService extends ITMService.Stub {
     public void run() {
       try {
         serverSocket = new ServerSocket(tmport);
+        Log.v(TAG, "TMListener thread initialized for port: " + tmport);
+
         while (true) {
           // FIXME: And now it only supports a single connection at a time.
 
           incoming = serverSocket.accept();
-          Log.v(TAG, "inside listener thread -- it's running");
+          Log.v(TAG, "TMListener thread -- client connected");
           BufferedReader reader = new BufferedReader(
             new InputStreamReader(incoming.getInputStream()));
 
