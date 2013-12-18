@@ -1,7 +1,6 @@
 package com.android.server.tmservice;
 
 import java.io.IOException;
-import java.lang.Thread;
 import java.util.*;
 
 import android.content.Context;
@@ -100,9 +99,7 @@ public class TMLocationService extends TMService{
   }
 
   public TMLocationService(Context context) {
-    super();
-
-    mContext = context;
+    super(context);
 
     locationManager = (LocationManagerService) 
       ServiceManager.getService(Context.LOCATION_SERVICE);
@@ -120,13 +117,6 @@ public class TMLocationService extends TMService{
 
     if (tmLogcat == null) { 
         tmLogcat = new TMLogcat();
-    }
-        
-    if (mListener == null) {
-        mListener = new Thread(new TMListenerThread(Taint.tmport));
-        mListener.start();
-    
-        Log.v(TAG, "mListener started: " + Taint.tmport + ":" + mListener);
     }
   }
 }

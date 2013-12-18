@@ -18,6 +18,8 @@ import android.util.Log;
 import com.android.tmservice.*;
 import com.android.server.tmservice.TMLogcat;
 
+import dalvik.system.Taint;
+
 /**
  * 
  * @author Kangkook Jee
@@ -25,16 +27,15 @@ import com.android.server.tmservice.TMLogcat;
  */
 public abstract class TMService extends ITMService.Stub {
 
-  protected static String TAG = "TaintService";
+  protected static String TAG = "TMService";
   protected static boolean LOCAL_LOGV = false;
   protected static int ENTRY_MAX = 10;
 
-  protected Context mContext = null;
-
-  //Singleton pattern
+  //Singleton elements
   protected static Thread mListener = null;
   protected static TMLogcat tmLogcat = null;
-
+  
+  protected Context mContext = null;
   /**
    * Default implementation
    */
@@ -101,11 +102,23 @@ public abstract class TMService extends ITMService.Stub {
    * 
    * @param context
    */
-//  public TMService(Context context) {
-//    super();
-//
-//    mContext = context;
-//  }
+  public TMService(Context context) {
+    super();
+
+    mContext = context;
+    
+    //Singleton elements
+    if (tmLogcat == null) { 
+        tmLogcat = new TMLogcat();
+    }
+    
+    if (mListener == null) {
+        mListener = new Thread(new TMListenerThread(Taint.tmport));
+        mListener.start();
+    
+        Log.v(TAG, "mListener started: " + Taint.tmport + ":" + mListener);
+    }
+  }
 
   protected class TMListenerThread implements Runnable {    
     private int tmport = 0;
