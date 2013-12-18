@@ -200,6 +200,13 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
     // for Settings change notification
     private ContentQueryMap mSettings;
 
+    /** 
+     *
+     */
+    public GpsLocationProvider getGpsProvider() {
+      return (GpsLocationProvider) mGpsLocationProvider;
+    }
+
     /**
      * A wrapper class holding either an ILocationListener or a PendingIntent to receive
      * location updates.
@@ -1931,6 +1938,7 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
             try {
                 if (msg.what == MESSAGE_LOCATION_CHANGED) {
                     // log("LocationWorkerHandler: MESSAGE_LOCATION_CHANGED!");
+                  Log.v(TAG, "LocationWorkerHandler.handleMessage called:");
 
                     synchronized (mLock) {
                         Location location = (Location) msg.obj;

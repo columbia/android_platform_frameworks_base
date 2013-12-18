@@ -1078,25 +1078,41 @@ public class GpsLocationProvider implements LocationProviderInterface {
         return ((mEngineCapabilities & capability) != 0);
     }
 
-    /**
-     * called from native code to update our position.
-     */
-    private void reportLocation(int flags, double latitude, double longitude, double altitude,
-            float speed, float bearing, float accuracy, long timestamp) {
-        if (VERBOSE) Log.v(TAG, "reportLocation lat: " + latitude + " long: " + longitude +
-                " timestamp: " + timestamp);
+    public void tmReportGpsLocation(double latitude, double longitude, double altitude,
+                                    int tag) {
 
+      long timestamp = (new Date()).getTime();
+      reportLocationImpl(1, latitude, longitude, altitude, (float) 1.0,
+                      (float) 1.0, (float) 1.0, timestamp, tag);
+    }
+  
+
+  private void reportLocation(int flags, double latitude, double longitude, double altitude,
+            float speed, float bearing, float accuracy, long timestamp) {
+         int tag = Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
+         reportLocationImpl(flags, latitude, longitude, altitude, speed, bearing,  accuracy, timestamp, tag);
+  }
+  
+  private void reportLocationImpl (int flags, double latitude, double longitude, double altitude,
+                              float speed, float bearing, float accuracy, long timestamp, int tag) {
+        if (VERBOSE) Log.v(TAG, "reportLocation lat: " + latitude + " long: " + longitude +
+                           " timestamp: " + timestamp);
+
+        Log.v(TAG, "reportLocationImpl called - latitude: " + latitude + " longitude: " + longitude);
+        
         synchronized (mLocation) {
             mLocationFlags = flags;
 // begin WITH_TAINT_TRACKING
-            int tag = Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
+   
             if ((flags & LOCATION_HAS_LAT_LONG) == LOCATION_HAS_LAT_LONG) {
                 mLocation.setLatitude(Taint.addTaintDouble(latitude, tag));
                 mLocation.setLongitude(Taint.addTaintDouble(longitude, tag));
 
             /* TMcomment: input instrumentation point for GPS locations */
             /* TODO: set up control channel for these values */
-            Taint.TMLog("Latitude: " + latitude + " Longitude:" + longitude + " Taint: " + tag);
+            Log.v(TAG, "GpsLocationProvider.reportLocationImpl: Latitude: " + 
+                  latitude + " Longitude:" + longitude + " Taint: " + 
+                  tag);
         
             mLocation.setTime(timestamp);
             }
@@ -1193,6 +1209,8 @@ public class GpsLocationProvider implements LocationProviderInterface {
             // send an intent to notify that the GPS is receiving fixes.
             Intent intent = new Intent(LocationManager.GPS_FIX_CHANGE_ACTION);
             intent.putExtra(LocationManager.EXTRA_GPS_ENABLED, true);
+            //jikk: geo fix command received
+            Log.v(TAG, "GpsLocationProvider.reportLocation:broadcast message");
             mContext.sendBroadcast(intent);
             updateStatus(LocationProvider.AVAILABLE, mSvCount);
         }
