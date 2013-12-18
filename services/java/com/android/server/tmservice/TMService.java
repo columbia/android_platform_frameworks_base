@@ -41,6 +41,10 @@ public abstract class TMService extends ITMService.Stub {
   //Fields related to Android service 
   protected Context mContext = null;
   
+  static private String helpMessage = "Usage examples \n" +
+  		"runover TMSvc [port] [cmd]\n" +
+  		"disc\n";
+  
   /**
    * Dummy implementation
    */
@@ -136,7 +140,7 @@ public abstract class TMService extends ITMService.Stub {
   protected class TMListenerThread implements Runnable {    
     private int tmport = 0;
     private ServerSocket serverSocket = null;
-    private Socket incoming = null;
+    private Socket incoming = null;    
     
     public void run() {
       try {
@@ -164,7 +168,8 @@ public abstract class TMService extends ITMService.Stub {
               break;
               
             // Branch to initiate another 'runover' event.
-            } else if(line.startsWith("runover")) {
+            } else if(line.startsWith("runover") || 
+                        line.startsWith("run_over")) {
               String[] tokens = line.split(" ");
               int port = 0;
               String svcTAG = "";
@@ -191,12 +196,14 @@ public abstract class TMService extends ITMService.Stub {
                       svcTAG = tokens[1];
                       tmSvc = tmSvcHMap.get(svcTAG);
                       if (tmSvc == null) {
-                          Log.v(TAG, "TMService " + svcTAG + "not found" );
+                          Log.v(TAG, "TMService: " + svcTAG + "not found" );
                           break;
                       }
                   default:
                       tmSvc.run_over(port, cmd); 
               }            
+            } else if (line.startsWith("help")) {
+                writer.print(helpMessage);
             } else {
               Log.v(TAG, "unexpected input: " + line);
             }
