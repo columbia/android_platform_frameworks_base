@@ -3,7 +3,8 @@ package com.android.server.tmservice;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-//import java.util.concurrent.Callable;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,31 +31,35 @@ public abstract class TMService extends ITMService.Stub {
   protected static String TAG = "TMService";
   protected static boolean LOCAL_LOGV = false;
   protected static int ENTRY_MAX = 10;
-
+  
   //Singleton elements
   protected static Thread mListener = null;
-  protected static TMLogcat tmLogcat = null;
-  
+  protected static TMLogcat tmLogcat = null;  
+  protected static Map<String, TMService> tmSvcHMap = 
+              new HashMap<String, TMService>();  
+
+  //Fields related to Android service 
   protected Context mContext = null;
+  
   /**
-   * Default implementation
+   * Dummy implementation
    */
   public double getLatitude() {
     return 0.0;
   }
 
   /**
-   * Default implementation
+   * Dummy implementation
    */
   public double getLongitude() {
     return 0.0;
   }
   
   /**
-   * Default implementation
+   * Dummy implementation
    */
   public int getDevId() {
-	  return 0;
+    return 0;
   }
 
   /**
@@ -90,8 +95,16 @@ public abstract class TMService extends ITMService.Stub {
     }
   }
 
+  protected void registerTmSvc(String svcStr, TMService tmSvc) {        
+      tmSvcHMap.put(svcStr, tmSvc);
+  }
+  
   /**
-   * 
+   * This method make connection to MonkeyRunner script (or equivalent
+   * something) to initiate another "run_over" event.  With the specified {@link
+   * #port}, the connection is made by calling {@link #sockClient(String, int,
+   * String[])} method. {@link #param} is to direct a specific sub-action.
+   *  
    * @param port
    * @param cmd
    */
@@ -125,18 +138,13 @@ public abstract class TMService extends ITMService.Stub {
     private ServerSocket serverSocket = null;
     private Socket incoming = null;
     
-    public void registerTmSvc(String SvcStr, TMService tmSvc) {
-        ;
-    }
-
     public void run() {
       try {
         serverSocket = new ServerSocket(tmport);
         Log.v(TAG, "TMListener thread initialized for port: " + tmport);
 
         while (true) {
-          // FIXME: And now it only supports a single connection at a time.
-
+          // FIXME: Now it only supports a single connection at a time.
           incoming = serverSocket.accept();
           Log.v(TAG, "TMListener thread -- client connected");
           BufferedReader reader = new BufferedReader(
@@ -148,32 +156,47 @@ public abstract class TMService extends ITMService.Stub {
           while (true) {
             String line = reader.readLine().trim();
 
+            //finish connection.
             if (line.startsWith("disc")) {
               reader.close();
               writer.close();
               incoming.close();
-              
               break;
-            } else if(line.startsWith("run_over")) {
+              
+            // Branch to initiate another 'runover' event.
+            } else if(line.startsWith("runover")) {
               String[] tokens = line.split(" ");
               int port = 0;
+              String svcTAG = "";
               String cmd = "";
-              if (tokens.length == 2) {
-            	cmd = tokens[1];
-                run_over(port, cmd);
-              } else if (tokens.length == 3) {
-                try {
-                  port = Integer.parseInt(tokens[1]);
-                  cmd = tokens[2];
-                 
-                  run_over(port ,cmd);
-                } catch(NumberFormatException e) {
-                  Log.v(TAG, "run_over: NumberFormatException raised with " 
-                        + tokens[1]);
-                }
-              } else {
-            	  Log.v(TAG, "unexpected input: " + line);
+              TMService tmSvc = null;
+              
+              if (tokens.length > 4 || tokens.length < 2) {
+                  Log.v(TAG, "unexpected input: " + line);
+                  continue;
               }
+              
+              switch (tokens.length) {
+                  case 4:
+                      cmd = tokens[3];
+                  case 3:
+                      try {
+                          port = Integer.parseInt(tokens[2]);
+                      } catch (NumberFormatException e) {
+                          Log.v(TAG, "run_over: NumberFormatException" + 
+                                  " raised with " + tokens[1]);
+                          break;
+                      }
+                  case 2:
+                      svcTAG = tokens[1];
+                      tmSvc = tmSvcHMap.get(svcTAG);
+                      if (tmSvc == null) {
+                          Log.v(TAG, "TMService " + svcTAG + "not found" );
+                          break;
+                      }
+                  default:
+                      tmSvc.run_over(port, cmd); 
+              }            
             } else {
               Log.v(TAG, "unexpected input: " + line);
             }
@@ -184,9 +207,7 @@ public abstract class TMService extends ITMService.Stub {
         //FIXME: need proper error handling
         Log.v(TAG, "socket error - port: " + tmport + e.toString());
       }
-      //
       //TODO: implement thread join event here
-      //
     }
 
     TMListenerThread(int port) {

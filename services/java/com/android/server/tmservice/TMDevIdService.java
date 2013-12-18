@@ -21,5 +21,6 @@ public class TMDevIdService extends TMService {
 
   public TMDevIdService(Context context) {
     super(context);
+    registerTmSvc(TAG, this);
   }
 }

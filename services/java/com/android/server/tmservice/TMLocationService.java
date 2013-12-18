@@ -8,7 +8,6 @@ import android.util.Log;
 import com.android.server.LocationManagerService;
 import com.android.server.location.GpsLocationProvider;
 
-import com.android.server.tmservice.TMLogcat;
 import dalvik.system.Taint;
 
 import android.os.ServiceManager;
@@ -43,6 +42,7 @@ public class TMLocationService extends TMService{
 
   private void invokeReportGpsLocation(double longitude, double latitude, int tag) {
     if (IsGpsProviderAvailable()) {
+      //we are not changing the altitude 
       gpsProvider.tmReportGpsLocation(longitude, latitude, (double) 1.0, tag);
     } else {
       Log.v(TAG, "GpsProvider not available yet");
@@ -100,6 +100,7 @@ public class TMLocationService extends TMService{
 
   public TMLocationService(Context context) {
     super(context);
+    registerTmSvc(TAG, this);
 
     locationManager = (LocationManagerService) 
       ServiceManager.getService(Context.LOCATION_SERVICE);
@@ -115,8 +116,7 @@ public class TMLocationService extends TMService{
                       new Integer(randInt(0, 32))));
     }
 
-    if (tmLogcat == null) { 
-        tmLogcat = new TMLogcat();
-    }
+
+    
   }
 }
