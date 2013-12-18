@@ -112,9 +112,9 @@ public abstract class TMService extends ITMService.Stub {
     private ServerSocket serverSocket = null;
     private Socket incoming = null;
     
-//    public void registerCallback(String SvcStr, Callable<Integer> func) {
-//        ;
-//    }
+    public void registerTmSvc(String SvcStr, TMService tmSvc) {
+        ;
+    }
 
     public void run() {
       try {

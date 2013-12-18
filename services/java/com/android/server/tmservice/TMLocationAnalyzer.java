@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.android.server.tmservice.PConstraint;
+import com.android.server.tmservice.ExecTrace;
 
 class TMLocationAnalyzer {
-  static private Map<Integer, PConstraint> hMap = new HashMap<Integer, PConstraint>();
-  static private PConstraint predPConst = null;
+  static private Map<Integer, ExecTrace> hMap = new HashMap<Integer, ExecTrace>();
+  static private ExecTrace predETrace = null;
 
   public static void main(String[] args) {
     String fname  = null;
@@ -50,12 +50,12 @@ class TMLocationAnalyzer {
 
   /**
    * Takes list of string to parse and to update {@link #hMap} with
-   * {@link PConstraint} instances. Along the way, it invokes
-   * {@link #isCorrectChannel(PConstraint)} to examine the correctness
-   * of taint channel represented by a {@link PConstraint} instance.
+   * {@link ExecTrace} instances. Along the way, it invokes
+   * {@link #isCorrectChannel(ExecTrace)} to examine the correctness
+   * of taint channel represented by a {@link ExecTrace} instance.
    *
    * @param inputList List of {@link #java.lang.String} to be parsed to
-   * create a list of PConstraint instances.
+   * create a list of ExecTrace instances.
    */
   private static void processLineList(List<String> inputList) {
     ArrayList<String> lineList = new ArrayList<String>();
@@ -69,32 +69,32 @@ class TMLocationAnalyzer {
       return;
     }
 
-    while(line !=null && !PConstraint.isHeaderLine(line)) {
+    while(line !=null && !ExecTrace.isHeaderLine(line)) {
       line = it.next();
     }
 
     //eat up lines until we meet the first header line
     while(true) {
-      if (PConstraint.isHeaderLine(line)) {
+      if (ExecTrace.isHeaderLine(line)) {
         if (lineList.size() != 0) {
-          PConstraint pConst = new PConstraint(lineList);
-          if (predPConst == null) {
-            predPConst = pConst;
+          ExecTrace ETrace = new ExecTrace(lineList);
+          if (predETrace == null) {
+            predETrace = ETrace;
           } else {
-            System.out.print("Comparing PConst(" + pConst.getTmSvcId() +
-                  ") and PConst(" + predPConst.getTmSvcId() + "): ");
-            System.out.println(PConstraint.getOutputStr(
-                  pConst.isCorrectChannel(predPConst)));
-            predPConst = pConst;
+            System.out.print("Comparing ETrace(" + ETrace.getTmSvcId() +
+                  ") and ETrace(" + predETrace.getTmSvcId() + "): ");
+            System.out.println(ExecTrace.getOutputStr(
+                  ETrace.isCorrectChannel(predETrace)));
+            predETrace = ETrace;
           }
 
-          hMap.put(pConst.getTmSvcId(), pConst);
+          hMap.put(ETrace.getTmSvcId(), ETrace);
         }
 
         lineList = new ArrayList<String>();
         lineList.add(line);
-      } else if (PConstraint.isBrLine(line) ||
-                 PConstraint.isOutputLine(line)) {
+      } else if (ExecTrace.isBrLine(line) ||
+                 ExecTrace.isOutputLine(line)) {
         lineList.add(line);
       }
       try {
@@ -102,16 +102,16 @@ class TMLocationAnalyzer {
       } catch (NoSuchElementException ne) {break;}
     }
     if (lineList.size() != 0) {
-      PConstraint pConst = new PConstraint(lineList);
+      ExecTrace ETrace = new ExecTrace(lineList);
 
-      if (predPConst != null) {
-        System.out.print("Comparing PConst(" + pConst.getTmSvcId() +
-              ") and PConst(" + predPConst.getTmSvcId() + "): ");
-        System.out.println(PConstraint.getOutputStr(
-              pConst.isCorrectChannel(predPConst)));
+      if (predETrace != null) {
+        System.out.print("Comparing ETrace(" + ETrace.getTmSvcId() +
+              ") and ETrace(" + predETrace.getTmSvcId() + "): ");
+        System.out.println(ExecTrace.getOutputStr(
+              ETrace.isCorrectChannel(predETrace)));
       }
 
-      hMap.put(pConst.getTmSvcId(), pConst);
+      hMap.put(ETrace.getTmSvcId(), ETrace);
     }
   }
 

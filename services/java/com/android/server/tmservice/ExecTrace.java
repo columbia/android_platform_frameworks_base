@@ -18,20 +18,20 @@ import java.util.regex.Matcher;
  *
  * @author Kangkook Jee
  */
-class PConstraint {
+class ExecTrace {
   /* TMeasure service related informations */
   private int tmSvcId = -1;
   private int tmSvcProcId = 0;
   Tuple<Double, Double, Integer> inputVal  = null;
 
   /* APP related informations */
-  private List<PConstElement> pConstElList = null;
+  private List<ETraceElement> ETraceElList = null;
   private List<BrElement> brElList = null;
   private List<OutputElement> outputElList = null;
   private Map<Integer, ArrayList<BrElement>> tIdBrElMap = null;
 
 
-  private int pConstId = -1;
+  private int ETraceId = -1;
   private int appProcId = 0;
 
   //Constants to specify channel type
@@ -167,8 +167,8 @@ class PConstraint {
   /**
    * Constructor method for the class.
    */
-  public PConstraint(List<String> lineList_)  {
-    pConstElList = new ArrayList<PConstElement>();
+  public ExecTrace(List<String> lineList_)  {
+    ETraceElList = new ArrayList<ETraceElement>();
     brElList = new ArrayList<BrElement>();
     outputElList = new ArrayList<OutputElement>();
     tIdBrElMap = new HashMap<Integer, ArrayList<BrElement>>();
@@ -209,7 +209,7 @@ class PConstraint {
         String instr = tmp0[5];
         int brchoice = tmp0[7].trim().equals(">") ? 1 : 0;
 
-        pConstElList.add(new BrElement(pId, tm_id, clazz, tid, offset,
+        ETraceElList.add(new BrElement(pId, tm_id, clazz, tid, offset,
                                        instr, brchoice));
       } else if (isOutputLine(line)) {
         String[] tmp0  = line.split("[:|\\|]");
@@ -219,21 +219,21 @@ class PConstraint {
         int tid = Integer.parseInt(tmp0[3].trim());
         String data = tmp0[4].trim();
         int tag_ = Integer.parseInt(tmp0[5].trim().replace("0x","") ,16);
-        pConstElList.add(new OutputElement(pId, tm_id, tid, outputLoc, tag_, data));
+        ETraceElList.add(new OutputElement(pId, tm_id, tid, outputLoc, tag_, data));
       }
     }
 
-    Collections.sort(pConstElList, new Comparator<PConstElement>() {
-      public int compare(PConstElement a, PConstElement b) {
+    Collections.sort(ETraceElList, new Comparator<ETraceElement>() {
+      public int compare(ETraceElement a, ETraceElement b) {
         return a.compare(b);
       }
     });
 
     /* FIXME: clean-up here a bit. */
-    if (pConstElList.size() > 0) {
-      pConstId = pConstElList.get(0).get_tm_id();
+    if (ETraceElList.size() > 0) {
+      ETraceId = ETraceElList.get(0).get_tm_id();
 
-      for (PConstElement el_: pConstElList) {
+      for (ETraceElement el_: ETraceElList) {
         if (OutputElement.class.isInstance(el_)) {
           OutputElement el = (OutputElement) el_;
           outputElList.add(el);
@@ -260,9 +260,9 @@ class PConstraint {
   }
 
   public void dbgOutput() {
-    System.out.println("=== pConstElList : " + pConstElList.size() + "===" );
-    for (PConstElement pConstEl: pConstElList) {
-      System.out.print(pConstEl);
+    System.out.println("=== ETraceElList : " + ETraceElList.size() + "===" );
+    for (ETraceElement ETraceEl: ETraceElList) {
+      System.out.print(ETraceEl);
     }
     System.out.println("=== outputElList : "+outputElList.size()+ "===" );
     for (OutputElement outputEl: outputElList) {
@@ -274,11 +274,11 @@ class PConstraint {
     System.out.println("=== End ===");
   }
 
-  private boolean compareInput(PConstraint other) {
+  private boolean compareInput(ExecTrace other) {
     return inputVal.equals(other.inputVal);
   }
 
-  private boolean compareBrElement(PConstraint other) {
+  private boolean compareBrElement(ExecTrace other) {
     //FIXME: now it isn't considering threads and scheduling factors. Fix it
     //using tIdBrElMap.
 
@@ -295,7 +295,7 @@ class PConstraint {
     return ret;
   }
 
-  private boolean compareOutput(PConstraint other) {
+  private boolean compareOutput(ExecTrace other) {
     //Here, we care about the execution sequence of output
     if (outputElList.size() != other.outputElList.size())
       return false;
@@ -310,16 +310,16 @@ class PConstraint {
     return ret;
   }
 
-  public boolean equals(PConstraint other) {
+  public boolean equals(ExecTrace other) {
     return compareInput(other) && compareBrElement(other)
       && compareOutput(other);
 
   }
 
   public String toString() {
-    String ret = "PConstID<" + tmSvcId + "::" + pConstId + "> \n";
-    for (PConstElement pConst: pConstElList) {
-      ret += pConst;
+    String ret = "ETraceID<" + tmSvcId + "::" + ETraceId + "> \n";
+    for (ETraceElement ETrace: ETraceElList) {
+      ret += ETrace;
     }
     return ret;
   }
@@ -327,7 +327,7 @@ class PConstraint {
 
 /**
  * Function that implements actual algorithm to detect FN, FP by comparing
- * itself with other PConstraint instance. Major improvements required to make
+ * itself with other ExecTrace instance. Major improvements required to make
  *  the algorithm run as intended. Currently we have the following issues.
  *
  * 1) Comparing branch choices with different thread scheduling/interleaving.
@@ -339,12 +339,12 @@ class PConstraint {
  * different output combinations differ in various ways. We need to come up
  * with a systematic solution to compare itself and the other instance.
  *
- * @param other An instance of {@link #PConstraint(List)} to compare with
+ * @param other An instance of {@link #ExecTrace(List)} to compare with
  * @return One of the following constants {@value #DONT_KNOW}
  *   {@value #CORRECT_CHANNEL} {@value #FP_CHANNEL} {@value #FP_CHANNEL}
  *
  */
-  public int  isCorrectChannel(PConstraint other) {
+  public int  isCorrectChannel(ExecTrace other) {
     //A case for different path, different inputs -- don't care
     if (!compareBrElement(other) && inputVal.equals(other.inputVal)) {
       return DONT_KNOW;
@@ -421,19 +421,19 @@ class PConstraint {
  *
  * @author Kangkook Jee
  */
-abstract class PConstElement {
+abstract class ETraceElement {
   protected int pid;
   protected int tm_id;
   protected int tid = 0;
 
   //to have some determinism with PCostElList
-  public int compare(PConstElement other) {
+  public int compare(ETraceElement other) {
     return tm_id - other.tm_id;
   }
   public int get_tm_id() {
     return tm_id;
   }
-  abstract public boolean equals(PConstElement other);
+  abstract public boolean equals(ETraceElement other);
 }
 
 /**
@@ -441,7 +441,7 @@ abstract class PConstElement {
  *
  * @author Kangkook Jee
  */
-class BrElement extends PConstElement {
+class BrElement extends ETraceElement {
   private String clazz = null;
   private int offset = 0;
   private String instr = null;
@@ -467,7 +467,7 @@ class BrElement extends PConstElement {
     return instr;
   }
 
-  public boolean equals(PConstElement other_) {
+  public boolean equals(ETraceElement other_) {
     if (BrElement.class.isInstance(other_)) {
       BrElement other = (BrElement) other_;
 
@@ -489,7 +489,7 @@ class BrElement extends PConstElement {
  *
  * @author Kangkook Jee
  */
-class OutputElement extends PConstElement {
+class OutputElement extends ETraceElement {
   String outputLoc = null;
   int tag = -1;
   String data = null;
@@ -504,7 +504,7 @@ class OutputElement extends PConstElement {
     data = data_;
   }
 
-  public boolean equals(PConstElement other_) {
+  public boolean equals(ETraceElement other_) {
     if (OutputElement.class.isInstance(other_)) {
       OutputElement other = (OutputElement) other_;
       return (outputLoc.equals(other.outputLoc))
