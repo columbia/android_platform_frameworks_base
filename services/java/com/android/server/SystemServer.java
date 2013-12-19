@@ -60,6 +60,7 @@ import com.android.server.usb.UsbService;
 import com.android.server.wm.WindowManagerService;
 
 import com.android.server.tmservice.TMLocationService;
+import com.android.server.tmservice.TMDevIdService;
 
 import dalvik.system.VMRuntime;
 import dalvik.system.Zygote;
@@ -656,12 +657,20 @@ class ServerThread extends Thread {
                 }
             }
 
-            //Adding TMeasureService
+            //Adding TMLocationService
             try {
-              Slog.i(TAG, "TMeasure Service");
+              Slog.i(TAG, "TMLocationService");
               ServiceManager.addService("TMLocationService", new TMLocationService(context));
             } catch (Throwable e) {
-              reportWtf("starting Taint management service", e);
+              reportWtf("starting TMLocationService", e);
+            }
+
+            //Adding TMDevIdService
+            try {
+              Slog.i(TAG, "TMDevIdService");
+              ServiceManager.addService("TMDevIdService", new TMDevIdService(context));
+            } catch (Throwable e) {
+              reportWtf("starting TMDevIdService", e);
             }
         }
 
