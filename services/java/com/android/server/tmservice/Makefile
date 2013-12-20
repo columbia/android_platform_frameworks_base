@@ -4,7 +4,7 @@ JAVA=/usr/bin/java
 CLASSPATH=~/tdroid/tdroid-4.1.1_r6/frameworks/base/services/java/
 
 all:
-	$(JAVAC) -classpath $(CLASSPATH) PConstraint.java
+	$(JAVAC) -classpath $(CLASSPATH) ExecTrace.java
 	$(JAVAC) -classpath $(CLASSPATH) TMLocationAnalyzer.java
 	$(JAVAC) -classpath $(CLASSPATH) TMLogcat.java
 
