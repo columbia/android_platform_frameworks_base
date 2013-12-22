@@ -284,7 +284,7 @@ public class SIMRecords extends IccRecords {
         msisdn = number;
 // begin WITH_TAINT_TRACKING
         // causes overflow in logcat, disable for now
-        //Taint.addTaintString(msisdn, Taint.TAINT_PHONE_NUMBER);
+        // Taint.addTaintString(msisdn, Taint.TAINT_PHONE_NUMBER);
 // end WITH_TAINT_TRACKING
         msisdnTag = alphaTag;
 
@@ -554,9 +554,9 @@ public class SIMRecords extends IccRecords {
                 imsi = (String) ar.result;
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
-                //if (imsi != null) {
-                //    Taint.addTaintString(imsi, Taint.TAINT_IMSI);
-                //}
+                if (imsi != null) {
+                    Taint.addTaintString(imsi, Taint.TAINT_IMSI);
+                }
 // end WITH_TAINT_TRACKING
 
                 // IMSI (MCC+MNC+MSIN) is at least 6 digits, but not more
@@ -706,7 +706,7 @@ public class SIMRecords extends IccRecords {
                 msisdn = adn.getNumber();
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
-                //Taint.addTaintString(msisdn, Taint.TAINT_PHONE_NUMBER);
+                // Taint.addTaintString(msisdn, Taint.TAINT_PHONE_NUMBER);
 // end WITH_TAINT_TRACKING
                 msisdnTag = adn.getAlphaTag();
 
