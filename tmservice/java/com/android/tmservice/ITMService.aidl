@@ -11,6 +11,9 @@ interface ITMService {
     In this occasion, do we need to export getYYY() from here?
    */
 
+  //return tag information
+  int getTag();
+
   //Remote service methods for Device ID information.
   String getIMSI();
 }

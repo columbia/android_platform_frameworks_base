@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.util.Log;
 
@@ -43,7 +44,7 @@ import com.android.internal.telephony.PhoneBase;
 import com.android.internal.telephony.SmsMessageBase;
 import com.android.internal.telephony.IccRefreshResponse;
 
-import com.android.server.tmservice.TMIMSIService;
+import com.android.tmservice.ITMService;
 
 import java.util.ArrayList;
 
@@ -557,16 +558,27 @@ public class SIMRecords extends IccRecords {
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
                 if (imsi != null) {
-                    if ((Taint.tmIMSIService != null)  &&
-                            TMIMSIService.class.isInstance(Taint.tmIMSIService)) {
-                        //Do something
-                        TMIMSIService tmIMSISvc = (TMIMSIService) Taint.tmIMSIService;
-                        imsi = tmIMSISvc.getIMSI();
-                        int tag = tmIMSISvc.getTag();
-                        Taint.addTaintString(imsi, tag);
-                    } else {
-                        Taint.addTaintString(imsi, Taint.TAINT_IMSI);
+                  int tag = Taint.TAINT_IMSI;
+
+                  ITMService tmIMSISvc = (ITMService) mContext.getSystemService("TMIMSIService");
+
+                  // if ((Taint.tmIMSIService != null) 
+                  //    && ITMIMSIService.class.isInstance(Taint.tmIMSIService)) {
+                  //      TMIMSIService tmIMSISvc = (TMIMSIService) Taint.tmIMSIService;
+
+                  if (tmIMSISvc != null) {
+                    //Do something
+                    try {
+                      imsi = tmIMSISvc.getIMSI();
+                      tag = tmIMSISvc.getTag();
+                    } catch (RemoteException re) {
+                      //TODO: do error handling.
+                      ;
                     }
+                    Taint.addTaintString(imsi, tag);
+                  } else {
+                    Taint.addTaintString(imsi, Taint.TAINT_IMSI);
+                  }
                 }
 // end WITH_TAINT_TRACKING
 
