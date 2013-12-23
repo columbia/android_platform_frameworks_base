@@ -43,6 +43,8 @@ import com.android.internal.telephony.PhoneBase;
 import com.android.internal.telephony.SmsMessageBase;
 import com.android.internal.telephony.IccRefreshResponse;
 
+import com.android.server.tmservice.TMIMSIService;
+
 import java.util.ArrayList;
 
 // begin WITH_TAINT_TRACKING
@@ -555,7 +557,16 @@ public class SIMRecords extends IccRecords {
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
                 if (imsi != null) {
-                    Taint.addTaintString(imsi, Taint.TAINT_IMSI);
+                    if ((Taint.tmIMSIService != null)  &&
+                            TMIMSIService.class.isInstance(Taint.tmIMSIService)) {
+                        //Do something
+                        TMIMSIService tmIMSISvc = (TMIMSIService) Taint.tmIMSIService;
+                        imsi = tmIMSISvc.getIMSI();
+                        int tag = tmIMSISvc.getTag();
+                        Taint.addTaintString(imsi, tag);
+                    } else {
+                        Taint.addTaintString(imsi, Taint.TAINT_IMSI);
+                    }
                 }
 // end WITH_TAINT_TRACKING
 
