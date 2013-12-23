@@ -44,26 +44,12 @@ public abstract class TMService extends ITMService.Stub {
   static private String helpMessage = "Usage examples \n" +
   		"runover TMSvc [port] [cmd]\n" +
   		"disc\n";
-  
+    
   /**
    * Dummy implementation
    */
-  public double getLatitude() {
-    return 0.0;
-  }
-
-  /**
-   * Dummy implementation
-   */
-  public double getLongitude() {
-    return 0.0;
-  }
-  
-  /**
-   * Dummy implementation
-   */
-  public int getDevId() {
-    return 0;
+  public String getIMSI() {
+    return "0000";
   }
 
   /**

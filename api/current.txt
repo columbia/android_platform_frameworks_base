@@ -29054,9 +29054,7 @@ package com.android.tmservice {
   }
 
   public abstract interface ITMService implements android.os.IInterface {
-    method public abstract int getDevId() throws android.os.RemoteException;
-    method public abstract double getLatitude() throws android.os.RemoteException;
-    method public abstract double getLongitude() throws android.os.RemoteException;
+    method public abstract java.lang.String getIMSI() throws android.os.RemoteException;
   }
 
   public static abstract class ITMService.Stub extends android.os.Binder implements com.android.tmservice.ITMService {

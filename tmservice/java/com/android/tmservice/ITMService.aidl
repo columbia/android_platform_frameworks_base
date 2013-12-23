@@ -2,9 +2,7 @@ package com.android.tmservice;
 
 interface ITMService {
   //Remote service methods for GPS Location information.
-  double getLatitude();
-  double getLongitude();
-
+  // nothing required for now.
   //Remote service methods for Device ID information.
-  int getDevId();
+  String getIMSI();
 }

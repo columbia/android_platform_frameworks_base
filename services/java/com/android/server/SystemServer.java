@@ -60,7 +60,7 @@ import com.android.server.usb.UsbService;
 import com.android.server.wm.WindowManagerService;
 
 import com.android.server.tmservice.TMLocationService;
-import com.android.server.tmservice.TMDevIdService;
+import com.android.server.tmservice.TMIMSIService;
 
 import dalvik.system.VMRuntime;
 import dalvik.system.Zygote;
@@ -665,12 +665,12 @@ class ServerThread extends Thread {
               reportWtf("starting TMLocationService", e);
             }
 
-            //Adding TMDevIdService
+            //Adding TMIMSIService
             try {
-              Slog.i(TAG, "TMDevIdService");
-              ServiceManager.addService("TMDevIdService", new TMDevIdService(context));
+              Slog.i(TAG, "TMIMSIService");
+              ServiceManager.addService("TMIMSIService", new TMIMSIService(context));
             } catch (Throwable e) {
-              reportWtf("starting TMDevIdService", e);
+              reportWtf("starting TMIMSIService", e);
             }
         }
 
