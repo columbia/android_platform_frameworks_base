@@ -42,7 +42,17 @@ class ExecTrace {
   public static final int ERR_UNKOWN = 4;
 
   /* List that contains valid output locations */
-  private static final String[] outputLocations = new String[] {"sendtoBytes"};
+  private static final String[] outputLocations = 
+          new String[] {
+          "libcore.os.read0",
+          "libcore.os.read1",
+          "libcore.os.sendto0", 
+          "libcore.os.pwrite0", 
+          "libcore.os.pwrite1", 
+          "libcore.os.write0",
+          "libcore.os.write1"
+          /* more to come */
+          };
 
   public static String getOutputStr(int outType) {
     String ret = "INVALID OutType";
