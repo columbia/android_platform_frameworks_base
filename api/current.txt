@@ -29478,7 +29478,6 @@ package dalvik.system {
     field public static final int TAINT_PHONE_NUMBER = 8; // 0x8
     field public static final int TAINT_SMS = 512; // 0x200
     field public static final int dataBytesToLog = 100; // 0x64
-    field public static java.lang.Object tmIMSIService;
     field public static final int tmport = 50000; // 0xc350
   }
 

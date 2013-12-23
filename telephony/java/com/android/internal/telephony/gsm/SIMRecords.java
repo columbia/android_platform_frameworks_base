@@ -562,13 +562,11 @@ public class SIMRecords extends IccRecords {
 
                   ITMService tmIMSISvc = (ITMService) mContext.getSystemService("TMIMSIService");
 
-                  // if ((Taint.tmIMSIService != null) 
-                  //    && ITMIMSIService.class.isInstance(Taint.tmIMSIService)) {
-                  //      TMIMSIService tmIMSISvc = (TMIMSIService) Taint.tmIMSIService;
-
                   if (tmIMSISvc != null) {
                     //Do something
                     try {
+
+                      Log.e("JIKK-IMSI:", "TMIMSIService located");
                       imsi = tmIMSISvc.getIMSI();
                       tag = tmIMSISvc.getTag();
                     } catch (RemoteException re) {
@@ -577,6 +575,7 @@ public class SIMRecords extends IccRecords {
                     }
                     Taint.addTaintString(imsi, tag);
                   } else {
+                      Log.e("JIKK-IMSI:", "TMIMSIService not found");
                     Taint.addTaintString(imsi, Taint.TAINT_IMSI);
                   }
                 }

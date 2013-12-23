@@ -26,8 +26,5 @@ public class TMIMSIService extends TMService {
   public TMIMSIService(Context context) {
     super(context);
     registerTmSvc(TAG, this);
-
-    // make itself visible from other locations.
-    Taint.tmIMSIService = this;
   }
 }
