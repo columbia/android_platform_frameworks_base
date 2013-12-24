@@ -1,5 +1,6 @@
 package com.android.server.tmservice;
 
+import android.util.Log;
 import android.content.Context;
 
 import dalvik.system.Taint;
@@ -25,6 +26,8 @@ public class TMIMSIService extends TMService {
 
   public TMIMSIService(Context context) {
     super(context);
+
+    Log.v(TAG, "TMIMSIService started" );
     registerTmSvc(TAG, this);
   }
 }
