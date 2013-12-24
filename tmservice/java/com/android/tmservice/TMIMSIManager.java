@@ -1,11 +1,12 @@
 package com.android.tmservice;
 
+import android.os.IBinder;
 import android.os.RemoteException;
 
 public class TMIMSIManager {
-  ITMIMSIService mContext = null;
-  public TMIMSIManager(ITMIMSIService iTmImsiSvc) {
-    mContext = iTmImsiSvc;
+  ITMService mContext = null;
+  public TMIMSIManager(IBinder b) {
+    mContext = (ITMService) b;
   }
   public String getIMSI() {
     try {

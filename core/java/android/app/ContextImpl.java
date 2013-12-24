@@ -102,8 +102,6 @@ import com.android.internal.os.IDropBoxManagerService;
 
 import com.android.tmservice.ITMService;
 import com.android.tmservice.TMIMSIManager;
-//import com.android.server.location.*;
-//import com.android.server.tmservice.TMIMSIService;
 
 import java.io.File;
 import java.io.FileInputStream;
