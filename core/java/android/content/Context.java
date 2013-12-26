@@ -1965,7 +1965,7 @@ public abstract class Context {
      *
      * @hide
      */
-    public static final String TM_LOCATION_SERVICE = "tm_location_service";        
+    public static final String TM_LOCATION_SERVICE = "tm_location_service";
     
     /**
      * Use with {@link #getSystemService} to retrieve a
@@ -1977,7 +1977,7 @@ public abstract class Context {
      *
      * @hide
      */
-    public static final String TM_IMSI_SERVICE = "tm_imsi_service";    
+    public static final String TM_IMSI_SERVICE = "tm_imsi_service";
     
     
     /**
