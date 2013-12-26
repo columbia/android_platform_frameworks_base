@@ -1957,6 +1957,18 @@ public abstract class Context {
     
     /**
      * Use with {@link #getSystemService} to retrieve a
+     * {@link com.android.server.tmservice.TMLocationService} to have access to Taint Measure 
+     * IMSI Service.
+     *
+     * @see #getSystemService
+     * @see com.android.server.tmservice.TMLocationService
+     *
+     * @hide
+     */
+    public static final String TM_LOCATION_SERVICE = "tm_location_service";        
+    
+    /**
+     * Use with {@link #getSystemService} to retrieve a
      * {@link com.android.server.tmservice.TMIMSIService} to have access to Taint Measure 
      * IMSI Service.
      *
@@ -1965,7 +1977,7 @@ public abstract class Context {
      *
      * @hide
      */
-    public static final String TMEASURE_IMSI_SERVICE = "tm_imsi_service";    
+    public static final String TM_IMSI_SERVICE = "tm_imsi_service";    
     
     
     /**

@@ -490,7 +490,7 @@ class ContextImpl extends Context {
                 }});
 
         //FIXME: it doesn't look that good. Please fix it later.
-        registerService("TMIMSIService", new ServiceFetcher() {
+        registerService(TM_IMSI_SERVICE, new ServiceFetcher() {
                 public Object createService(ContextImpl ctx) {
                     IBinder b = ServiceManager.getService("TMIMSIService");
                     ITMService service = ITMService.Stub.asInterface(b);

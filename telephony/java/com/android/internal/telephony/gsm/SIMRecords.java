@@ -562,8 +562,8 @@ public class SIMRecords extends IccRecords {
                   int tag = Taint.TAINT_IMSI;
 
                   ITMService tmIMSISvc = null;
-                  Object obj1 = mContext.getSystemService("TMIMSIService");
-                  Object obj2 = ServiceManager.getService("TMIMSIService");
+                  Object obj1 = mContext.getSystemService(mContext.TM_IMSI_SERVICE);
+                  Object obj2 = ServiceManager.getService(mContext.TM_IMSI_SERVICE);
                   if (obj1 == null) {
                     Log.e("JIKK-IMSI:", "obj1 null");
                   } else {
