@@ -1954,6 +1954,20 @@ public abstract class Context {
      */
     public static final String SCHEDULING_POLICY_SERVICE = "scheduling_policy";
 
+    
+    /**
+     * Use with {@link #getSystemService} to retrieve a
+     * {@link com.android.server.tmservice.TMIMSIService} to have access to Taint Measure 
+     * IMSI Service.
+     *
+     * @see #getSystemService
+     * @see com.android.server.tmservice.TMIMSIService
+     *
+     * @hide
+     */
+    public static final String TMEASURE_IMSI_SERVICE = "tm_imsi_service";    
+    
+    
     /**
      * Determine whether the given permission is allowed for a particular
      * process and user ID running in the system.

@@ -3,8 +3,8 @@ package com.android.tmservice;
 import android.os.RemoteException;
 
 public class TMIMSIManager {
-  ITMIMSIService mContext = null;
-  public TMIMSIManager(ITMIMSIService iTmImsiSvc) {
+  ITMService mContext = null;
+  public TMIMSIManager(ITMService iTmImsiSvc) {
     mContext = iTmImsiSvc;
   }
   public String getIMSI() {
