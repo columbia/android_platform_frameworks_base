@@ -660,7 +660,7 @@ class ServerThread extends Thread {
             //Adding TMLocationService
             try {
               Slog.i(TAG, "TMLocationService");
-              ServiceManager.addService("TMLocationService", new TMLocationService(context));
+              ServiceManager.addService(context.TM_LOCATION_SERVICE, new TMLocationService(context));
             } catch (Throwable e) {
               reportWtf("starting TMLocationService", e);
             }
@@ -668,7 +668,7 @@ class ServerThread extends Thread {
             //Adding TMIMSIService
             try {
               Slog.i(TAG, "TMIMSIService");
-              ServiceManager.addService("TMIMSIService", new TMIMSIService(context));
+              ServiceManager.addService(context.TM_IMSI_SERVICE, new TMIMSIService(context));
             } catch (Throwable e) {
               reportWtf("starting TMIMSIService", e);
             }
