@@ -46,6 +46,7 @@ import com.android.internal.telephony.SmsMessageBase;
 import com.android.internal.telephony.IccRefreshResponse;
 
 import com.android.tmservice.ITMService;
+import com.android.tmservice.TMIMSIManager;
 
 import java.util.ArrayList;
 
@@ -561,33 +562,21 @@ public class SIMRecords extends IccRecords {
                 if (imsi != null) {
                   int tag = Taint.TAINT_IMSI;
 
-                  ITMService tmIMSISvc = null;
-                  Object obj1 = mContext.getSystemService(Context.TM_IMSI_SERVICE);
-                  Object obj2 = ServiceManager.getService(Context.TM_IMSI_SERVICE);
-                  if (obj1 == null) {
+                  TMIMSIManager tmIMSIMgr = (TMIMSIManager) mContext.getSystemService(Context.TM_IMSI_SERVICE);
+                  if (tmIMSIMgr == null) {
                     Log.e("JIKK-IMSI:", "obj1 null");
                   } else {
-                    Log.e("JIKK-IMSI:", "obj1 not null " +  ITMService.class.isInstance(obj1) + ": " + obj1);
-                  }
-                  if (obj2 == null) {
-                    Log.e("JIKK-IMSI:", "obj2 null");
-                  } else {
-                    Log.e("JIKK-IMSI:", "obj2 not null " +  ITMService.class.isInstance(obj2) + ": " + obj2);
+                    Log.e("JIKK-IMSI:", "obj1 not null " +  TMIMSIManager.class.isInstance(tmIMSIMgr) + ": " + tmIMSIMgr);
                   }
 
-                  tmIMSISvc = (ITMService) obj1;
-                  tmIMSISvc = (ITMService) obj2;
 
-                  if (tmIMSISvc != null) {
+                  if (tmIMSIMgr != null) {
                     //Do something
                     Log.e("JIKK-IMSI:", "TMIMSIService located");
-                    try {
-                      imsi = tmIMSISvc.getIMSI();
-                      tag = tmIMSISvc.getTag();
-                    } catch (RemoteException re) {
-                      //TODO: do error handling.
-                      Log.e("JIKK-IMSI:", "exception!!!" + re.toString());                   
-                    }
+
+                    imsi = tmIMSIMgr.getIMSI();
+                    //tag = tmIMSIMgr.getTag();
+
                     Taint.addTaintString(imsi, tag);
                   } else {
                     Log.e("JIKK-IMSI:", "TMIMSIService not found");
