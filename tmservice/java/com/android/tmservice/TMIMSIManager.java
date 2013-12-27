@@ -1,6 +1,5 @@
 package com.android.tmservice;
 
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -13,8 +12,8 @@ import android.util.Log;
 public class TMIMSIManager {
   ITMService mContext = null;
 
-  public TMIMSIManager(IBinder b) {
-    mContext = (ITMService) b;
+  public TMIMSIManager(ITMService b) {
+    mContext = b;
   }
   public String getIMSI() {
     try {
@@ -23,6 +22,7 @@ public class TMIMSIManager {
       Log.e("JIKK-IMSIMgr", "getIMSI called:1:" + ret);
       return ret;
     } catch (RemoteException re) {
+      Log.e("JIKK-IMSIMgr", "getIMSI exception");
       return null;
     }
   }
@@ -34,6 +34,7 @@ public class TMIMSIManager {
         Log.e("JIKK-IMSIMgr", "getTag called:1" + ret);
         return ret;
       } catch (RemoteException re) {
+        Log.e("JIKK-IMSIMgr", "getTag exception");
         return 0;
       }
     }  
