@@ -10,32 +10,36 @@ import android.util.Log;
  *
  */
 public class TMIMSIManager {
-  ITMService mContext = null;
+  private ITMService mContext = null;
+  private static String TAG = "TMIMSIManager";
 
   public TMIMSIManager(ITMService b) {
+    Log.e("JIKK_IMSIMgr", "Constructor:" + b);
     mContext = b;
   }
   public String getIMSI() {
     try {
-      Log.e("JIKK-IMSIMgr", "getIMSI called:0");
       String ret = mContext.getIMSI();
-      Log.e("JIKK-IMSIMgr", "getIMSI called:1:" + ret);
       return ret;
     } catch (RemoteException re) {
-      Log.e("JIKK-IMSIMgr", "getIMSI exception");
+      Log.e(TAG, "getIMSI(): Remote Exception" + re.toString());
+      return null;
+    } catch (Exception e) {
+      Log.e(TAG, "getIMSI() Exception" + e.toString());
       return null;
     }
   }
   
   public int getTag() {
       try {
-        Log.e("JIKK-IMSIMgr", "getTag called:0");
         int ret = mContext.getTag();
-        Log.e("JIKK-IMSIMgr", "getTag called:1" + ret);
         return ret;
       } catch (RemoteException re) {
-        Log.e("JIKK-IMSIMgr", "getTag exception");
+        Log.e(TAG, "getTag Remote Exception" + re.toString());
+        return 0;
+      } catch (Exception e) {
+        Log.e(TAG, "getTag Exception" + e.toString());
         return 0;
       }
-    }  
+  }
 }

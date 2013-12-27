@@ -563,24 +563,14 @@ public class SIMRecords extends IccRecords {
                   int tag = Taint.TAINT_IMSI;
 
                   TMIMSIManager tmIMSIMgr = (TMIMSIManager) mContext.getSystemService(Context.TM_IMSI_SERVICE);
-                  if (tmIMSIMgr == null) {
-                    Log.e("JIKK-IMSI:", "obj1 null");
-                  } else {
-                    Log.e("JIKK-IMSI:", "obj1 not null " +  TMIMSIManager.class.isInstance(tmIMSIMgr) + ": " + tmIMSIMgr);
-                  }
-
 
                   if (tmIMSIMgr != null) {
-                    //Do something
-                    Log.e("JIKK-IMSI:", "not null0");
+                    //Provide fake vaule.
                     imsi = tmIMSIMgr.getIMSI();
-                    Log.e("JIKK-IMSI:", "not null1" + imsi);
                     tag = tmIMSIMgr.getTag();
-                    Log.e("JIKK-IMSI:", "TMIMSIService located:" + imsi + ":" + tag);
-
                     Taint.addTaintString(imsi, tag);
                   } else {
-                    Log.e("JIKK-IMSI:", "TMIMSIService not found");
+                    Log.e(LOG_TAG, "TMIMSIService not found");
                     Taint.addTaintString(imsi, Taint.TAINT_IMSI);
                   }
                 }
