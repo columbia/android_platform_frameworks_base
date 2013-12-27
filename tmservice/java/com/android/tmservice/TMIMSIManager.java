@@ -23,6 +23,7 @@ public class TMIMSIManager {
       Log.e("JIKK-IMSIMgr", "getIMSI called:1:" + ret);
       return ret;
     } catch (RemoteException re) {
+      Log.e("JIKK-IMSIMgr", "getIMSI exception");
       return null;
     }
   }
@@ -34,6 +35,7 @@ public class TMIMSIManager {
         Log.e("JIKK-IMSIMgr", "getTag called:1" + ret);
         return ret;
       } catch (RemoteException re) {
+        Log.e("JIKK-IMSIMgr", "getTag exception");
         return 0;
       }
     }  
