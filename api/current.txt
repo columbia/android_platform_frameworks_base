@@ -29042,19 +29042,6 @@ package com.android.tmservice {
     method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
   }
 
-  public abstract interface ITMService implements android.os.IInterface {
-    method public abstract int getDevId() throws android.os.RemoteException;
-    method public abstract double getLatitude() throws android.os.RemoteException;
-    method public abstract double getLongitude() throws android.os.RemoteException;
-  }
-
-  public static abstract class ITMService.Stub extends android.os.Binder implements com.android.tmservice.ITMService {
-    ctor public ITMService.Stub();
-    method public android.os.IBinder asBinder();
-    method public static com.android.tmservice.ITMService asInterface(android.os.IBinder);
-    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
-  }
-
 }
 
 package dalvik.annotation {

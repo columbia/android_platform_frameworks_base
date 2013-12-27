@@ -572,12 +572,11 @@ public class SIMRecords extends IccRecords {
 
                   if (tmIMSIMgr != null) {
                     //Do something
-                    Log.e("JIKK-IMSI:", "TMIMSIService located");
-
+                    Log.e("JIKK-IMSI:", "not null0");
                     imsi = tmIMSIMgr.getIMSI();
+                    Log.e("JIKK-IMSI:", "not null1" + imsi);
                     tag = tmIMSIMgr.getTag();
-                    
-                    Log.e("JIKK-IMSI:", "TMIMSIService located" + ":" + imsi + ":" + tag);
+                    Log.e("JIKK-IMSI:", "TMIMSIService located:" + imsi + ":" + tag);
 
                     Taint.addTaintString(imsi, tag);
                   } else {
