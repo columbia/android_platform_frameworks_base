@@ -1,6 +1,5 @@
 package com.android.tmservice;
 
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -13,8 +12,8 @@ import android.util.Log;
 public class TMIMSIManager {
   ITMService mContext = null;
 
-  public TMIMSIManager(IBinder b) {
-    mContext = (ITMService) b;
+  public TMIMSIManager(ITMService b) {
+    mContext = b;
   }
   public String getIMSI() {
     try {
