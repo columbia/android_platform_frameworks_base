@@ -496,7 +496,7 @@ class ContextImpl extends Context {
                     if (b == null) {
                       //Error handling required. For now we just logging error message
                       Log.e(TAG, "Failed to retrived " + TM_IMSI_SERVICE);
-                      
+
                     }
                     ITMService service = ITMService.Stub.asInterface(b);
                     return new TMIMSIManager(service);
