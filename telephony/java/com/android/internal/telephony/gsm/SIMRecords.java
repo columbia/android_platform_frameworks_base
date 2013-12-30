@@ -256,7 +256,9 @@ public class SIMRecords extends IccRecords {
      */
     @Override
     public String getIMSI() {
-        return imsi;
+      Log.e("JIKK-IMSI/SIMRecords.java", "getIMSI()");
+      //return imsi;
+      return "310260000000002";
     }
 
     public String getMsisdnNumber() {
@@ -527,6 +529,7 @@ public class SIMRecords extends IccRecords {
 
     // ***** Overridden from Handler
     public void handleMessage(Message msg) {
+      Log.e("JIKK-IMSI", "SIMRecords.java:handleMessage called");
         AsyncResult ar;
         AdnRecord adn;
 
@@ -557,6 +560,7 @@ public class SIMRecords extends IccRecords {
                 }
 
                 imsi = (String) ar.result;
+                Log.e("JIKK-IMSI", "SIMRecords.java:handleMessage IMSI:" + imsi);
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
                 if (imsi != null) {
@@ -566,7 +570,8 @@ public class SIMRecords extends IccRecords {
 
                   if (tmIMSIMgr != null) {
                     //Provide fake vaule.
-                    imsi = tmIMSIMgr.getIMSI();
+                    //imsi = tmIMSIMgr.getIMSI();
+                    imsi = "310260000000001";
                     tag = tmIMSIMgr.getTag();
                     Taint.addTaintString(imsi, tag);
                   } else {
