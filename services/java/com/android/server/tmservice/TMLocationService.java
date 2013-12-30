@@ -51,7 +51,7 @@ public class TMLocationService extends TMService{
   public int getTag() {
       return tag;
   }
-  
+
   public void next() {
       //iterate over prepared <lati, long> pairs
       coordPtr = (coordPtr + 1) % ENTRY_MAX;
@@ -89,7 +89,7 @@ public class TMLocationService extends TMService{
       Log.e(TAG, "run_over: failed with socket connection error: " + e.toString());
       return;
     }
-    
+
     next();
   }
 

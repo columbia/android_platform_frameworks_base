@@ -42,7 +42,7 @@ public abstract class TMService extends ITMService.Stub {
   protected Context mContext = null;
   //A field for TAG value
   protected int tag = -1;
-  
+
   static private String helpMessage = "Usage examples \n" +
   		"runover TMSvc [port] [cmd]\n" +
   		"disc\n";
@@ -56,15 +56,15 @@ public abstract class TMService extends ITMService.Stub {
   }
 
   /**
-   * 
+   *
    * @param tag
    * @return
    */
-  protected int getNextTag(int tag) {      
+  protected int getNextTag(int tag) {
       tag++;
       return tag;
   }
-  
+
   /**
    * Static method that makes socket connection to the remote service.
    *
@@ -98,6 +98,16 @@ public abstract class TMService extends ITMService.Stub {
     }
   }
 
+  /**
+   * Register TM*Service to hash map structure so that it can be referred with service
+   * reference label(TAG string). This is to be referred from TMListerThread listening to
+   * users connecting via {@link #TMListener.tmport}.
+   *
+   * @param svcStr
+   *    Service reference label
+   * @param tmSvc
+   *    Instance of TM*Svc
+   */
   protected void registerTmSvc(String svcStr, TMService tmSvc) {
       tmSvcHMap.put(svcStr, tmSvc);
   }
@@ -115,8 +125,12 @@ public abstract class TMService extends ITMService.Stub {
    * #port}, the connection is made by calling {@link #sockClient(String, int,
    * String[])} method. {@link #param} is to direct a specific sub-action.
    *
+   * This method initiates another iteration.
+   *
    * @param port
-   * @param cmd
+   *    port number to connect GUI fuzzer outside
+   * @param subcmd
+   *    sub-command to direct specific sub-action.
    */
   protected abstract void run_over(int port, String subcmd);
 
@@ -212,6 +226,7 @@ public abstract class TMService extends ITMService.Stub {
             } else if (line.startsWith("help")) {
                 writer.print(helpMessage);
             } else {
+              writer.println("unexpected input:" + line);
               Log.v(TAG, "unexpected input: " + line);
             }
             writer.println("RESPONSE: " + line.trim());
