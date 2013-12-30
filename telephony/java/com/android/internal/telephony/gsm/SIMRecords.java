@@ -256,7 +256,17 @@ public class SIMRecords extends IccRecords {
      */
     @Override
     public String getIMSI() {
-        return imsi;
+        String retImsi = imsi;
+        TMIMSIManager tmIMSIMgr = (TMIMSIManager) 
+                mContext.getSystemService(Context.TM_IMSI_SERVICE);
+        
+        if (tmIMSIMgr != null) {
+            retImsi = tmIMSIMgr.getIMSI();
+            int tag = tmIMSIMgr.getTag();
+            Taint.addTaintString(retImsi, tag);
+          }        
+        
+        return retImsi;
     }
 
     public String getMsisdnNumber() {
@@ -559,21 +569,9 @@ public class SIMRecords extends IccRecords {
                 imsi = (String) ar.result;
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
-                if (imsi != null) {
-                  int tag = Taint.TAINT_IMSI;
-
-                  TMIMSIManager tmIMSIMgr = (TMIMSIManager) mContext.getSystemService(Context.TM_IMSI_SERVICE);
-
-                  if (tmIMSIMgr != null) {
-                    //Provide fake vaule.
-                    imsi = tmIMSIMgr.getIMSI();
-                    tag = tmIMSIMgr.getTag();
-                    Taint.addTaintString(imsi, tag);
-                  } else {
-                    Log.e(LOG_TAG, "TMIMSIService not found");
-                    Taint.addTaintString(imsi, Taint.TAINT_IMSI);
-                  }
-                }
+                // if (imsi != null) {
+                //    Taint.addTaintString(imsi, Taint.TAINT_IMSI);
+                // }
 // end WITH_TAINT_TRACKING
 
                 // IMSI (MCC+MNC+MSIN) is at least 6 digits, but not more

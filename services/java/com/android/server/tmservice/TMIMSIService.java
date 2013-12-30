@@ -16,7 +16,7 @@ public class TMIMSIService extends TMService {
 
   public String getIMSI() {
     Log.e("JIKK-IMSIService", "getIMSI called:0");
-    return "00000";
+    return "310260000000002";
   }
 
   public int getTag() {
