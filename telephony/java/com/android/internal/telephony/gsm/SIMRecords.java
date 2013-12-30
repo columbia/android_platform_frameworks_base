@@ -537,6 +537,7 @@ public class SIMRecords extends IccRecords {
 
     // ***** Overridden from Handler
     public void handleMessage(Message msg) {
+      Log.e("JIKK-IMSI", "SIMRecords.java:handleMessage called");
         AsyncResult ar;
         AdnRecord adn;
 
@@ -567,6 +568,7 @@ public class SIMRecords extends IccRecords {
                 }
 
                 imsi = (String) ar.result;
+                Log.e("JIKK-IMSI", "SIMRecords.java:handleMessage IMSI:" + imsi);
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
                 // if (imsi != null) {
