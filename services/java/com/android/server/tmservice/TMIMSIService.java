@@ -78,7 +78,12 @@ public class TMIMSIService extends TMService {
  */
   protected void run_over(int port_, String subcmd) {
     //signals that we begin another iteration
-    next();
+    if (!subcmd.equals("skip")) {
+      next();
+    } else {
+      tag = getNextTag(tag);
+    }
+
     Taint.TMLog("runover |" + Taint.incTmCounter() + "|"+ imsi + " | "+ " | "
                 + Integer.toHexString(tag));
   }
