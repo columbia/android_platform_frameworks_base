@@ -56,12 +56,21 @@ public abstract class TMService extends ITMService.Stub {
   }
 
   /**
+   * Method to get next TAG value. We want use different TAG values for
+   * different test instances.
    *
    * @param tag
+   *    TAG value used before.
    * @return
+   *    TAG value to be used.
    */
   protected int getNextTag(int tag) {
       tag++;
+
+      //just want to avoid TAINT_CLEAR
+      if (tag == 0) {
+          tag++;
+      }
       return tag;
   }
 
