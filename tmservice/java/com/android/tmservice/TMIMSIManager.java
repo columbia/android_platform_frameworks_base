@@ -5,7 +5,7 @@ import android.util.Log;
 
 /**
  * Class that implements RPC client
- * 
+ *
  * @author jikk
  *
  */
@@ -29,7 +29,17 @@ public class TMIMSIManager {
       return null;
     }
   }
-  
+
+  public void next() {
+    try {
+      mContext.next();
+    } catch (RemoteException re) {
+      Log.e(TAG, "next() Remote Exception" + re.toString());
+    } catch (Exception e) {
+      Log.e(TAG, "next() Exception" + e.toString());
+    }
+  }
+
   public int getTag() {
       try {
         int ret = mContext.getTag();

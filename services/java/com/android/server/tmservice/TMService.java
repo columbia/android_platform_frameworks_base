@@ -40,7 +40,9 @@ public abstract class TMService extends ITMService.Stub {
 
   //Fields related to Android service
   protected Context mContext = null;
-
+  //A field for TAG value
+  protected int tag = -1;
+  
   static private String helpMessage = "Usage examples \n" +
   		"runover TMSvc [port] [cmd]\n" +
   		"disc\n";
@@ -49,10 +51,20 @@ public abstract class TMService extends ITMService.Stub {
    * Dummy implementation
    */
   public String getIMSI() {
-    //assert(false /* shouldn't be invoked */);
-    return "0000";
+    assert(false /* shouldn't be invoked */);
+    return "000000000000000";
   }
 
+  /**
+   * 
+   * @param tag
+   * @return
+   */
+  protected int getNextTag(int tag) {      
+      tag++;
+      return tag;
+  }
+  
   /**
    * Static method that makes socket connection to the remote service.
    *
@@ -106,7 +118,7 @@ public abstract class TMService extends ITMService.Stub {
    * @param port
    * @param cmd
    */
-  protected abstract void run_over(int port, String cmd);
+  protected abstract void run_over(int port, String subcmd);
 
   /**
    * Constructor method.
@@ -117,6 +129,7 @@ public abstract class TMService extends ITMService.Stub {
     super();
 
     mContext = context;
+    tag = 1;
 
     //Singleton elements
     if (tmLogcat == null) {

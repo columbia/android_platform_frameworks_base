@@ -18,7 +18,6 @@ import android.os.ServiceManager;
  *
  */
 public class TMLocationService extends TMService{
-
   private LocationManagerService locationManager = null;
   private GpsLocationProvider gpsProvider = null;
   private List<Tuple<Double, Double, Integer>> coordList =
@@ -49,22 +48,22 @@ public class TMLocationService extends TMService{
     }
   }
 
-
   public int getTag() {
-      return Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
+      return tag;
   }
 
-  protected void run_over(int port_, String cmd) {
-    Log.v(TAG, "run_over invoked with " + port_ + " and " + cmd);
+  public void next() {
+      //iterate over prepared <lati, long> pairs
+      coordPtr = (coordPtr + 1) % ENTRY_MAX;
+      tag = getNextTag(tag);
+  }
+
+  protected void run_over(int port_, String subcmd) {
+    Log.v(TAG, "run_over invoked with " + port_ + " and " + subcmd);
 
     //fake value pair for GPS location
     Double latitude = coordList.get(coordPtr).x;
     Double longitude = coordList.get(coordPtr).y;;
-
-    //iterate over prepared <lati, long> pairs
-    coordPtr = (coordPtr + 1) % ENTRY_MAX;
-
-    int tag = getTag();
 
     //Default port to connect for monkey control
     int port = 10000;
@@ -77,7 +76,7 @@ public class TMLocationService extends TMService{
 
     //Signals that we begin another iteration
     Taint.TMLog("runover |" + Taint.incTmCounter() + "|" + latitude + "| "
-                + longitude + "| " + Integer.toHexString(tag));
+                + longitude + "| " + Integer.toHexString(getTag()));
 
     //update made to GpsLocation service
     invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
@@ -90,6 +89,8 @@ public class TMLocationService extends TMService{
       Log.e(TAG, "run_over: failed with socket connection error: " + e.toString());
       return;
     }
+
+    next();
   }
 
   public static int randInt(int min, int max) {
@@ -107,6 +108,7 @@ public class TMLocationService extends TMService{
     super(context);
     registerTmSvc(TAG, this);
 
+    //init. private(service specific) variables.
     locationManager = (LocationManagerService)
       ServiceManager.getService(Context.LOCATION_SERVICE);
 
@@ -120,8 +122,5 @@ public class TMLocationService extends TMService{
                       new Double(randInt(0, 20)),
                       new Integer(randInt(0, 32))));
     }
-
-
-
   }
 }
