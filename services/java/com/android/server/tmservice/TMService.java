@@ -49,7 +49,7 @@ public abstract class TMService extends ITMService.Stub {
    * Dummy implementation
    */
   public String getIMSI() {
-    assert(false /* shouldn't be invoked */);
+    //assert(false /* shouldn't be invoked */);
     return "0000";
   }
 

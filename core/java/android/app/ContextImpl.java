@@ -492,7 +492,12 @@ class ContextImpl extends Context {
         //FIXME: it doesn't look that good. Please fix it later.
         registerService(TM_IMSI_SERVICE, new ServiceFetcher() {
                 public Object createService(ContextImpl ctx) {
-                    IBinder b = ServiceManager.getService("TMIMSIService");
+                    IBinder b = ServiceManager.getService(TM_IMSI_SERVICE);
+                    if (b == null) {
+                      //Error handling required. For now we just logging error message
+                      Log.e(TAG, "Failed to retrived " + TM_IMSI_SERVICE);
+
+                    }
                     ITMService service = ITMService.Stub.asInterface(b);
                     return new TMIMSIManager(service);
                 }});
