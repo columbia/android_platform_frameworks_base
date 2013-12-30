@@ -494,7 +494,7 @@ class ContextImpl extends Context {
                 public Object createService(ContextImpl ctx) {
                     IBinder b = ServiceManager.getService("TMIMSIService");
                     ITMService service = ITMService.Stub.asInterface(b);
-                    return new TMIMSIManager(b);
+                    return new TMIMSIManager(service);
                 }});
     }
 
