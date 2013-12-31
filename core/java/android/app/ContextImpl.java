@@ -100,6 +100,9 @@ import android.accounts.IAccountManager;
 import android.app.admin.DevicePolicyManager;
 import com.android.internal.os.IDropBoxManagerService;
 
+import com.android.tmservice.ITMService;
+import com.android.tmservice.TMIMSIManager;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -484,6 +487,19 @@ class ContextImpl extends Context {
         registerService(WINDOW_SERVICE, new ServiceFetcher() {
                 public Object getService(ContextImpl ctx) {
                     return WindowManagerImpl.getDefault(ctx.mPackageInfo.mCompatibilityInfo);
+                }});
+
+        //FIXME: it doesn't look that good. Please fix it later.
+        registerService(TM_IMSI_SERVICE, new ServiceFetcher() {
+                public Object createService(ContextImpl ctx) {
+                    IBinder b = ServiceManager.getService(TM_IMSI_SERVICE);
+                    if (b == null) {
+                      //Error handling required. For now we just logging error message
+                      Log.e(TAG, "Failed to retrived " + TM_IMSI_SERVICE);
+
+                    }
+                    ITMService service = ITMService.Stub.asInterface(b);
+                    return new TMIMSIManager(service);
                 }});
     }
 

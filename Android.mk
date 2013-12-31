@@ -33,6 +33,11 @@ include $(CLEAR_VARS)
 # FRAMEWORKS_BASE_SUBDIRS comes from build/core/pathmap.mk
 LOCAL_SRC_FILES := $(call find-other-java-files,$(FRAMEWORKS_BASE_SUBDIRS))
 
+# Workaround: to build TMIMSIManager class write solution would be adding 
+# 'tmservice/' entry to build/core/pathmap.mk under FRAMEWORKS_BASE_SUBDIRS
+
+LOCAL_SRC_FILES += tmservice/java/com/android/tmservice/TMIMSIManager.java
+
 # EventLogTags files.
 LOCAL_SRC_FILES += \
        core/java/android/content/EventLogTags.logtags \
@@ -213,8 +218,7 @@ LOCAL_SRC_FILES += \
 	voip/java/android/net/sip/ISipSession.aidl \
 	voip/java/android/net/sip/ISipSessionListener.aidl \
 	voip/java/android/net/sip/ISipService.aidl \
-	tmservice/java/com/android/tmservice/ITMLocationService.aidl \
-	tmservice/java/com/android/tmservice/ITMDevIdService.aidl \
+	tmservice/java/com/android/tmservice/ITMService.aidl \
 #
 
 
@@ -306,8 +310,7 @@ aidl_files := \
 	frameworks/base/telephony/java/android/telephony/ServiceState.aidl \
 	frameworks/base/telephony/java/com/android/internal/telephony/IPhoneSubInfo.aidl \
 	frameworks/base/telephony/java/com/android/internal/telephony/ITelephony.aidl \
-	frameworks/base/tmservice/java/com/android/tmservice/ITMLocationService.aidl \
-	frameworks/base/tmservice/java/com/android/tmservice/ITMDevIdService.aidl \
+	frameworks/base/tmservice/java/com/android/tmservice/ITMService.aidl \
 
 gen := $(TARGET_OUT_COMMON_INTERMEDIATES)/framework.aidl
 $(gen): PRIVATE_SRC_FILES := $(aidl_files)

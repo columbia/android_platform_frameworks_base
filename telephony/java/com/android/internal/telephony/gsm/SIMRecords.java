@@ -23,7 +23,9 @@ import android.content.Context;
 import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.os.SystemProperties;
+import android.os.ServiceManager;
 import android.util.Log;
 
 import com.android.internal.telephony.AdnRecord;
@@ -42,6 +44,9 @@ import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneBase;
 import com.android.internal.telephony.SmsMessageBase;
 import com.android.internal.telephony.IccRefreshResponse;
+
+import com.android.tmservice.ITMService;
+import com.android.tmservice.TMIMSIManager;
 
 import java.util.ArrayList;
 
@@ -251,7 +256,17 @@ public class SIMRecords extends IccRecords {
      */
     @Override
     public String getIMSI() {
-        return imsi;
+        String retImsi = imsi;
+        TMIMSIManager tmIMSIMgr = (TMIMSIManager) 
+                mContext.getSystemService(Context.TM_IMSI_SERVICE);
+        
+        if (tmIMSIMgr != null) {
+            retImsi = tmIMSIMgr.getIMSI();
+            int tag = tmIMSIMgr.getTag();
+            Taint.addTaintString(retImsi, tag);
+          }        
+        
+        return retImsi;
     }
 
     public String getMsisdnNumber() {
@@ -284,7 +299,7 @@ public class SIMRecords extends IccRecords {
         msisdn = number;
 // begin WITH_TAINT_TRACKING
         // causes overflow in logcat, disable for now
-        //Taint.addTaintString(msisdn, Taint.TAINT_PHONE_NUMBER);
+        // Taint.addTaintString(msisdn, Taint.TAINT_PHONE_NUMBER);
 // end WITH_TAINT_TRACKING
         msisdnTag = alphaTag;
 
@@ -522,6 +537,7 @@ public class SIMRecords extends IccRecords {
 
     // ***** Overridden from Handler
     public void handleMessage(Message msg) {
+      Log.e("JIKK-IMSI", "SIMRecords.java:handleMessage called");
         AsyncResult ar;
         AdnRecord adn;
 
@@ -552,11 +568,12 @@ public class SIMRecords extends IccRecords {
                 }
 
                 imsi = (String) ar.result;
+                Log.e("JIKK-IMSI", "SIMRecords.java:handleMessage IMSI:" + imsi);
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
-                //if (imsi != null) {
+                // if (imsi != null) {
                 //    Taint.addTaintString(imsi, Taint.TAINT_IMSI);
-                //}
+                // }
 // end WITH_TAINT_TRACKING
 
                 // IMSI (MCC+MNC+MSIN) is at least 6 digits, but not more
@@ -706,7 +723,7 @@ public class SIMRecords extends IccRecords {
                 msisdn = adn.getNumber();
 // begin WITH_TAINT_TRACKING
                 // causes overflow in logcat, disable for now
-                //Taint.addTaintString(msisdn, Taint.TAINT_PHONE_NUMBER);
+                // Taint.addTaintString(msisdn, Taint.TAINT_PHONE_NUMBER);
 // end WITH_TAINT_TRACKING
                 msisdnTag = adn.getAlphaTag();
 

@@ -856,6 +856,7 @@ public class GSMPhone extends PhoneBase {
     }
 
     public String getSubscriberId() {
+      Log.e("JIKK-IMSI/GSMPhone.java", "getSubscriberId() callded");
         return mIccRecords.getIMSI();
     }
 
@@ -1151,6 +1152,7 @@ public class GSMPhone extends PhoneBase {
 
     @Override
     public void handleMessage (Message msg) {
+      Log.e("JIKK-IMSI/GSMPhone.java", "handleMessage called");
         AsyncResult ar;
         Message onComplete;
 
@@ -1205,6 +1207,7 @@ public class GSMPhone extends PhoneBase {
 
                 mImei = (String)ar.result;
 // begin WITH_TAINT_TRACKING
+                Log.e(LOG_TAG, "GSMPhone:handlemessage called for " + mImei);
                 Taint.addTaintString(mImei, Taint.TAINT_IMEI);
 // end WITH_TAINT_TRACKING
             break;
