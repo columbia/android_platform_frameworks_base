@@ -21,8 +21,7 @@ class ExecTrace(object):
         """
         constructor method
         """
-        ExecTrace.isOutputLine()
-
+        output = None
         self.input_ = input_
         self.brChoice = brChoice
         self.output = output
@@ -63,14 +62,6 @@ class ExecTrace(object):
         """
         return line.startswith("W/TMLog") and ("runover" in line)
 
-    @staticmethod
-    def isOutputLine(line):
-        """
-        """
-        pass
-        return True
-
-    @staticmethod
     def getPid(line):
         if ExecTrace.isEventId(line):
             pat0 = r"W/TMLog\s+\(\s*\d+\):"
@@ -80,7 +71,7 @@ class ExecTrace(object):
         p = re.compile(pat0)
         m = p.match(line)
         if m:
-            return int(m.group(2))
+            pid = int(m.group(2))
         else:
             return 0
 
@@ -250,10 +241,10 @@ if __name__ == "__main__":
     with file(fname) as f:
         lines = f.readlines()
 
-    execTrcList = parseLines(lines)
+    execTraceList = parseLines(lines)
 
-    resultFN = EvalChannelFN(execTrcList)
-    resultFP = EvalChannelFP(execTrcList)
+    resultFN = EvalChannelFN(execTraceList)
+    resultFP = EvalChannelFP(execTraceList)
 
     # For branch choice(brChoice) that we want to evaluate.
     brChoice = None
