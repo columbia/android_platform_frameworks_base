@@ -92,12 +92,13 @@ class BrChoice(object):
         """
         TODO:
         """
-        self.brLineMap = {}
+        self.brTIdMap = {}
+        brLineList = []
         for line in lines:
             brLine = BrLine(line)
             # Sanity check -- No dup. map entry.
-            assert(brLine.tmId not in self.brLineMap)
-            self.brLineMap[brLine.tmId] = brLine
+            assert(brLine.tmId not in self.brTIdMap)
+            brLineList.append(brLine)
 
     @classmethod
     def isBranchLine(cls, line):
