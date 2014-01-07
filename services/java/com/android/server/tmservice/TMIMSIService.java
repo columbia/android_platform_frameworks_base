@@ -84,8 +84,8 @@ public class TMIMSIService extends TMService {
       tag = getNextTag(tag);
     }
 
-    Taint.TMLog("runover |" + Taint.incTmCounter() + "|"+ imsi + " | "+ " | "
-                + Integer.toHexString(tag));
+    Taint.TMLog("runover |" + Taint.incTmCounter() + "|imsi |"+ imsi + " | "+ 
+		    " | " + Integer.toHexString(tag));
   }
 
   /**

@@ -1,11 +1,174 @@
 import itertools
-import os
 import re
 import sys
 
 
 CORRECT_CHANNEL = 1
 ERROR_DETECTED = 1
+
+
+def compareObj(objList, fieldList):
+    """
+    Utility/helper method.
+    TODO:
+    """
+    def isUniformList(lst):
+        """
+        TODO:
+        """
+        i = lst[0]
+        for i_ in lst[1:]:
+            if i != i_:
+                return False
+            i = i_
+        else:
+            return True
+
+    ret = True
+
+    for field in fieldList:
+        ret = ret and isUniformList(map(lambda x: x.getattribute__(field),
+                                        objList))
+    else:
+        return ret
+
+
+class BrLine(object):
+    """
+    TODO:
+    """
+    brChoiceMap = {'>': True, '<': False}
+
+    def __init__(self, line):
+        """
+        """
+        pBrLine = self.parseBrLine(line)
+
+        self.pId = pBrLine[0]
+        self.tmId = pBrLine[1]
+        self.tId = pBrLine[2]
+        self.offset = pBrLine[3]
+        self.libPath = pBrLine[4]
+        self.methodName = pBrLine[5]
+        self.brType = pBrLine[6]
+        self.brChoice = pBrLine[7]
+
+    @classmethod
+    def parseBrLine(cls, line):
+        """
+        TODO:
+        """
+        pId = ExecTrace.getPid(line)
+        tmp = re.split(":|\|", line)
+
+        tmId = int(tmp[1])
+        tId = int(tmp[2])
+        offset = int(tmp[3], 16)
+        tmp_ = tmp[4].split(";")
+        assert("Sanity check" and (len(tmp_) == 2))
+        libPath = tmp_[0].trim()
+        methodName = tmp_[1].trim()
+
+        brType = tmp[6].trim()
+        brChoice = cls.brChoiceMap[tmp[7]]
+
+        return pId, tmId, tId, offset, libPath, \
+            methodName, brType, brChoice
+
+    def __eq__(self, other):
+        """
+        TODO:
+        """
+        compareList = ('libPath', 'methodName', 'offset', 'brType',
+                        'brChoice')
+
+        return compareObj((self, other), compareList)
+
+
+class BrChoice(object):
+    """
+    TODO:
+    """
+    def __init__(self, lines):
+        """
+        Contructor method.
+        """
+        self.brTIdMap = {}
+        brLineList = []
+        for line in lines:
+            brLine = BrLine(line)
+            # Sanity check -- no duplicate map entry.
+            assert(brLine.tmId not in self.brTIdMap)
+            brLineList.append(brLine)
+
+        tIdSet = set(map(lambda x: x.tId, brLineList))
+        for tId in tIdSet:
+            self.brTIdMap[tId] = filter(lambda x: x.tId == tId, brLineList)
+            self.brTIdMap[tId].sort(key=lambda x: x.tmId)  # Sort by tmId
+
+    @classmethod
+    def isBranchLine(cls, line):
+        """
+        Static method to identify whether the line is branch choice log.
+
+        @param cls:
+        @return:
+        """
+        return ExecTrace.isBranchLine(line)
+
+    def __eq__(self, other):
+        """
+        Equality evaluation.
+        """
+        # First, we compare keys
+        keys = self.brTIdMap.keys()
+        keys_ = other.brTIdMap.keys()
+
+        if len(keys) == len(keys_):
+            keys.sort()
+            keys_.sort()
+
+            for k, i in enumerate(keys):
+                if k != keys[i]:
+                    return False
+        else:
+            return False
+
+        for k in keys:
+            brList = self.brTIdMap[k]
+            brList_ = other.brTIdMap[k]
+            if len(brList) != len(brList_):
+                return False
+
+            for i, brChoice in enumerate(brList):
+                if brChoice != brList_[i]:
+                    return False
+        else:
+            return True
+
+
+class OutputLog(object):
+    """
+    TODO:
+    """
+    def __init__(self, lines):
+        """
+        TODO:
+        """
+        pass
+
+    @classmethod
+    def isOutputLine(cls, line):
+        """
+        TODO:
+        """
+        return ExecTrace.isOutputLine(line)
+
+    def __eq__(self, other):
+        """
+        TODO:
+        """
+        return False
 
 
 class ExecTrace(object):
@@ -17,14 +180,36 @@ class ExecTrace(object):
         iii) Output locations / values
     """
 
+    outputFuncList = ['libcore.os.read0',
+                      'libcore.os.read1',
+                      'libcore.os.sendto0',
+                      'libcore.os.pwrite0',
+                      'libcore.os.pwrite1',
+                      'libcore.os.write0',
+                      'libcore.os.write1']
+
     def __init__(self, lines):
         """
-        constructor method
+        constructor method.
+        @param lines: lines to be parsed.
         """
-        output = None
-        self.input_ = input_
-        self.brChoice = brChoice
-        self.output = output
+        assert("sanity check" and self.isEventIdLine(lines[0]))
+        tmId, inLoc, inData, tag = self.parseEventIdLine(lines[0])
+
+        brLogLines = []
+        outputLogLines = []
+
+        for line in line[1:]:
+            if self.isOutputLine(line):
+                outputLogLines.append(line)
+            elif self.isBranchLine(line):
+                brLogLines.append(line)
+            else:
+                assert("unexpected branch" and False)
+
+        self.inputMap = {inLoc: inData}
+        self.brChoice = BrChoice(brLogLines)
+        self.output = OutputLog(outputLogLines)
 
     def getInVal(self, inLoc):
         """
@@ -54,24 +239,73 @@ class ExecTrace(object):
         """
         pass
 
-    @staticmethod
-    def isEventId(line):
+    @classmethod
+    def parseEventIdLine(cls, line):
         """
-        Static method to identify whether the line is event identifier.
+        @param line:
+        @return: (tmId, inLoc, inData, tag)
+        """
+        assert("sanity check" and cls.isEventIdLine(line))
+
+        tmp = line.split("|")
+        assert("sanity check" and len(tmp) == 5)
+
+        tmid = int(tmp[1])
+        inLoc = tmp[2]
+        inData = tmp[3]
+        tag = int(tmp[4], 16)
+        return tmid, inLoc, inData, tag
+
+    @classmethod
+    def isEventIdLine(cls, line):
+        """
+        Static method to identify whether the line is an event identifier.
         @return: boolean
         """
         return line.startswith("W/TMLog") and ("runover" in line)
 
-    def getPid(line):
-        if ExecTrace.isEventId(line):
-            pat0 = r"W/TMLog\s+\(\s*\d+\):"
+    @classmethod
+    def isOutputLine(cls, line):
+        """
+        Static method to identify whether the line is output line.
+        """
+        if line.startswith("W/TMLog"):
+            tmp_ = line.split(":")[1]
+            tmp_.split("|")[0].trim()
+            return (tmp_[0] in cls.outputFuncList) or \
+                tmp_[0].startswith("libcore.os")
         else:
-            pass
+            return False
+
+    @classmethod
+    def isBranchLine(cls, line):
+        """
+        Static method to identify whether the line is branch choice log.
+
+        @param cls:
+        @return:
+        """
+        return line.startswith("E/dalvikvmtm")
+
+    @classmethod
+    def getPid(cls, line):
+        """
+        @param cls:
+        @return:
+        """
+        if cls.isEventIdLine(line):
+            pat0 = r"W/TMLog\s+\(\s*\d+\):"
+        elif cls.isOutputLine(line):
+            pat0 = r"W/TMLog\s+\(\s*\d+\):"
+        elif cls.isBranchLine(line):
+            pat0 = r"E/dalvikvmtm\(\s*\d+\):"
+        else:
+            pat0 = r""
 
         p = re.compile(pat0)
         m = p.match(line)
         if m:
-            pid = int(m.group(2))
+            return int(m.group(2))
         else:
             return 0
 
@@ -206,14 +440,14 @@ def EvalChannelFP(execTraceList):
 def parseLines(lines):
     """
     @param lines: lines to be parsed.
-    @return: list of
+    @return: list of ExecTrace.
     """
     it = iter(lines)
 
     line = it.next()
     try:
         while True:
-            if ExecTrace.isEventId(line):
+            if ExecTrace.isEventIdLine(line):
                 break
             it.next()
     except StopIteration:
@@ -223,7 +457,7 @@ def parseLines(lines):
     buffer = []
     try:
         while True:
-            if ExecTrace.isEventId(line):
+            if ExecTrace.isEventIdLine(line):
                 if buffer:
                     execTrcList.append(buffer)
                 buffer = []
@@ -252,5 +486,3 @@ if __name__ == "__main__":
         print brChoice + " is CORRECT."
     else:
         print brChoice + " is INCORRECT."
-
-    print os.path

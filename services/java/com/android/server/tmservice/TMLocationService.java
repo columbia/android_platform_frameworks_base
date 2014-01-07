@@ -75,7 +75,7 @@ public class TMLocationService extends TMService{
                 longitude + "::" + locationManager.getGpsProvider());
 
     //Signals that we begin another iteration
-    Taint.TMLog("runover |" + Taint.incTmCounter() + "|" + latitude + "| "
+    Taint.TMLog("runover |" + Taint.incTmCounter() + "|gps|" + latitude + ", "
                 + longitude + "| " + Integer.toHexString(getTag()));
 
     //update made to GpsLocation service
