@@ -98,7 +98,6 @@ class BrChoice(object):
         for line in lines:
             brLine = BrLine(line)
             # Sanity check -- no duplicate map entry.
-            assert(brLine.tmId not in self.brTIdMap)
             brLineList.append(brLine)
 
         tIdSet = set(map(lambda x: x.tId, brLineList))
@@ -108,7 +107,7 @@ class BrChoice(object):
 
     @classmethod
     def isBranchLine(cls, line):
-        """
+        """0
         Static method to identify whether the line is branch choice log.
 
         @param cls:
@@ -153,9 +152,69 @@ class OutputLog(object):
     """
     def __init__(self, lines):
         """
-        TODO:
+        Constructor method.
         """
-        pass
+        outEntList = []
+        self.outEntTIdMap = {}
+        for line in lines:
+            outEntList.append(OutputEntry(line))
+
+        tIdSet = set(map(lambda x: x.tId, outEntList))
+        for tId in tIdSet:
+            tIdOutList = filter(lambda x: x.tId == tId, outEntList)
+            outLocMap = {}
+            outLocList = list(set(lambda x: x.outputLoc, tIdOutList))
+            outLocList.sort()
+
+            for outLoc in outLocList:
+                tmpList = filter(lambda x: x.outputLoc == outLoc, tIdOutList)
+                tmpList.sort(key=lambda x: x.tmId)
+                outLocMap[outLoc] = tmpList
+            else:
+                self.outEntTIdMap = outLocMap
+
+    def __eq__(self, other):
+        return False
+
+
+class OutputEntry(object):
+    """
+    TODO:
+    """
+    def __init__(self, line):
+        tmId, tId, outputLoc, outputVal, tagVal = self.parseOutputLine(line)
+
+        self.tId = tId
+        self.tmId = tmId
+        self.outputLoc = outputLoc
+        self.outputVal = outputVal
+        self.tagVal = tagVal
+
+    @classmethod
+    def parseOutputLine(self, line):
+        """
+        Data field is enclosed by '|{' ... '|}' and we have some lines to
+        take care of it.
+        """
+
+        assert("sanity check" and self.isOutputLine(line))
+
+        pat0 = r'\|{(.*)}\|'
+        m = re.search(pat0, line)
+        assert("search must find something." and m)
+        outputVal = m.group(0)
+        line_ = re.sub(pat0, '|---|', line)
+        tmp = re.split(r":|\|", line_)
+
+        tmId = int(tmp[2])
+        tId = int(tmp[3])
+        outputLoc = tmp[1].trim()
+
+        assert("sanity check" and tmp[4] == '---')
+
+        tagVal = int(tmp[5], 16)
+
+        return tmId, tId, outputLoc, outputVal, tagVal
 
     @classmethod
     def isOutputLine(cls, line):
@@ -166,9 +225,10 @@ class OutputLog(object):
 
     def __eq__(self, other):
         """
-        TODO:
+        Method for equality check.
         """
-        return False
+        compareList = ('outputLoc', 'outputVal')
+        return compareObj(compareList, (self, other))
 
 
 class ExecTrace(object):
@@ -180,7 +240,7 @@ class ExecTrace(object):
         iii) Output locations / values
     """
 
-    outputFuncList = ['libcore.os.read0',
+    outputLocList = ['libcore.os.read0',
                       'libcore.os.read1',
                       'libcore.os.sendto0',
                       'libcore.os.pwrite0',
@@ -272,7 +332,7 @@ class ExecTrace(object):
         if line.startswith("W/TMLog"):
             tmp_ = line.split(":")[1]
             tmp_.split("|")[0].trim()
-            return (tmp_[0] in cls.outputFuncList) or \
+            return (tmp_[0] in cls.outputLocList) or \
                 tmp_[0].startswith("libcore.os")
         else:
             return False
