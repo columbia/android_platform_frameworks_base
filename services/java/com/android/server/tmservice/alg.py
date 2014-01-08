@@ -1,6 +1,7 @@
 import itertools
 import re
 import sys
+from collections import defaultdict
 
 
 CORRECT_CHANNEL = 1
@@ -146,7 +147,7 @@ class BrChoice(object):
             return True
 
 
-class OutputLog(object):
+class OutLog(object):
     """
     TODO:
     """
@@ -155,38 +156,36 @@ class OutputLog(object):
         Constructor method.
         """
         outEntList = []
-        self.outEntTIdMap = {}
+        # key: (tId, outLoc), value: An instance of OutputEntry
+        self.outEntTIdMap = defaultdict(list)
+
         for line in lines:
-            outEntList.append(OutputEntry(line))
+            outEntList.append(OutEntry(line))
 
         tIdSet = set(map(lambda x: x.tId, outEntList))
         for tId in tIdSet:
             tIdOutList = filter(lambda x: x.tId == tId, outEntList)
-            outLocMap = {}
-            outLocList = list(set(lambda x: x.outputLoc, tIdOutList))
-            outLocList.sort()
 
-            for outLoc in outLocList:
-                tmpList = filter(lambda x: x.outputLoc == outLoc, tIdOutList)
-                tmpList.sort(key=lambda x: x.tmId)
-                outLocMap[outLoc] = tmpList
-            else:
-                self.outEntTIdMap = outLocMap
+            for outEnt in tIdOutList:
+                self.outEntTIdMap[(tId, outEnt.outLoc)].append(outEnt)
 
     def __eq__(self, other):
+        """
+        TODO:
+        """
         return False
 
 
-class OutputEntry(object):
+class OutEntry(object):
     """
     TODO:
     """
     def __init__(self, line):
-        tmId, tId, outputLoc, outputVal, tagVal = self.parseOutputLine(line)
+        tmId, tId, outLoc, outputVal, tagVal = self.parseOutputLine(line)
 
         self.tId = tId
         self.tmId = tmId
-        self.outputLoc = outputLoc
+        self.outLoc = outLoc
         self.outputVal = outputVal
         self.tagVal = tagVal
 
@@ -208,13 +207,13 @@ class OutputEntry(object):
 
         tmId = int(tmp[2])
         tId = int(tmp[3])
-        outputLoc = tmp[1].trim()
+        outLoc = tmp[1].trim()
 
         assert("sanity check" and tmp[4] == '---')
 
         tagVal = int(tmp[5], 16)
 
-        return tmId, tId, outputLoc, outputVal, tagVal
+        return tmId, tId, outLoc, outputVal, tagVal
 
     @classmethod
     def isOutputLine(cls, line):
@@ -227,7 +226,7 @@ class OutputEntry(object):
         """
         Method for equality check.
         """
-        compareList = ('outputLoc', 'outputVal')
+        compareList = ('outLoc', 'outputVal')
         return compareObj(compareList, (self, other))
 
 
@@ -240,7 +239,7 @@ class ExecTrace(object):
         iii) Output locations / values
     """
 
-    outputLocList = ['libcore.os.read0',
+    outLocList = ['libcore.os.read0',
                       'libcore.os.read1',
                       'libcore.os.sendto0',
                       'libcore.os.pwrite0',
@@ -269,7 +268,7 @@ class ExecTrace(object):
 
         self.inputMap = {inLoc: inData}
         self.brChoice = BrChoice(brLogLines)
-        self.output = OutputLog(outputLogLines)
+        self.output = OutLog(outputLogLines)
 
     def getInVal(self, inLoc):
         """
@@ -332,7 +331,7 @@ class ExecTrace(object):
         if line.startswith("W/TMLog"):
             tmp_ = line.split(":")[1]
             tmp_.split("|")[0].trim()
-            return (tmp_[0] in cls.outputLocList) or \
+            return (tmp_[0] in cls.outLocList) or \
                 tmp_[0].startswith("libcore.os")
         else:
             return False
