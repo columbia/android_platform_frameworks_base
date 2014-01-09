@@ -169,11 +169,43 @@ class OutLog(object):
             for outEnt in tIdOutList:
                 self.outEntTIdMap[(tId, outEnt.outLoc)].append(outEnt)
 
+        for entId in self.outEntTIdMap:
+            self.outEntTIdMap[entId].sort(key=lambda x: x.tmId)
+
+    def getOutLocListbyTId(self, tId):
+        """
+        @param tId:
+        @return:
+        """
+        tIdOutLocList = []
+        for entId in self.outEntTIdMap:
+            if entId[0] == tId:
+                tIdOutLocList += self.outEntTIdMap[entId]
+        tIdOutLocList.sort(key=lambda x: x.tmId)
+
+        return tIdOutLocList
+
+    def getTIdList(self):
+        """
+        """
+        tIdSet = set()
+        for entId in self.getTIdList:
+            tIdSet.add(entId[0])
+        else:
+            tIdLst = list(tIdSet)
+            tIdLst.sort()
+            return tIdLst
+
+
+    def getMatrix(self)
+
+
     def __eq__(self, other):
         """
         TODO:
         """
-        return False
+        if len(self.outEntTIdMap) != other.outEntTIMap:
+            return False
 
 
 class OutEntry(object):
