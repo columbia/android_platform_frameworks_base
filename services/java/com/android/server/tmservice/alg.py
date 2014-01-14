@@ -2,33 +2,51 @@ import itertools
 import re
 import sys
 from collections import defaultdict
-
+from StringIO import StringIO
 
 CORRECT_CHANNEL = 1
 ERROR_DETECTED = 1
 
 
-def compareObj(objList, fieldList):
+def compareObjs(objList, fieldList):
     """
-    Utility/helper method.
-    TODO:
+    Utility/helper method that compares member fields(from fieldList) from
+    object instances from objList.
+
+    @param objList: List that contains object instances to be tested.
+    @param fieldList: List of fields (in string) to compare.
+    @return: boolean
+
     """
-    def isUniformList(lst):
+    def isUniformIter(c):
         """
-        TODO:
+        Inner function to check whether the input argument @c contains
+        identical entries.
+
+        @param c: Input of collection type.
+
         """
-        i = lst[0]
-        for i_ in lst[1:]:
-            if i != i_:
-                return False
-            i = i_
-        else:
+
+        try:
+            it = iter(c)
+        except TypeError:
+            return False
+
+        try:
+            i = it.next()
+
+            while True:
+                i_ = it.next()
+                if i == i_:
+                    return False
+                i = i_
+        except StopIteration:
             return True
 
     ret = True
 
     for field in fieldList:
-        ret = ret and isUniformList(map(lambda x: x.getattribute__(field),
+        ret = ret and isUniformIter(map(lambda x: x.getattribute__(field),
                                         objList))
     else:
         return ret
@@ -36,12 +54,13 @@ def compareObj(objList, fieldList):
 
 class BrLine(object):
     """
-    TODO:
+    Class that represent branch choice entry.
     """
     brChoiceMap = {'>': True, '<': False}
 
     def __init__(self, line):
         """
+        Constructor method that calls parseBrLine() to parse input line.
         """
         pBrLine = self.parseBrLine(line)
 
@@ -57,7 +76,7 @@ class BrLine(object):
     @classmethod
     def parseBrLine(cls, line):
         """
-        TODO:
+        Static method that parse input line.
         """
         pId = ExecTrace.getPid(line)
         tmp = re.split(":|\|", line)
@@ -67,28 +86,40 @@ class BrLine(object):
         offset = int(tmp[3], 16)
         tmp_ = tmp[4].split(";")
         assert("Sanity check" and (len(tmp_) == 2))
-        libPath = tmp_[0].trim()
-        methodName = tmp_[1].trim()
+        libPath = tmp_[0].strip()
+        methodName = tmp_[1].strip()
 
-        brType = tmp[6].trim()
-        brChoice = cls.brChoiceMap[tmp[7]]
+        brType = tmp[6].strip()
+        brChoice = cls.brChoiceMap[tmp[7].strip()]
 
         return pId, tmId, tId, offset, libPath, \
             methodName, brType, brChoice
 
     def __eq__(self, other):
         """
-        TODO:
+        Method for equality evaluation.
         """
         compareList = ('libPath', 'methodName', 'offset', 'brType',
                         'brChoice')
 
-        return compareObj((self, other), compareList)
+        return compareObjs((self, other), compareList)
+
+    def __str__(self):
+        """
+        Method for string output.
+        """
+        ret = "BR::{0} ({1}) :: {2} :: {3} @ {4} :: {5}".\
+            format(self.pId, self.tId, self.tmId,
+                   self.libPath + " " + self.methodName, self.offset,
+                   self.brChoice)
+
+        return ret
 
 
 class BrChoice(object):
     """
-    TODO:
+    Class that represent list of branch choice (possibly from different
+    threads.)
     """
     def __init__(self, lines):
         """
@@ -146,6 +177,17 @@ class BrChoice(object):
         else:
             return True
 
+    def __str__(self):
+        output = StringIO()
+
+        for tId in self.brTIdMap:
+            print >> output, "== TID {0} ==".format(tId)
+
+            for brLine in self.brTIdMap[tId]:
+                print >> output, "\t{0}".format(brLine)
+
+        return output.getvalue()
+
 
 class OutLog(object):
     """
@@ -196,9 +238,10 @@ class OutLog(object):
             tIdLst.sort()
             return tIdLst
 
-
-    def getMatrix(self)
-
+    def getMatrix(self):
+        """
+        """
+        pass
 
     def __eq__(self, other):
         """
@@ -207,14 +250,27 @@ class OutLog(object):
         if len(self.outEntTIdMap) != other.outEntTIMap:
             return False
 
+    def __str__(self):
+        """
+        Method for string output.
+        """
+        output = StringIO()
+        for tId in self.outEntTIdMap:
+            print >> output, "== TID {0} ==".format(tId)
+            for outEnt in self.outEntTIdMap[tId]:
+                print >> output, "\t{0}".format(outEnt)
+
+        return output.getvalue()
+
 
 class OutEntry(object):
     """
     TODO:
     """
     def __init__(self, line):
-        tmId, tId, outLoc, outputVal, tagVal = self.parseOutputLine(line)
+        pId, tmId, tId, outLoc, outputVal, tagVal = self.parseOutputLine(line)
 
+        self.pId = pId
         self.tId = tId
         self.tmId = tmId
         self.outLoc = outLoc
@@ -237,15 +293,16 @@ class OutEntry(object):
         line_ = re.sub(pat0, '|---|', line)
         tmp = re.split(r":|\|", line_)
 
+        pId = ExecTrace.getPid(line)
         tmId = int(tmp[2])
         tId = int(tmp[3])
-        outLoc = tmp[1].trim()
+        outLoc = tmp[1].strip()
 
         assert("sanity check" and tmp[4] == '---')
 
         tagVal = int(tmp[5], 16)
 
-        return tmId, tId, outLoc, outputVal, tagVal
+        return pId, tmId, tId, outLoc, outputVal, tagVal
 
     @classmethod
     def isOutputLine(cls, line):
@@ -259,7 +316,15 @@ class OutEntry(object):
         Method for equality check.
         """
         compareList = ('outLoc', 'outputVal')
-        return compareObj(compareList, (self, other))
+        return compareObjs(compareList, (self, other))
+
+    def __str__(self):
+        """
+        """
+        ret = "{0} ({1}):: {2}:: {3}@{4} :: {5}".\
+            format(self.pId, self.tId, self.tmId, self.outLoc, self.outputVal,
+                   self.tagVal)
+        return ret
 
 
 class ExecTrace(object):
@@ -356,15 +421,16 @@ class ExecTrace(object):
         return line.startswith("W/TMLog") and ("runover" in line)
 
     @classmethod
-    def isOutputLine(cls, line):
+    def isOutputLine(cls, line_):
         """
         Static method to identify whether the line is output line.
         """
+        line = line_.strip()
         if line.startswith("W/TMLog"):
-            tmp_ = line.split(":")[1]
-            tmp_.split("|")[0].trim()
-            return (tmp_[0] in cls.outLocList) or \
-                tmp_[0].startswith("libcore.os")
+            tmp = line.split(":")[1].strip()
+            tmp_ = tmp.split("|")[0].strip()
+            return (tmp_ in cls.outLocList) or \
+                tmp_.startswith("libcore.os")
         else:
             return False
 
@@ -385,20 +451,26 @@ class ExecTrace(object):
         @return:
         """
         if cls.isEventIdLine(line):
-            pat0 = r"W/TMLog\s+\(\s*\d+\):"
+            pat0 = r"W/TMLog\s+\(\s*(\d+)\):"
         elif cls.isOutputLine(line):
-            pat0 = r"W/TMLog\s+\(\s*\d+\):"
+            pat0 = r"W/TMLog\s+\(\s*(\d+)\):"
         elif cls.isBranchLine(line):
-            pat0 = r"E/dalvikvmtm\(\s*\d+\):"
+            pat0 = r"E/dalvikvmtm\(\s*(\d+)\):"
         else:
             pat0 = r""
 
         p = re.compile(pat0)
         m = p.match(line)
         if m:
-            return int(m.group(2))
+            return int(m.group(1))
         else:
             return 0
+
+    def __str__(self):
+        """
+        TODO:
+        """
+        return ""
 
 
 def getAvailableInOutLocPairs(execTraceList):
