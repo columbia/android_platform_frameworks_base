@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import unittest
 
-from alg import BrLine, BrLog, OutEntry, OutLog
+from alg import BrEntry, BrLog, OutEntry, OutLog
 
 
 class TestBrLine(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestBrLine(unittest.TestCase):
 
         for line in lines:
             if line.strip():
-                brLine = BrLine(line)
+                brLine = BrEntry(line)
                 print brLine
 
     def tearDown(self):

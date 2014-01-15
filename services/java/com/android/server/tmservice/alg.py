@@ -52,7 +52,7 @@ def compareObjs(objList, fieldList):
         return ret
 
 
-class BrLine(object):
+class BrEntry(object):
     """
     Class that represent branch choice entry.
     """
@@ -176,7 +176,7 @@ class BrLog(object):
         Contructor method.
         """
         self.brTIdMap = {}
-        brLineList = []
+        brEntList = []
 
         self.execTrace = execTrace
         if self.execTrace:
@@ -185,13 +185,13 @@ class BrLog(object):
             self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
 
         for line in lines:
-            brLine = BrLine(line, self)
+            brEnt = BrEntry(line, self)
             # Sanity check -- no duplicate map entry.
-            brLineList.append(brLine)
+            brEntList.append(brEnt)
 
-        tIdSet = set(map(lambda x: x.tId, brLineList))
+        tIdSet = set(map(lambda x: x.tId, brEntList))
         for tId in tIdSet:
-            self.brTIdMap[tId] = filter(lambda x: x.tId == tId, brLineList)
+            self.brTIdMap[tId] = filter(lambda x: x.tId == tId, brEntList)
             self.brTIdMap[tId].sort(key=lambda x: x.tmId)  # Sort by tmId
 
     @classmethod
@@ -240,8 +240,8 @@ class BrLog(object):
         for tId in self.brTIdMap:
             print >> output, "== TID {0} ==".format(tId)
 
-            for brLine in self.brTIdMap[tId]:
-                print >> output, "\t{0}".format(brLine)
+            for brEnt in self.brTIdMap[tId]:
+                print >> output, "\t{0}".format(brEnt)
 
         return output.getvalue()
 
@@ -488,7 +488,7 @@ class ExecTrace(object):
         outputLogLines = []
 
         # Neutralization map.
-        self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
+        self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
 
         for line in line[1:]:
             if self.isOutputLine(line):
@@ -502,7 +502,7 @@ class ExecTrace(object):
         self.brChoice = BrLog(brLogLines, self)
         self.output = OutLog(outputLogLines, self)
 
-   def getInVal(self, inLoc):
+    def getInVal(self, inLoc):
         """
         @param inLoc: input location
         @return: input value witnessed from input location of inLoc
