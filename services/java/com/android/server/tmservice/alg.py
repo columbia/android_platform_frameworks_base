@@ -73,6 +73,11 @@ class BrLine(object):
         self.brType = pBrLine[6]
         self.brChoice = pBrLine[7]
 
+    def neutralize(self, nMap):
+        """
+        """
+        pass
+
     @classmethod
     def parseBrLine(cls, line):
         """
@@ -136,6 +141,11 @@ class BrChoice(object):
         for tId in tIdSet:
             self.brTIdMap[tId] = filter(lambda x: x.tId == tId, brLineList)
             self.brTIdMap[tId].sort(key=lambda x: x.tmId)  # Sort by tmId
+
+    def neutralize(self, nMap):
+        """
+        """
+        pass
 
     @classmethod
     def isBranchLine(cls, line):
@@ -214,6 +224,11 @@ class OutLog(object):
         for entId in self.outEntTIdMap:
             self.outEntTIdMap[entId].sort(key=lambda x: x.tmId)
 
+    def neutralize(self, nMap):
+        """
+        """
+        pass
+
     def getOutLocListbyTId(self, tId):
         """
         @param tId:
@@ -231,7 +246,7 @@ class OutLog(object):
         """
         """
         tIdSet = set()
-        for entId in self.getTIdList:
+        for entId in self.outEntTIdMap:
             tIdSet.add(entId[0])
         else:
             tIdLst = list(tIdSet)
@@ -255,10 +270,24 @@ class OutLog(object):
         Method for string output.
         """
         output = StringIO()
-        for tId in self.outEntTIdMap:
-            print >> output, "== TID {0} ==".format(tId)
-            for outEnt in self.outEntTIdMap[tId]:
-                print >> output, "\t{0}".format(outEnt)
+        tIdList = self.getTIdList()
+
+        for tId in tIdList:
+            print >> output, "== {0} ==".format(tId)
+            outEntList = self.getOutLocListbyTId(tId)
+            outLocMap = defaultdict(list)
+            for outEnt in outEntList:
+                outLocMap[outEnt.outLoc].append(outEnt)
+            else:
+                outLocMap[outEnt.outLoc].sort(key=lambda x: x.tmId)
+
+            outLocList = outLocMap.keys()
+            outLocList.sort()
+
+            for outLoc in outLocList:
+                print >> output, "\t* {0} *".format(outLoc)
+                for outEnt in outLocMap[outLoc]:
+                    print >> output, "\t\t" + str(outEnt)
 
         return output.getvalue()
 
@@ -276,6 +305,11 @@ class OutEntry(object):
         self.outLoc = outLoc
         self.outputVal = outputVal
         self.tagVal = tagVal
+
+    def neutralize(self, nMap):
+        """
+        """
+        pass
 
     @classmethod
     def parseOutputLine(self, line):
@@ -366,6 +400,14 @@ class ExecTrace(object):
         self.inputMap = {inLoc: inData}
         self.brChoice = BrChoice(brLogLines)
         self.output = OutLog(outputLogLines)
+
+        #neutralize map.
+        self.nMap = {}
+
+    def neutralize(self, nMap):
+        """
+        """
+        pass
 
     def getInVal(self, inLoc):
         """
