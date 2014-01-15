@@ -58,25 +58,70 @@ class BrLine(object):
     """
     brChoiceMap = {'>': True, '<': False}
 
-    def __init__(self, line):
+    def __init__(self, line, brLog=None):
         """
         Constructor method that calls parseBrLine() to parse input line.
         """
         pBrLine = self.parseBrLine(line)
 
         self.pId = pBrLine[0]
-        self.tmId = pBrLine[1]
-        self.tId = pBrLine[2]
+        self._tmId = pBrLine[1]
+        self._tId = pBrLine[2]
         self.offset = pBrLine[3]
         self.libPath = pBrLine[4]
         self.methodName = pBrLine[5]
         self.brType = pBrLine[6]
         self.brChoice = pBrLine[7]
+        self.brLog = brLog
 
-    def neutralize(self, nMap):
+        #Neutralization process.
+        #if self.brLog and isinstance(self.brLog.nMap, dict):
+        if self.brLog:
+            self.nMap = brLog.nMap
+            if "TmIdBase" in self.nMap:
+                if self._tmId < self.nMap["TmIdBase"]:
+                    self.nMap["TmIdBase"] = self._tmId
+            else:
+                self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
+        else:
+            self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
+
+        self.nMap["TIdMap"][self._tId] += 1
+
+    def _getTmId(self):
         """
+        Getter method for tmId.
         """
-        pass
+        return self._tmId - self.nMap["TmIdBase"]
+
+    def _setTmId(self, tmId):
+        """
+        Setter method for tmId.
+        """
+        if tmId < self.nMap["TmIdBase"]:
+            self.nMap["TmIdBase"] = tmId
+        self._tmId = tmId
+
+    def _getTId(self):
+        """
+        Getter method for tId.
+        """
+        assert(self._tId in self.nMap["TIdMap"])
+        TIdList = self.nMap["TIdMap"].keys()
+        TIdList.sort()
+
+        return TIdList.index(self._tId)
+
+    def _setTId(self, tId):
+        """
+        Setter method for tId.
+        """
+        self.nMap["TIdMap"][tId] += 1
+        self._tId = tId
+
+    # Setter/getter.
+    tmId = property(_getTmId, _setTmId)
+    tId = property(_getTId, _setTId)
 
     @classmethod
     def parseBrLine(cls, line):
@@ -121,19 +166,26 @@ class BrLine(object):
         return ret
 
 
-class BrChoice(object):
+class BrLog(object):
     """
     Class that represent list of branch choice (possibly from different
     threads.)
     """
-    def __init__(self, lines):
+    def __init__(self, lines, execTrace=None):
         """
         Contructor method.
         """
         self.brTIdMap = {}
         brLineList = []
+
+        self.execTrace = execTrace
+        if self.execTrace:
+            self.nMap = execTrace.nMap
+        else:
+            self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
+
         for line in lines:
-            brLine = BrLine(line)
+            brLine = BrLine(line, self)
             # Sanity check -- no duplicate map entry.
             brLineList.append(brLine)
 
@@ -141,11 +193,6 @@ class BrChoice(object):
         for tId in tIdSet:
             self.brTIdMap[tId] = filter(lambda x: x.tId == tId, brLineList)
             self.brTIdMap[tId].sort(key=lambda x: x.tmId)  # Sort by tmId
-
-    def neutralize(self, nMap):
-        """
-        """
-        pass
 
     @classmethod
     def isBranchLine(cls, line):
@@ -203,16 +250,22 @@ class OutLog(object):
     """
     TODO:
     """
-    def __init__(self, lines):
+    def __init__(self, lines, execTrace=None):
         """
         Constructor method.
         """
+        self.execTrace = execTrace
+        if self.execTrace:
+            self.nMap = execTrace.nMap
+        else:
+            self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
+
         outEntList = []
         # key: (tId, outLoc), value: An instance of OutputEntry
         self.outEntTIdMap = defaultdict(list)
 
         for line in lines:
-            outEntList.append(OutEntry(line))
+            outEntList.append(OutEntry(line, self))
 
         tIdSet = set(map(lambda x: x.tId, outEntList))
         for tId in tIdSet:
@@ -224,10 +277,6 @@ class OutLog(object):
         for entId in self.outEntTIdMap:
             self.outEntTIdMap[entId].sort(key=lambda x: x.tmId)
 
-    def neutralize(self, nMap):
-        """
-        """
-        pass
 
     def getOutLocListbyTId(self, tId):
         """
@@ -257,6 +306,11 @@ class OutLog(object):
         """
         """
         pass
+
+
+    def getGraph(self):
+        """
+        """
 
     def __eq__(self, other):
         """
@@ -296,20 +350,64 @@ class OutEntry(object):
     """
     TODO:
     """
-    def __init__(self, line):
+    def __init__(self, line, outLog=None):
         pId, tmId, tId, outLoc, outputVal, tagVal = self.parseOutputLine(line)
 
         self.pId = pId
-        self.tId = tId
-        self.tmId = tmId
+        self._tId = tId
+        self._tmId = tmId
         self.outLoc = outLoc
         self.outputVal = outputVal
         self.tagVal = tagVal
+        self.outLog = outLog
 
-    def neutralize(self, nMap):
+        #Neutralization process.
+        if self.outLog and isinstance(self.outLog.nMap, dict):
+            self.nMap = outLog.nMap
+            if "TmIdBase" in self.nMap:
+                if self._tmId < self.nMap["TmIdBase"]:
+                    self.nMap["TmIdBase"] = self._tmId
+            else:
+                self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
+        else:
+            self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
+
+        self.nMap["TIdMap"][self._tId] += 1
+
+    def _getTmId(self):
         """
+        Getter method for tmId.
         """
-        pass
+        return self._tmId - self.nMap["TmIdBase"]
+
+    def _setTmId(self, tmId):
+        """
+        Setter method for tmId.
+        """
+        if tmId < self.nMap["TmIdBase"]:
+            self.nMap["TmIdBase"] = tmId
+        self._tmId = tmId
+
+    def _getTId(self):
+        """
+        Getter method for tId.
+        """
+        assert(self._tId in self.nMap["TIdMap"])
+        TIdList = self.nMap["TIdMap"].keys()
+        TIdList.sort()
+
+        return TIdList.index(self._tId)
+
+    def _setTId(self, tId):
+        """
+        Setter method for tId.
+        """
+        self.nMap["TIdMap"][tId] += 1
+        self._tId = tId
+
+    # Setter/getter
+    tmId = property(_getTmId, _setTmId)
+    tId = property(_getTId, _setTId)
 
     @classmethod
     def parseOutputLine(self, line):
@@ -389,6 +487,9 @@ class ExecTrace(object):
         brLogLines = []
         outputLogLines = []
 
+        # Neutralization map.
+        self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
+
         for line in line[1:]:
             if self.isOutputLine(line):
                 outputLogLines.append(line)
@@ -398,18 +499,10 @@ class ExecTrace(object):
                 assert("unexpected branch" and False)
 
         self.inputMap = {inLoc: inData}
-        self.brChoice = BrChoice(brLogLines)
-        self.output = OutLog(outputLogLines)
+        self.brChoice = BrLog(brLogLines, self)
+        self.output = OutLog(outputLogLines, self)
 
-        #neutralize map.
-        self.nMap = {}
-
-    def neutralize(self, nMap):
-        """
-        """
-        pass
-
-    def getInVal(self, inLoc):
+   def getInVal(self, inLoc):
         """
         @param inLoc: input location
         @return: input value witnessed from input location of inLoc

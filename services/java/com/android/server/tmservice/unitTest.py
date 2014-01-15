@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import unittest
 
-from alg import BrLine, BrChoice, OutEntry, OutLog
+from alg import BrLine, BrLog, OutEntry, OutLog
 
 
 class TestBrLine(unittest.TestCase):
@@ -10,7 +10,7 @@ class TestBrLine(unittest.TestCase):
     def setUp(self):
         pass
 
-    def _testBrLine0(self):
+    def testBrLine0(self):
         with file(self.basedir + "/" + "brLines0.txt") as f:
             lines = f.readlines()
 
@@ -30,11 +30,11 @@ class TestBrChoice(unittest.TestCase):
     def setUp(self):
         pass
 
-    def _testBrChoice0(self):
+    def testBrChoice0(self):
         for fname in self.fnameList:
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
-                print BrChoice(lines)
+                print BrLog(lines)
 
     def tearDown(self):
         pass
