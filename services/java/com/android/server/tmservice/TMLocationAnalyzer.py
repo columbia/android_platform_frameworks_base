@@ -8,6 +8,18 @@ CORRECT_CHANNEL = 1
 ERROR_DETECTED = 1
 
 
+def compareOutList(outList0, outList1):
+    # TODO: implement.
+    if len(outList0) == len(outList1):
+        for outEnt0, outEnt1 in zip(outList0, outList1):
+            if outEnt0 != outEnt1:
+                return False
+        else:
+            return True
+    else:
+        return False
+
+
 def compareObjs(objList, fieldList):
     """
     Utility/helper method that compares member fields(from fieldList) from
@@ -82,7 +94,8 @@ class BrEntry(object):
                 if self._tmId < self.nMap["TmIdBase"]:
                     self.nMap["TmIdBase"] = self._tmId
             else:
-                self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
+                self.nMap = {"TmIdBase": self._tmId,
+                                "TIdMap": defaultdict(int)}
         else:
             self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
 
@@ -182,7 +195,8 @@ class BrLog(object):
         if self.execTrace:
             self.nMap = execTrace.nMap
         else:
-            self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
+            self.nMap = {"TmIdBase": sys.maxint + 1,
+                            "TIdMap": defaultdict(int)}
 
         for line in lines:
             brEnt = BrEntry(line, self)
@@ -258,7 +272,8 @@ class OutLog(object):
         if self.execTrace:
             self.nMap = execTrace.nMap
         else:
-            self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
+            self.nMap = {"TmIdBase": sys.maxint + 1,
+                            "TIdMap": defaultdict(int)}
 
         outEntList = []
         # key: (tId, outLoc), value: An instance of OutputEntry
@@ -277,22 +292,36 @@ class OutLog(object):
         for entId in self.outEntTIdMap:
             self.outEntTIdMap[entId].sort(key=lambda x: x.tmId)
 
-
-    def getOutLocListbyTId(self, tId):
+    def getOutLocListbyTId(self, tId=None):
         """
-        @param tId:
-        @return:
+        @param tId: thread Id or None
+        @return: if tId is None returns a list that contains all OutEntry
+        instances otherwise returns OutEntry instances with TId
         """
         tIdOutLocList = []
         for entId in self.outEntTIdMap:
-            if entId[0] == tId:
+            if tId is None or entId[0] == tId:
                 tIdOutLocList += self.outEntTIdMap[entId]
         tIdOutLocList.sort(key=lambda x: x.tmId)
 
         return tIdOutLocList
 
+    def getDistOutLocList(self):
+        """
+        return: List of distinct output locations appeared from OutLog.
+        """
+        ret = set()
+        for entId in self.outEntTIdMap:
+            outEntList = self.outEntTIdMap[entId]
+            tmpList = map(lambda x: x.outLoc, outEntList)
+            ret.add(tmpList)
+        ret_ = list(ret)
+        ret_.sort()
+        return ret_
+
     def getTIdList(self):
         """
+        TODO:
         """
         tIdSet = set()
         for entId in self.outEntTIdMap:
@@ -304,12 +333,13 @@ class OutLog(object):
 
     def getMatrix(self):
         """
+        TODO:
         """
         pass
 
-
     def getGraph(self):
         """
+        TODO
         """
 
     def __eq__(self, other):
@@ -318,6 +348,25 @@ class OutLog(object):
         """
         if len(self.outEntTIdMap) != other.outEntTIMap:
             return False
+
+    def __getOutXListFor(self, X, outLoc, tId=None):
+        """
+        helper method.
+        return: List
+        """
+        assert("OutLoc sanity check" and outLoc in ExecTrace.outLocList)
+
+        ret = self.getOutLocListByTId(self, tId)
+        ret_ = map(X,
+                   filter(lambda x: x.outLoc == outLoc, ret))
+
+        return ret_
+
+    def getOutValListFor(self, outLoc, tId=None):
+        return self.__getOutXListFor(lambda x: x.outputVal, outLoc, tId)
+
+    def getOutTagListFor(self, outLoc, tId=None):
+        return self.__getOutXListFor(lambda x: x.tagVal, outLoc, tId)
 
     def __str__(self):
         """
@@ -368,7 +417,8 @@ class OutEntry(object):
                 if self._tmId < self.nMap["TmIdBase"]:
                     self.nMap["TmIdBase"] = self._tmId
             else:
-                self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
+                self.nMap = {"TmIdBase": self._tmId,
+                                "TIdMap": defaultdict(int)}
         else:
             self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
 
@@ -490,6 +540,11 @@ class ExecTrace(object):
         # Neutralization map.
         self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
 
+        # NOTE: tmId here is an event identifier that is different from that
+        # of BrLog or OutLog
+
+        self.tmId = tmId
+
         for line in line[1:]:
             if self.isOutputLine(line):
                 outputLogLines.append(line)
@@ -498,37 +553,46 @@ class ExecTrace(object):
             else:
                 assert("unexpected branch" and False)
 
-        self.inputMap = {inLoc: inData}
+        self.inputMap = {inLoc: (inData, tag)}
         self.brChoice = BrLog(brLogLines, self)
-        self.output = OutLog(outputLogLines, self)
+        self.outLog = OutLog(outputLogLines, self)
 
-    def getInVal(self, inLoc):
+    def getInValFor(self, inLoc):
         """
-        @param inLoc: input location
-        @return: input value witnessed from input location of inLoc
+        @param inLoc: input location.
+        @return: input value witnessed from input location of inLoc.
         """
-        pass
+        if inLoc in self.inputMap:
+            return self.inputMap[inLoc][0]
+        else:
+            return None
 
-    def getInTag(self, inLoc):
+    def getInTagFor(self, inLoc):
         """
-        @param inLoc: input location
-        @return: tag value witnessed from input location of inLoc
+        @param inLoc: input location.
+        @return: tag value in integer witnessed from input location of inLoc.
         """
-        pass
+        if inLoc in self.inputMap:
+            return int(self.inputMap[inLoc][1], 16)
+        else:
+            #XXX: Should we just return '0' here?
+            return None
 
-    def getOutVal(self, outLoc):
+    def getOutValListFor(self, outLoc, tId):
         """
+        @param tId:
         @param outLoc: output location
         @return: output value witnessed from output location of outLoc
         """
-        pass
+        self.outLog.getOutValListFor(outLoc, tId)
 
-    def getOutTag(self, outLoc):
+    def getOutTagListFor(self, tId, outLoc):
         """
+        @param tId:
         @param outLoc: output location
         @return: tag value witnessed from output location of outLoc
         """
-        pass
+        self.outLog.getOutTaglListFor(outLoc, tId)
 
     @classmethod
     def parseEventIdLine(cls, line):
@@ -603,8 +667,8 @@ class ExecTrace(object):
 
     def __str__(self):
         """
-        TODO:
         """
+        #TODO: implement.
         return ""
 
 
@@ -614,7 +678,14 @@ def getAvailableInOutLocPairs(execTraceList):
     @return: list of all available input and output locations shown from
     execTraceList in the form of [(inLoc0, outLoc0), ...]
     """
-    pass
+    ret = set()
+    for execTrc in execTraceList:
+        inLocList = execTrc.inMap.keys()
+        for inLoc in inLocList:
+            for outLoc in execTrc.outLoc.getDistOutLocList():
+                ret.add((inLoc, outLoc))
+
+    return list(ret)
 
 
 def getTaintChannel(execTraceList):
@@ -628,15 +699,16 @@ def getTaintChannel(execTraceList):
     the key and a list of input and output locations pairs as its value.
     """
     it = itertools.combinations(execTraceList, 2)
-    inOutLocList = getAvailableInOutLocPairs(execTraceList)
+    #inOutLocList = getAvailableInOutLocPairs(execTraceList)
 
-    taintChannelList = {}
+    taintChannelSet = []
+    noTaintChannelSet = []
     try:
         # Comparing for all available execution trace combination pairs
         while True:
             pair = it.next()
             execTrc0, execTrc1 = pair
-            for inOutLoc in inOutLocList:
+            for inOutLoc in getAvailableInOutLocPairs(pair):
                 inLoc, outLoc = inOutLoc
 
                 # Checks whether output value responds to the changes of the
@@ -644,21 +716,23 @@ def getTaintChannel(execTraceList):
 
                 if (execTrc0.getInValFor(inLoc) !=
                     execTrc1.getInValFor(inLoc)) \
-                     and (execTrc0.getOutValFor(outLoc)
-                          != execTrc1.getOutValFor(outLoc)):
+                     and not compareOutList(execTrc0.getOutValListFor(outLoc),
+                                            execTrc1.getOutValListFor(outLoc)):
 
-                    # assert(execTrc0.brChoice == execTrc1.brChoice)
-                    if execTrc0.brChoice in taintChannelList:
-                        taintChannelList[execTrc0.brChoice].append(
-                            (inLoc, outLoc))
-                    else:
-                        taintChannelList[execTrc0.brChoice] = [(inLoc, outLoc)]
-                    break
-            else:
-                # inLoc, outLoc is not a Taint channel
-                pass
+                    assert(execTrc0.brLog == execTrc1.brLog and
+                           "we are expecting to see identical brLog")
+
+                    taintChannelSet.append((inLoc, outLoc))
+
+                elif (execTrc0.getInValFor(inLoc) ==
+                      execTrc1.getInValFor(inLoc)) \
+                    and not compareOutList(execTrc0.getOutValListFor(outLoc),
+                                           execTrc1.getOutValListFor(outLoc)):
+                    noTaintChannelSet.add((inLoc, outLoc))
 
     except StopIteration:
+        taintChannelList = list(taintChannelSet - noTaintChannelSet)
+        taintChannelList.sort()
         return taintChannelList
 
 
