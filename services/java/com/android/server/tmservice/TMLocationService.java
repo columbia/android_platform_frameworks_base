@@ -63,7 +63,7 @@ public class TMLocationService extends TMService{
 
     //fake value pair for GPS location
     Double latitude = coordList.get(coordPtr).x;
-    Double longitude = coordList.get(coordPtr).y;;
+    Double longitude = coordList.get(coordPtr).y;
 
     //Default port to connect for monkey control
     int port = 10000;
@@ -78,9 +78,14 @@ public class TMLocationService extends TMService{
     Taint.TMLog("runover |" + Taint.incTmCounter() + "|" + latitude + "| "
                 + longitude + "| " + Integer.toHexString(getTag()));
 
+	/* Marios*/
+    next();
+	Taint.TMLog("After next");
+
     //update made to GpsLocation service
     invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
 
+	Taint.TMLog("After invoke");
     //initiating run_over
     String[] msgs = {"run_over"};
     try {
@@ -90,7 +95,8 @@ public class TMLocationService extends TMService{
       return;
     }
 
-    next();
+	Taint.TMLog("End");
+//    next();
   }
 
   public static int randInt(int min, int max) {
@@ -115,12 +121,64 @@ public class TMLocationService extends TMService{
     GpsLocationProvider gpsProvider = locationManager.getGpsProvider();
     Log.v(TAG, "LocationManager:" + locationManager +  " gpsProvider:" + gpsProvider);
 
-    // Init. random coordinates
+    /* Seoul - 1 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    37.33,
+			    126.58,
+			    new Integer(randInt(0, 32))));
+    /* New York - 2 */    
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    40.42,
+			    74.0,
+			    new Integer(randInt(0, 32))));
+    /* Washington - 3 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    38.54,
+			    77.2,
+			    new Integer(randInt(0, 32))));
+    /* Athens - 4 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    37.59,
+			    23.43,
+			    new Integer(randInt(0, 32))));
+    /* Madrid - 5 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    40.25,
+			    3.42,
+			    new Integer(randInt(0, 32))));
+    /* London - 6 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    51.30,
+			    0.7,
+			    new Integer(randInt(0, 32))));
+    /* Paris - 7 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    48.51,
+			    2.21,
+			    new Integer(randInt(0, 32))));
+    /* Beijing - 8 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    39.54,
+			    116.24,
+			    new Integer(randInt(0, 32))));
+    /* Rome - 9 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    41.53,
+			    12.28,
+			    new Integer(randInt(0, 32))));
+    /* Tokyo - 10 */
+    coordList.add(new Tuple<Double, Double, Integer>(
+			    35.41,
+			    139.41,
+			    new Integer(randInt(0, 32))));
+/*
+	// Init. random coordinates
     for (int i = 0 ; i < ENTRY_MAX; i++) {
       coordList.add(new Tuple<Double, Double, Integer>(
                       new Double(randInt(0, 20)),
                       new Double(randInt(0, 20)),
                       new Integer(randInt(0, 32))));
     }
+*/
   }
 }
