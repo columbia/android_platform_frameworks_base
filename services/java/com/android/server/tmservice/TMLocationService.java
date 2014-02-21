@@ -61,6 +61,12 @@ public class TMLocationService extends TMService{
   protected void run_over(int port_, String subcmd) {
     Log.v(TAG, "run_over invoked with " + port_ + " and " + subcmd);
 
+	if (!subcmd.equals("skip")) {
+		next();
+	} else {
+		tag = getNextTag(tag);
+	}
+
     //fake value pair for GPS location
     Double latitude = coordList.get(coordPtr).x;
     Double longitude = coordList.get(coordPtr).y;
@@ -80,12 +86,10 @@ public class TMLocationService extends TMService{
 
 	/* Marios*/
     next();
-	Taint.TMLog("After next");
 
     //update made to GpsLocation service
     invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
 
-	Taint.TMLog("After invoke");
     //initiating run_over
     String[] msgs = {"run_over"};
     try {
@@ -94,9 +98,7 @@ public class TMLocationService extends TMService{
       Log.e(TAG, "run_over: failed with socket connection error: " + e.toString());
       return;
     }
-
-	Taint.TMLog("End");
-//    next();
+//	next();
   }
 
   public static int randInt(int min, int max) {
