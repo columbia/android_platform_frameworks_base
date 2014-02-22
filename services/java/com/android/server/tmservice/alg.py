@@ -73,6 +73,9 @@ class BrLine(object):
         self.brType = pBrLine[6]
         self.brChoice = pBrLine[7]
 
+    def neutralize(self, newtralizeMap):
+        pass
+
     @classmethod
     def parseBrLine(cls, line):
         """
@@ -147,6 +150,9 @@ class BrChoice(object):
         """
         return ExecTrace.isBranchLine(line)
 
+    def neutralize(self, newtralizeMap):
+        pass
+
     def __eq__(self, other):
         """
         Equality evaluation.
@@ -214,6 +220,9 @@ class OutLog(object):
         for entId in self.outEntTIdMap:
             self.outEntTIdMap[entId].sort(key=lambda x: x.tmId)
 
+    def neutralize(self, neutralizeMap):
+        pass
+
     def getOutLocListbyTId(self, tId):
         """
         @param tId:
@@ -277,6 +286,9 @@ class OutEntry(object):
         self.outputVal = outputVal
         self.tagVal = tagVal
 
+    def neutralize(self, neutralizeMap):
+        pass
+
     @classmethod
     def parseOutputLine(self, line):
         """
@@ -337,16 +349,16 @@ class ExecTrace(object):
     """
 
     outLocList = ['libcore.os.read0',
-                      'libcore.os.read1',
-                      'libcore.os.sendto0',
-                      'libcore.os.pwrite0',
-                      'libcore.os.pwrite1',
-                      'libcore.os.write0',
-                      'libcore.os.write1']
+                    'libcore.os.read1',
+                    'libcore.os.sendto0',
+                    'libcore.os.pwrite0',
+                    'libcore.os.pwrite1',
+                    'libcore.os.write0',
+                    'libcore.os.write1']
 
     def __init__(self, lines):
         """
-        constructor method.
+        Constructor method.
         @param lines: lines to be parsed.
         """
         assert("sanity check" and self.isEventIdLine(lines[0]))
@@ -366,6 +378,10 @@ class ExecTrace(object):
         self.inputMap = {inLoc: inData}
         self.brChoice = BrChoice(brLogLines)
         self.output = OutLog(outputLogLines)
+
+    def nuetralize(self):
+        """
+        """
 
     def getInVal(self, inLoc):
         """
