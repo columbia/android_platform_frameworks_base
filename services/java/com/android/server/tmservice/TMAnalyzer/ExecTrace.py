@@ -1,74 +1,17 @@
-import itertools
-import re
 import sys
-from collections import defaultdict
+import bisect
+import re
+from Util import compareObjs
 from StringIO import StringIO
-
-CORRECT_CHANNEL = 1
-ERROR_DETECTED = 1
-
-
-def compareOutList(outList0, outList1):
-    # TODO: implement.
-    if len(outList0) == len(outList1):
-        for outEnt0, outEnt1 in zip(outList0, outList1):
-            if outEnt0 != outEnt1:
-                return False
-        else:
-            return True
-    else:
-        return False
-
-
-def compareObjs(objList, fieldList):
-    """
-    Utility/helper method that compares member fields(from fieldList) from
-    object instances from objList.
-
-    @param objList: List that contains object instances to be tested.
-    @param fieldList: List of fields (in string) to compare.
-    @return: boolean
-
-    """
-    def isUniformIter(c):
-        """
-        Inner function to check whether the input argument @c contains
-        identical entries.
-
-        @param c: Input of collection type.
-
-        """
-
-        try:
-            it = iter(c)
-        except TypeError:
-            return False
-
-        try:
-            i = it.next()
-
-            while True:
-                i_ = it.next()
-                if i == i_:
-                    return False
-                i = i_
-        except StopIteration:
-            return True
-
-    ret = True
-
-    for field in fieldList:
-        ret = ret and isUniformIter(map(lambda x: x.getattribute__(field),
-                                        objList))
-    else:
-        return ret
+from collections import defaultdict
 
 
 class BrEntry(object):
     """
-    Class that represent branch choice entry.
+    Class that represent a branch choice entry.
     """
     brChoiceMap = {'>': True, '<': False}
+    brHashList = []
 
     def __init__(self, line, brLog=None):
         """
@@ -101,6 +44,9 @@ class BrEntry(object):
 
         self.nMap["TIdMap"][self._tId] += 1
 
+        self.hkey = (self.libPath, self.methodName, self.offset)
+        self.updateHashList((self.libPath, self.methodName, self.offset))
+
     def _getTmId(self):
         """
         Getter method for tmId.
@@ -121,6 +67,7 @@ class BrEntry(object):
         """
         assert(self._tId in self.nMap["TIdMap"])
         TIdList = self.nMap["TIdMap"].keys()
+        # XXX: not optimal to sort() every time. Fix it.
         TIdList.sort()
 
         return TIdList.index(self._tId)
@@ -135,9 +82,6 @@ class BrEntry(object):
     # Setter/getter.
     tmId = property(_getTmId, _setTmId)
     tId = property(_getTId, _setTId)
-
-    def neutralize(self, newtralizeMap):
-        pass
 
     @classmethod
     def parseBrLine(cls, line):
@@ -160,6 +104,30 @@ class BrEntry(object):
 
         return pId, tmId, tId, offset, libPath, \
             methodName, brType, brChoice
+
+    @classmethod
+    def numReprToStr(cls, brEnt):
+        output = StringIO()
+        libPath, methodName, offset = cls.brHashList[brEnt / 2]
+        brChoice = brEnt % 2
+        print >> output, "{0} {1} {2} {3}".format(libPath, methodName, offset,
+                                                  brChoice)
+        ret = output.getvalue()
+        output.close()
+        return ret
+
+    def getNumRepr(self):
+        assert(self.hkey in self.brHashList and "sanity check")
+
+        return self.brHashList.index(self.hkey) * 2 + self.brChoice
+
+    def updateHashList(self, hkey):
+        """
+        @param hkey: Tuple composed of library name, method name, and offset.
+        This is added to cls.brHashList in sorted order.
+        """
+        if self.hkey not in self.brHashList:
+            bisect.insort(self.brHashList, self.hkey)
 
     def __eq__(self, other):
         """
@@ -184,7 +152,7 @@ class BrEntry(object):
 
 class BrLog(object):
     """
-    Class that represent list of branch choice (possibly from different
+    Class that represent list of branch choice (from different
     threads.)
     """
     def __init__(self, lines, execTrace=None):
@@ -195,6 +163,8 @@ class BrLog(object):
         brEntList = []
 
         self.execTrace = execTrace
+
+        #init. nuetralization map.
         if self.execTrace:
             self.nMap = execTrace.nMap
         else:
@@ -211,6 +181,30 @@ class BrLog(object):
             self.brTIdMap[tId] = filter(lambda x: x.tId == tId, brEntList)
             self.brTIdMap[tId].sort(key=lambda x: x.tmId)  # Sort by tmId
 
+    def getNumRepr(self):
+        """
+        Return numeric representation of branch choices.
+        """
+        ret = []
+        keyLst = sorted(self.brTIdMap.keys())
+        for tId in keyLst:
+            ret.append(map(lambda x: x.getNumRepr(), self.brTIdMap[tId]))
+        return ret
+
+    @classmethod
+    def numReprToStr(cls, numRepr):
+        """
+        """
+        output = StringIO()
+        for tId, brList in enumerate(numRepr):
+            print >> output, "== TId({0}) ==".format(tId)
+            for brEnt in brList:
+                print >> output, "\t", BrEntry.numReprToStr(brEnt),
+
+        ret = output.getvalue()
+        output.close()
+        return ret
+
     @classmethod
     def isBranchLine(cls, line):
         """0
@@ -220,9 +214,6 @@ class BrLog(object):
         @return:
         """
         return ExecTrace.isBranchLine(line)
-
-    def neutralize(self, newtralizeMap):
-        pass
 
     def __eq__(self, other):
         """
@@ -258,7 +249,7 @@ class BrLog(object):
         output = StringIO()
 
         for tId in self.brTIdMap:
-            print >> output, "== TID {0} ==".format(tId)
+            print >> output, "== BR (TID {0}) ==".format(tId)
 
             for brEnt in self.brTIdMap[tId]:
                 print >> output, "\t{0}".format(brEnt)
@@ -270,6 +261,7 @@ class OutLog(object):
     """
     TODO:
     """
+
     def __init__(self, lines, execTrace=None):
         """
         Constructor method.
@@ -282,7 +274,7 @@ class OutLog(object):
                             "TIdMap": defaultdict(int)}
 
         outEntList = []
-        # key: (tId, outLoc), value: An instance of OutputEntry
+        # key:tId, value: An instance of OutputEntry
         self.outEntTIdMap = defaultdict(list)
 
         for line in lines:
@@ -291,39 +283,32 @@ class OutLog(object):
         tIdSet = set(map(lambda x: x.tId, outEntList))
         for tId in tIdSet:
             tIdOutList = filter(lambda x: x.tId == tId, outEntList)
+            tIdOutList.sort(key=lambda x: x.tmId)
+            self.outEntTIdMap[tId] = tIdOutList
 
-            for outEnt in tIdOutList:
-                self.outEntTIdMap[(tId, outEnt.outLoc)].append(outEnt)
-
-        for entId in self.outEntTIdMap:
-            self.outEntTIdMap[entId].sort(key=lambda x: x.tmId)
-
-    def neutralize(self, neutralizeMap):
-        pass
-
-    def getOutLocListbyTId(self, tId):
-       """
+    def getOutLocListbyTId(self, tId=None):
+        """
         @param tId: thread Id or None
         @return: if tId is None returns a list that contains all OutEntry
         instances otherwise returns OutEntry instances with TId
         """
-        tIdOutLocList = []
-        for entId in self.outEntTIdMap:
-            if tId is None or entId[0] == tId:
-                tIdOutLocList += self.outEntTIdMap[entId]
-        tIdOutLocList.sort(key=lambda x: x.tmId)
-
-        return tIdOutLocList
+        if tId is None:
+            tIdOutLocList = []
+            for tId_ in self.outEntTIdMap:
+                tIdOutLocList += self.outEntTIdMap[tId_]
+            tIdOutLocList.sort(key=lambda x: x.tmId)
+            return tIdOutLocList
+        else:
+            return self.outEntTIdMap[tId]
 
     def getDistOutLocList(self):
         """
         return: List of distinct output locations appeared from OutLog.
         """
         ret = set()
-        for entId in self.outEntTIdMap:
-            outEntList = self.outEntTIdMap[entId]
+        for outEntList in self.outEntTIdMap.values():
             tmpList = map(lambda x: x.outLoc, outEntList)
-            ret.add(tmpList)
+            ret.union(tmpList)
         ret_ = list(ret)
         ret_.sort()
         return ret_
@@ -332,33 +317,18 @@ class OutLog(object):
         """
         TODO:
         """
-        tIdSet = set()
-        for entId in self.outEntTIdMap:
-            tIdSet.add(entId[0])
-        else:
-            tIdLst = list(tIdSet)
-            tIdLst.sort()
-            return tIdLst
-
-    def getMatrix(self):
-        """
-        TODO:
-        """
-        pass
-
-    def getGraph(self):
-        """
-        TODO
-        """
+        tIdSet = set(self.outEntTIdMap.keys())
+        tIdLst = list(tIdSet)
+        tIdLst.sort()
+        return tIdLst
 
     def __eq__(self, other):
         """
         TODO:
         """
-        if len(self.outEntTIdMap) != other.outEntTIMap:
-            return False
+        return self.getNumExpr() == other.getNumExpr()
 
-    def __getOutXListFor(self, X, outLoc, tId=None):
+    def __getOutXListForImpl(self, X, outLoc, tId=None):
         """
         helper method.
         return: List
@@ -366,16 +336,38 @@ class OutLog(object):
         assert("OutLoc sanity check" and outLoc in ExecTrace.outLocList)
 
         ret = self.getOutLocListByTId(self, tId)
-        ret_ = map(X,
-                   filter(lambda x: x.outLoc == outLoc, ret))
-
+        ret_ = map(X, filter(lambda x: x.outLoc == outLoc, ret))
         return ret_
 
     def getOutValListFor(self, outLoc, tId=None):
-        return self.__getOutXListFor(lambda x: x.outputVal, outLoc, tId)
+        return self.__getOutXListForImpl(lambda x: x.outputVal, outLoc, tId)
 
     def getOutTagListFor(self, outLoc, tId=None):
-        return self.__getOutXListFor(lambda x: x.tagVal, outLoc, tId)
+        return self.__getOutXListForImpl(lambda x: x.tagVal, outLoc, tId)
+
+    @classmethod
+    def numReprToStr(self, numRepr):
+        """
+        """
+        output = StringIO()
+        for tId, outList in enumerate(numRepr):
+            print >> output, "== OutList - {0} ==".format(tId)
+            for outEnt in outList:
+                print >> output, "\t", OutEntry.numReprToStr(outEnt),
+
+        ret = output.getvalue()
+        output.close()
+        return ret
+
+    def getNumRepr(self):
+        """
+        Return numeric representation of branch choices.
+        """
+        ret = []
+        keyLst = sorted(self.outEntTIdMap.keys())
+        for tId in range(max(keyLst) + 1):
+            ret.append(map(lambda x: x.getNumRepr(), self.outEntTIdMap[tId]))
+        return ret
 
     def __str__(self):
         """
@@ -385,7 +377,7 @@ class OutLog(object):
         tIdList = self.getTIdList()
 
         for tId in tIdList:
-            print >> output, "== {0} ==".format(tId)
+            print >> output, "== OutLog (TID {0}) ==".format(tId)
             outEntList = self.getOutLocListbyTId(tId)
             outLocMap = defaultdict(list)
             for outEnt in outEntList:
@@ -408,6 +400,8 @@ class OutEntry(object):
     """
     TODO:
     """
+    outHashList = []
+
     def __init__(self, line, outLog=None):
         pId, tmId, tId, outLoc, outputVal, tagVal = self.parseOutputLine(line)
 
@@ -416,7 +410,7 @@ class OutEntry(object):
         self._tmId = tmId
         self.outLoc = outLoc
         self.outputVal = outputVal
-        self.tagVal = tagVal
+        self._tagVal = tagVal
         self.outLog = outLog
 
         #Neutralization process.
@@ -432,6 +426,30 @@ class OutEntry(object):
             self.nMap = {"TmIdBase": self._tmId, "TIdMap": defaultdict(int)}
 
         self.nMap["TIdMap"][self._tId] += 1
+
+        self.hkey = (self.outLoc, self.outputVal, self.tagVal)
+        self.updateHashList()
+
+    def _getTagVal(self):
+        if self.outLog is not None and self.outLog.execTrace is not None:
+            inputMap = self.outLog.execTrace.inputMap
+            inList = sorted(inputMap.items(), key=lambda x: x[0])
+
+            # not tainted return 0.
+            if self._tagVal == 0:
+                return 0
+
+            for i in range(len(inList)):
+                if self._tagVal == inList[i][1][1]:
+                    return i + 1
+            else:
+                # tainted with some unexpected value. Return 0
+                return -1
+        else:
+            return self._tagVal
+
+    def _setTagVal(self, tagVal):
+        self._tagVal = tagVal
 
     def _getTmId(self):
         """
@@ -467,9 +485,7 @@ class OutEntry(object):
     # Setter/getter
     tmId = property(_getTmId, _setTmId)
     tId = property(_getTId, _setTId)
-
-    def neutralize(self, neutralizeMap):
-        pass
+    tagVal = property(_getTagVal, _setTagVal)
 
     @classmethod
     def parseOutputLine(self, line):
@@ -505,6 +521,28 @@ class OutEntry(object):
         """
         return ExecTrace.isOutputLine(line)
 
+    @classmethod
+    def numReprToStr(cls, outEnt):
+        output = StringIO()
+        outLoc, outputVal, tag = cls.outHashList[outEnt]
+        print >> output, "{0} {1} {2}".format(outLoc, outputVal, tag)
+        ret = output.getvalue()
+        output.close()
+        return ret
+
+    def updateHashList(self):
+        """
+        @param hkey: Tuple composed of library name, method name, and offset.
+        This is added to cls.outHashList in sorted order.
+        """
+        if self.hkey not in self.outHashList:
+            bisect.insort(self.outHashList, self.hkey)
+
+    def getNumRepr(self):
+        assert(self.hkey in self.outHashList and "sanity check")
+
+        return self.outHashList.index(self.hkey)
+
     def __eq__(self, other):
         """
         Method for equality check.
@@ -531,16 +569,16 @@ class ExecTrace(object):
     """
 
     outLocList = ['libcore.os.read0',
-                    'libcore.os.read1',
-                    'libcore.os.sendto0',
-                    'libcore.os.pwrite0',
-                    'libcore.os.pwrite1',
-                    'libcore.os.write0',
-                    'libcore.os.write1']
+                      'libcore.os.read1',
+                      'libcore.os.sendto0',
+                      'libcore.os.pwrite0',
+                      'libcore.os.pwrite1',
+                      'libcore.os.write0',
+                      'libcore.os.write1']
 
     def __init__(self, lines):
         """
-        Constructor method.
+        constructor method.
         @param lines: lines to be parsed.
         """
         assert("sanity check" and self.isEventIdLine(lines[0]))
@@ -557,23 +595,26 @@ class ExecTrace(object):
 
         self.tmId = tmId
 
-        for line in line[1:]:
+        for line in lines[1:]:
             if self.isOutputLine(line):
                 outputLogLines.append(line)
             elif self.isBranchLine(line):
                 brLogLines.append(line)
             else:
+                print line
                 assert("unexpected branch" and False)
 
-        self.inputMap = {inLoc: (inData, tag)}
+        self.inputMap = {inLoc: (inData.strip(), tag)}
         self.brChoice = BrLog(brLogLines, self)
         self.outLog = OutLog(outputLogLines, self)
 
-    def nuetralize(self):
-        """
-        """
+    def getInMapKey(self):
+        tmp = []
+        for key, val in self.inputMap.items():
+            tmp.append((key, val[0]))
+        return tuple(tmp)
 
-    def getInVal(self, inLoc):
+    def getInValFor(self, inLoc):
         """
         @param inLoc: input location.
         @return: input value witnessed from input location of inLoc.
@@ -681,196 +722,37 @@ class ExecTrace(object):
         else:
             return 0
 
+    def getBrNumRepr(self):
+        return self.brChoice.getNumRepr()
+
+    def getOutNumRepr(self):
+        return self.outLog.getNumRepr()
+
+    def _getInMapStr(self):
+        """
+        @return : String representation of input value (self.inputMap).
+        """
+        ret = ""
+        output = StringIO()
+        for i, inKey in enumerate(self.inputMap):
+            val, tag = self.inputMap[inKey]
+            if tag > 0:
+                tag_ = i + 1
+            print >> output, "Input Loc - {0}:: Value ({1}), Tag ({2})".\
+                format(inKey, val, tag_),
+        ret = output.getvalue()
+        output.close()
+        return ret
+
     def __str__(self):
         """
         """
-        #TODO: implement.
-        return ""
-
-
-def getAvailableInOutLocPairs(execTraceList):
-    """
-    @param execTraceList: list of ExecTrace instances.
-    @return: list of all available input and output locations shown from
-    execTraceList in the form of [(inLoc0, outLoc0), ...]
-    """
-    ret = set()
-    for execTrc in execTraceList:
-        inLocList = execTrc.inMap.keys()
-        for inLoc in inLocList:
-            for outLoc in execTrc.outLoc.getDistOutLocList():
-                ret.add((inLoc, outLoc))
-
-    return list(ret)
-
-
-def getTaintChannel(execTraceList):
-    """
-    This method is to infer a list of taint channel from execution trace list.
-    (Please note that a execution path can have multiple taint channel.)
-    This process can be regarded as a process of inferring ground-truth
-
-    @param execTraceList: list of ExecTrace instances.
-    @return: map(dictionary) structure that has branch choices(brChoice) as
-    the key and a list of input and output locations pairs as its value.
-    """
-    it = itertools.combinations(execTraceList, 2)
-    #inOutLocList = getAvailableInOutLocPairs(execTraceList)
-
-    taintChannelSet = []
-    noTaintChannelSet = []
-    try:
-        # Comparing for all available execution trace combination pairs
-        while True:
-            pair = it.next()
-            execTrc0, execTrc1 = pair
-            for inOutLoc in getAvailableInOutLocPairs(pair):
-                inLoc, outLoc = inOutLoc
-
-                # Checks whether output value responds to the changes of the
-                # input values.
-
-                if (execTrc0.getInValFor(inLoc) !=
-                    execTrc1.getInValFor(inLoc)) \
-                     and not compareOutList(execTrc0.getOutValListFor(outLoc),
-                                            execTrc1.getOutValListFor(outLoc)):
-
-                    assert(execTrc0.brLog == execTrc1.brLog and
-                           "we are expecting to see identical brLog")
-
-                    taintChannelSet.append((inLoc, outLoc))
-
-                elif (execTrc0.getInValFor(inLoc) ==
-                      execTrc1.getInValFor(inLoc)) \
-                    and not compareOutList(execTrc0.getOutValListFor(outLoc),
-                                           execTrc1.getOutValListFor(outLoc)):
-                    noTaintChannelSet.add((inLoc, outLoc))
-
-    except StopIteration:
-        taintChannelList = list(taintChannelSet - noTaintChannelSet)
-        taintChannelList.sort()
-        return taintChannelList
-
-
-def EvalChannelFN(execTraceList):
-    """
-    The function verifies whether taint channel delivers taintedness(tag value)
-    properly.
-
-    @param execTraceList: List of ExecTrace instances.
-    @return : Map(dictionary) structure that has branch choices(brChoice) as
-    a key and its correctness result as a value.
-    """
-    taintChannelMap = getTaintChannel(execTraceList)
-    result = {}
-
-    for brChoice in taintChannelMap:
-        for inOutLoc in taintChannelMap[brChoice]:
-            inLoc, outLoc = inOutLoc
-            for execTrc in execTraceList:
-                if execTrc.getInTagVal(inLoc) != execTrc.getOutTagVal(outLoc):
-                    # Taintedness didn't correctly flowed -- maybe false
-                    # negative
-                    if brChoice in result:
-                        result[brChoice].append(
-                            (execTrc, inOutLoc, ERROR_DETECTED))
-                    else:
-                        result[brChoice] = [
-                            (execTrc, inOutLoc, ERROR_DETECTED)]
-
-        # Iterated over all input, output locations for brChoice
-        else:
-            if brChoice not in result:
-                result[brChoice] = CORRECT_CHANNEL
-
-    return result
-
-
-def EvalChannelFP(execTraceList):
-    """
-    The function verifies whether taintedness(tag value) propagated to any
-    unintended locations.
-
-    @param execTraceList: List of ExecTrace instances.
-    @return : Map(dictionary) structure that has branch choices(brChoice) as
-    a key and its correctness result as a value.
-    """
-    taintChannelMap = getTaintChannel(execTraceList)
-    result = {}
-
-    for brChoice in taintChannelMap:
-        # Build a set for all Output locations
-        allOutLocs = set()
-        for _, outLoc in taintChannelMap[brChoice]:
-            allOutLocs.add(outLoc)
-
-        for inOutLoc in taintChannelMap[brChoice]:
-            inLoc, outLoc = inOutLoc
-            # outLoc_ := complement of outLoc
-            outLoc_ = allOutLocs - outLoc
-
-            for execTrc in execTraceList:
-                # unexpected flow of taintedness -- false positive
-                if execTrc.getInTagVal(inLoc) == execTrc.getOutTagVal(outLoc_):
-                    if brChoice in result:
-                        result[brChoice].append((execTrc, inOutLoc,
-                                                 ERROR_DETECTED))
-                    else:
-                        result[brChoice] = [(execTrc, inOutLoc,
-                                             ERROR_DETECTED)]
-        else:
-            if brChoice not in result:
-                result[brChoice] = CORRECT_CHANNEL
-
-    return result
-
-
-def parseLines(lines):
-    """
-    @param lines: lines to be parsed.
-    @return: list of ExecTrace.
-    """
-    it = iter(lines)
-
-    line = it.next()
-    try:
-        while True:
-            if ExecTrace.isEventIdLine(line):
-                break
-            it.next()
-    except StopIteration:
-        return []
-
-    execTrcList = []
-    buffer = []
-    try:
-        while True:
-            if ExecTrace.isEventIdLine(line):
-                if buffer:
-                    execTrcList.append(buffer)
-                buffer = []
-            buffer.append(line)
-            line = it.next()
-    except StopIteration:
-        execTrcList.append(buffer)
-        return execTrcList
-
-"""
-Evaluation main
-"""
-if __name__ == "__main__":
-    fname = sys.argv[1]
-    with file(fname) as f:
-        lines = f.readlines()
-
-    execTraceList = parseLines(lines)
-
-    resultFN = EvalChannelFN(execTraceList)
-    resultFP = EvalChannelFP(execTraceList)
-
-    # For branch choice(brChoice) that we want to evaluate.
-    brChoice = None
-    if resultFN[brChoice] == resultFP[brChoice] == CORRECT_CHANNEL:
-        print brChoice + " is CORRECT."
-    else:
-        print brChoice + " is INCORRECT."
+        ret = ""
+        output = StringIO()
+        print >> output, "== Input =="
+        print >> output, self._getInMapStr()
+        print >> output, self.brChoice
+        print >> output, self.outLog
+        ret = output.getvalue()
+        output.close()
+        return ret
