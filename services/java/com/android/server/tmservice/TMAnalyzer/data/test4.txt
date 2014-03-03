@@ -1,0 +1,25 @@
+W/TMLog   (  147): runover |3|imsi |450002000000010 | 4
+E/dalvikvmtm(  602): 189|1 |0008|Ledu/columbia/gpsapp/MainActivity$3$1;.run|| if-nez| >
+E/dalvikvmtm(  602): 190|1 |001a|Ledu/columbia/gpsapp/MainActivity;.sendMessage|| if-gez| >
+E/dalvikvmtm(  602): 191|1 |0023|Ledu/columbia/gpsapp/MainActivity;.sendMessage|| if-nez| >
+E/dalvikvmtm(  602): 192|1 |00a1|Ledu/columbia/gpsapp/MainActivity;.sendMessage|| if-nez| <
+E/dalvikvmtm(  602): 193|1 |0005|Ledu/columbia/gpsapp/MainActivity$Msg;.toString|| if-nez| >
+E/dalvikvmtm(  602): 194|1 |013b|Ledu/columbia/gpsapp/MainActivity$Msg;.toString|| if-ne| <
+E/dalvikvmtm(  602): 195|1 |0155|Ledu/columbia/gpsapp/MainActivity$Msg;.toString|| if-nez| <
+E/dalvikvmtm(  602): 196|1 |015f|Ledu/columbia/gpsapp/MainActivity$Msg;.toString|| if-nez| <
+E/dalvikvmtm(  602): 197|12|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
+W/TMLog   (  602): libcore.os.send0|198|12|{93dc8146cdccffc91f34f01ecace38704a68c956cf8676a8f2f427464a5959d}|0x4|128.59.23.189|
+E/dalvikvmtm(  602): 199|12|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
+E/dalvikvmtm(  602): 200|12|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
+E/dalvikvmtm(  602): 201|12|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
+W/TMLog   (  602): libcore.os.send0|202|12|{93dc8146cdccffc91f34f01ecace38704a68c956cf8676a8f2f427464a5959d}|0x4|128.59.23.189|
+E/dalvikvmtm(  602): 203|12|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
+E/dalvikvmtm(  602): 204|12|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
+E/dalvikvmtm(  602): 205|12|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| <
+W/TMLog   (  602): libcore.os.send0|206|12|{xxxxxccf4c2dec52fb33bc79b858ec2ae9646f9df21a596873f905d4479}|0x0|128.59.23.189|
+E/dalvikvmtm(  602): 207|12|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| <
+E/dalvikvmtm(  602): 208|12|0030|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-eqz| >
+E/dalvikvmtm(  602): 209|12|0005|Ledu/columbia/gpsapp/MainActivity$SocketTask;.doInBackground|| if-ge| >
+E/dalvikvmtm(  602): 210|1 |0006|Ledu/columbia/gpsapp/MainActivity$SocketTask;.onPostExecute|| if-eqz| <
+E/dalvikvmtm(  602): 211|1 |002b|Ledu/columbia/gpsapp/ResultActivity;.onCreate|| if-eqz| <
+E/dalvikvmtm(  602): 212|1 |0008|Ledu/columbia/gpsapp/MainActivity$3$1;.run|| if-nez| <
