@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import itertools
 import re
 import sys
@@ -331,23 +333,13 @@ class OutLog(object):
             tIdLst.sort()
             return tIdLst
 
-    def getMatrix(self):
-        """
-        TODO:
-        """
-        pass
-
-    def getGraph(self):
-        """
-        TODO
-        """
-
     def __eq__(self, other):
         """
         TODO:
         """
         if len(self.outEntTIdMap) != other.outEntTIMap:
             return False
+        else
 
     def __getOutXListFor(self, X, outLoc, tId=None):
         """
@@ -376,7 +368,7 @@ class OutLog(object):
         tIdList = self.getTIdList()
 
         for tId in tIdList:
-            print >> output, "== {0} ==".format(tId)
+            print >> output, "== TID: {0} ==".format(tId)
             outEntList = self.getOutLocListbyTId(tId)
             outLocMap = defaultdict(list)
             for outEnt in outEntList:
@@ -388,7 +380,7 @@ class OutLog(object):
             outLocList.sort()
 
             for outLoc in outLocList:
-                print >> output, "\t* {0} *".format(outLoc)
+                print >> output, "\t* Output Loc: {0} *".format(outLoc)
                 for outEnt in outLocMap[outLoc]:
                     print >> output, "\t\t" + str(outEnt)
 
@@ -513,9 +505,9 @@ class ExecTrace(object):
     """
     Class that represent a single execution instance.
     The class has members that represents
-        i) Input locations / values
-        ii) Branch choices
-        iii) Output locations / values
+    i) Input locations / values
+    ii) Branch choices
+    iii) Output locations / values
     """
 
     outLocList = ['libcore.os.read0',
@@ -745,29 +737,18 @@ def EvalChannelFN(execTraceList):
     @return : Map(dictionary) structure that has branch choices(brChoice) as
     a key and its correctness result as a value.
     """
-    taintChannelMap = getTaintChannel(execTraceList)
-    result = {}
+    taintChannelList = getTaintChannel(execTraceList)
+    resultMap = defaultdict(list)
 
-    for brChoice in taintChannelMap:
-        for inOutLoc in taintChannelMap[brChoice]:
-            inLoc, outLoc = inOutLoc
-            for execTrc in execTraceList:
-                if execTrc.getInTagVal(inLoc) != execTrc.getOutTagVal(outLoc):
-                    # Taintedness didn't correctly flowed -- maybe false
-                    # negative
-                    if brChoice in result:
-                        result[brChoice].append(
-                            (execTrc, inOutLoc, ERROR_DETECTED))
-                    else:
-                        result[brChoice] = [
-                            (execTrc, inOutLoc, ERROR_DETECTED)]
+    for inLoc, outLoc in taintChannelList:
+        for execTrc in execTraceList:
+            #FIXME: need a new way to define channel and compare.
+            if execTrc.getInTagVal(inLoc) != execTrc.getOutTagVal(outLoc):
+                # Taintedness didn't correctly flowed -- maybe false
+                # negative
+                resultMap[ERROR_DETECTED].append((execTrc, (inLoc, outLoc)))
 
-        # Iterated over all input, output locations for brChoice
-        else:
-            if brChoice not in result:
-                result[brChoice] = CORRECT_CHANNEL
-
-    return result
+    return resultMap
 
 
 def EvalChannelFP(execTraceList):

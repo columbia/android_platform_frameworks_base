@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import unittest
 
-from alg import BrEntry, BrLog, OutEntry, OutLog
+from TMAnalyzer import BrEntry, BrLog, OutEntry, OutLog
 
 
 class TestBrLine(unittest.TestCase):
