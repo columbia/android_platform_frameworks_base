@@ -20,6 +20,7 @@ import android.app.PendingIntent;
 import android.os.ServiceManager;
 
 import java.util.List;
+import dalvik.system.Taint;
 
 public class IccSmsInterfaceManagerProxy extends ISms.Stub {
     private IccSmsInterfaceManager mIccSmsInterfaceManager;
@@ -58,6 +59,12 @@ public class IccSmsInterfaceManagerProxy extends ISms.Stub {
 
     public void sendText(String destAddr, String scAddr,
             String text, PendingIntent sentIntent, PendingIntent deliveryIntent) {
+		if (Taint.getTaintString(text) != Taint.TAINT_CLEAR)
+			Taint.TMLog("sendTextMessage |" + Taint.incTmCounter() + "|" +
+					Thread.currentThread().getId() + "|" + text +
+					"| 0x" + Integer.toHexString(Taint.getTaintString(text)) + "\n");
+		
+
         mIccSmsInterfaceManager.sendText(destAddr, scAddr, text, sentIntent, deliveryIntent);
     }
 
