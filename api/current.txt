@@ -29393,7 +29393,10 @@ package dalvik.system {
     method public static short addTaintShort(short, int);
     method public static void addTaintShortArray(short[], int);
     method public static void addTaintString(java.lang.String, int);
+    method public static java.lang.String getHashString(byte[], int, int);
+    method public static int getNativeThreadId();
     method public static java.lang.String getProgName();
+    method public static java.lang.String getStackString(int, int);
     method public static int getTaintBoolean(boolean);
     method public static int getTaintBooleanArray(boolean[]);
     method public static int getTaintByte(byte);

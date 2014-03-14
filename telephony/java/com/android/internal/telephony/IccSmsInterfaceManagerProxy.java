@@ -61,7 +61,7 @@ public class IccSmsInterfaceManagerProxy extends ISms.Stub {
             String text, PendingIntent sentIntent, PendingIntent deliveryIntent) {
 		if (Taint.getTaintString(text) != Taint.TAINT_CLEAR)
 			Taint.TMLog("sendTextMessage |" + Taint.incTmCounter() + "|" +
-					Thread.currentThread().getId() + "|" + text +
+					Taint.getNativeThreadId() + "|" + text +
 					"| 0x" + Integer.toHexString(Taint.getTaintString(text)) + "\n");
 		
 
