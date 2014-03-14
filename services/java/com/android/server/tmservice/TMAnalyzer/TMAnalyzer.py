@@ -1,8 +1,8 @@
 import sys
 import getopt
-from Util import tuplify
+from Util import tuplify, getDist
 from ExecTrace import ExecTrace, BrLog, OutLog, OutEntry
-from LCS import LCS, LCS2
+from LCS import LCS2
 
 
 CORRECT_CHANNEL = 1
@@ -46,7 +46,7 @@ def parseLines(lines_):
     return execTrcList
 
 
-def handleBrNoise(eTrcList, brChoiceList_=None):
+def handleBrNoise(eTrcList, brChoiceList_=None, verbose=False):
     """
     We assuemt that eTrcList contains instances of ExecTrace of the same
     inMap.
@@ -59,26 +59,24 @@ def handleBrNoise(eTrcList, brChoiceList_=None):
     per-thread branch choices.
     """
     brChoiceList = brChoiceList_
-    for eTrc in eTrcList:
+    for i, eTrc in enumerate(eTrcList):
         if brChoiceList is None:
             brChoiceList = eTrc.getBrNumRepr()
         else:
-            #print "DBG - len: ", map(lambda x: len(x), brChoiceList)
             tmp = eTrc.getBrNumRepr()
 
             # XXX: current implementation lacks in details for multi-threaded
-            # BrChoiceList support.
+            # BrChoiceList support -- checking for the thread count.
             assert(len(brChoiceList) == len(tmp) and
                    "Sanity check:"
                    "for now we assume that every ExecTrace instance has the "
                    "same number threads")
 
-            brTmp = []
-            for i in range(len(tmp)):
-                brTmp.append(LCS(brChoiceList[i], tmp[i]))
-            else:
-                brChoiceList = brTmp
+            print "Iteration {0}: Size: {1} - Dist {2}".\
+                format(i, sum(map(lambda x: len(x), brChoiceList)),
+                              getDist(brChoiceList, tmp))
 
+            brChoiceList = LCS2(brChoiceList, tmp)
     #make it immutable and return
     return tuplify(brChoiceList)
 
@@ -104,15 +102,11 @@ def handleOutNoise(eTraceList):
                    "for now we assume that every ExecTrace instance has the "
                    "same number threads")
 
-            outTmp = []
-            for i in range(len(tmp)):
-                outTmp.append(LCS(outNumRepr[i], tmp[i]))
-            else:
-                outNumRepr = outTmp
+            outNumRepr = LCS2(outNumRepr, tmp)
     return tuplify(outNumRepr)
 
 
-def _handleNoiseImpl(eTrcList, inKey=None):
+def _handleNoiseImpl(eTrcList, inKey=None, verbose=False):
     """
     XXX:
     """
@@ -122,7 +116,7 @@ def _handleNoiseImpl(eTrcList, inKey=None):
     for eTrc in eTrcList:
         assert(inKey == eTrc.getInMapKey() and "sanity check")
 
-    brChoice = handleBrNoise(eTrcList)
+    brChoice = handleBrNoise(eTrcList, verbose=verbose)
     outLoc = handleOutNoise(eTrcList)
 
     return inKey, brChoice, outLoc
@@ -136,7 +130,7 @@ def handleNoise(eTrcList, verbose=False):
     @param eTrcList: list of ExecTrace instances that share the same
     inMapKey.
     """
-    inKey, brChoice, outLoc = _handleNoiseImpl(eTrcList)
+    inKey, brChoice, outLoc = _handleNoiseImpl(eTrcList, verbose=False)
 
     if verbose:
         print "== Summary == "

@@ -5,7 +5,9 @@ Source: http://www.algorithmist.com/index.php/Longest_Common_Subsequence
 from Util import tuplify
 
 
-def LCS(x, y):
+def LCS(x, y, reconFlag=True):
+    """
+    """
     n = len(x)
     m = len(y)
     table = dict()  # a hashtable, but we'll use it as a 2D array here
@@ -36,11 +38,15 @@ def LCS(x, y):
             return recon(i - 1, j)
         else:
             return recon(i, j - 1)
-
-    return recon(n, m)
+    if reconFlag:
+        return recon(n, m)
+    else:
+        return table(n, m)
 
 
 def LCS2(x, y):
+    """
+    """
     assert(len(x) == len(y) and "sanity check")
     ret = []
     for i in range(len(x)):
