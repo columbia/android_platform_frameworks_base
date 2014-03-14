@@ -213,15 +213,15 @@ public abstract class TMService extends ITMService.Stub {
 
               switch (tokens.length) {
                   case 4:
-                      cmd = tokens[3];
-                  case 3:
                       try {
-                          port = Integer.parseInt(tokens[2]);
+                          port = Integer.parseInt(tokens[3]);
                       } catch (NumberFormatException e) {
                           Log.v(TAG, "run_over: NumberFormatException" +
                                   " raised with " + tokens[1]);
                           break;
                       }
+                  case 3:
+                      cmd = tokens[2];
                   case 2:
                       svcTAG = tokens[1];
                       tmSvc = tmSvcHMap.get(svcTAG);
