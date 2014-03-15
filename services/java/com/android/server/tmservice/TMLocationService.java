@@ -10,6 +10,7 @@ import com.android.server.location.GpsLocationProvider;
 
 import dalvik.system.Taint;
 
+import android.os.RemoteException;
 import android.os.ServiceManager;
 
 /**
@@ -183,4 +184,22 @@ public class TMLocationService extends TMService{
     }
 */
   }
+
+@Override
+public double getLatitude() throws RemoteException {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+@Override
+public double getLongitude() throws RemoteException {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+@Override
+public int getDevId() throws RemoteException {
+	// TODO Auto-generated method stub
+	return 0;
+}
 }
