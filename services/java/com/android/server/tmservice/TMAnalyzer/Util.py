@@ -59,3 +59,12 @@ def tuplify(lst):
             ret.append(el)
     else:
         return tuple(ret)
+
+
+def getDist(numRepr0, numRepr1):
+    """
+    @param numRepr:
+    """
+    numList0 = map(lambda x: len(x), numRepr0)
+    numList1 = map(lambda x: len(x), numRepr1)
+    return abs(sum(numList0) - sum(numList1))
