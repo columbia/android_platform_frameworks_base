@@ -1,5 +1,12 @@
 package com.android.server.tmservice;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -85,8 +92,8 @@ public class TMIMSIService extends TMService {
       tag = getNextTag(tag);
     }
 
-    Taint.TMLog("runover |" + Taint.incTmCounter() + "|imsi |"+ imsi + " | "+ 
-		    " | " + Integer.toHexString(tag));
+    Taint.TMLog("runover |" + Taint.incTmCounter() + "|imsi |"+ imsi + " | "+
+            " | " + Integer.toHexString(tag));
   }
 
   /**
@@ -108,21 +115,45 @@ public class TMIMSIService extends TMService {
      * http://en.wikipedia.org/wiki/Mobile_country_code
      */
 
-    //South Korean providers
-    imsiList.add(new Tuple<Integer, Integer, Integer>(450, 02, 1));
-    imsiList.add(new Tuple<Integer, Integer, Integer>(450, 03, 1));
-    // ...
+    try {
+        String line;
+        BufferedReader br = new BufferedReader(new FileReader("/data/local/tmp/imsi.lst"));
+        while ((line = br.readLine()) != null) { // while loop begins here
+            String entry[] = line.split(",");
+            if (entry.length != 3) {
+                Log.v(TAG, "ERROR: Malformed line entry: " + line);
+                continue;
+            }
+            try {
+                int mcc = Integer.parseInt(entry[0]);
+                int mnc = Integer.parseInt(entry[1]);
+                int msin = Integer.parseInt(entry[2]);
 
-    //GB providers
-    imsiList.add(new Tuple<Integer, Integer, Integer>(234, 00, 1));  //BT
-    imsiList.add(new Tuple<Integer, Integer, Integer>(234, 01, 1));  //Vectone Mobile
-    // ...
+                imsiList.add(new Tuple<Integer, Integer, Integer>(mcc, mnc, msin));
+            } catch (NumberFormatException ne) {
+                Log.v(TAG, "ERROR: Malformed number exception: " + line);
+                continue;
+            }
+
+        } // end while
+        br.close();
+    } catch (IOException e) {
+        //South Korean providers
+        imsiList.add(new Tuple<Integer, Integer, Integer>(450, 02, 1));
+        imsiList.add(new Tuple<Integer, Integer, Integer>(450, 03, 1));
+        // ...
+
+        //GB providers
+        imsiList.add(new Tuple<Integer, Integer, Integer>(234, 00, 1));  //BT
+        imsiList.add(new Tuple<Integer, Integer, Integer>(234, 01, 1));  //Vectone Mobile
+        // ...
 
 
-    //US providers
-    imsiList.add(new Tuple<Integer, Integer, Integer>(310, 053, 1));  //Virgin Mobile
-    imsiList.add(new Tuple<Integer, Integer, Integer>(310, 054, 1));  //Alltel US
-    // ...
+        //US providers
+        imsiList.add(new Tuple<Integer, Integer, Integer>(310, 053, 1));  //Virgin Mobile
+        imsiList.add(new Tuple<Integer, Integer, Integer>(310, 054, 1));  //Alltel US
+        // ...
+    }
 
     it = imsiList.iterator();
   }
