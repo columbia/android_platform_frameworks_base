@@ -185,25 +185,21 @@ public class TMLocationService extends TMService{
 */
   }
 
-@Override
 public double getLatitude() throws RemoteException {
 	// TODO Auto-generated method stub
 	return 0;
 }
 
-@Override
 public double getLongitude() throws RemoteException {
 	// TODO Auto-generated method stub
 	return 0;
 }
 
-@Override
 public int getDevId() throws RemoteException {
 	// TODO Auto-generated method stub
 	return 0;
 }
 
-@Override
 protected void refresh() {
 	// TODO Auto-generated method stub
 	
