@@ -202,4 +202,10 @@ public int getDevId() throws RemoteException {
 	// TODO Auto-generated method stub
 	return 0;
 }
+
+@Override
+protected void refresh() {
+	// TODO Auto-generated method stub
+	
+}
 }

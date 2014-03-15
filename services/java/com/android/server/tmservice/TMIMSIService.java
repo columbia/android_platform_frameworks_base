@@ -107,11 +107,9 @@ public class TMIMSIService extends TMService {
     //init. private(service specific) variables.
     imsi = String.format("%03d%03d%09d", mcc, mnc, msin);
 
-
-    /*
-     * http://en.wikipedia.org/wiki/Mobile_country_code
-     */
-
+    initialize();
+  }
+  private void initialize() {
     try {
         String line;
         BufferedReader br = new BufferedReader(new FileReader("/data/local/tmp/imsi.lst"));
@@ -145,7 +143,6 @@ public class TMIMSIService extends TMService {
         imsiList.add(new Tuple<Integer, Integer, Integer>(234, 01, 1));  //Vectone Mobile
         // ...
 
-
         //US providers
         imsiList.add(new Tuple<Integer, Integer, Integer>(310, 053, 1));  //Virgin Mobile
         imsiList.add(new Tuple<Integer, Integer, Integer>(310, 054, 1));  //Alltel US
@@ -155,21 +152,27 @@ public class TMIMSIService extends TMService {
     it = imsiList.iterator();
   }
 
-@Override
-public double getLatitude() throws RemoteException {
-	// TODO Auto-generated method stub
-	return 0;
-}
+    @Override
+    public double getLatitude() throws RemoteException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-@Override
-public double getLongitude() throws RemoteException {
-	// TODO Auto-generated method stub
-	return 0;
-}
+    @Override
+    public double getLongitude() throws RemoteException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-@Override
-public int getDevId() throws RemoteException {
-	// TODO Auto-generated method stub
-	return 0;
-}
+    @Override
+    public int getDevId() throws RemoteException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    protected void refresh() {
+        // TODO Auto-generated method stub
+        initialize();
+    }
 }

@@ -44,8 +44,8 @@ public abstract class TMService extends ITMService.Stub {
   protected int tag = -1;
 
   static private String helpMessage = "Usage examples \n" +
-  		"runover TMSvc [port] [cmd]\n" +
-  		"disc\n";
+          "runover TMSvc [port] [cmd]\n" +
+          "disc\n";
 
   /**
    * Dummy implementation
@@ -144,6 +144,11 @@ public abstract class TMService extends ITMService.Stub {
   protected abstract void run_over(int port, String subcmd);
 
   /**
+   *
+   */
+  protected abstract void refresh();
+
+  /**
    * Constructor method.
    *
    * @param context
@@ -232,6 +237,18 @@ public abstract class TMService extends ITMService.Stub {
                   default:
                       tmSvc.run_over(port, cmd);
               }
+            } else if (line.startsWith("refresh")) {
+                TMService tmSvc = null;
+                String[] tokens = line.split(" ");
+
+                if (tokens.length != 4) {
+                    Log.v(TAG, "unexpected input: " + line);
+                    continue;
+                }
+                String svcTAG = tokens[1];
+                tmSvc = tmSvcHMap.get(svcTAG);
+
+                tmSvc.refresh();
             } else if (line.startsWith("help")) {
                 writer.print(helpMessage);
             } else {
