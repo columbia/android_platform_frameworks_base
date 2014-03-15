@@ -29393,7 +29393,10 @@ package dalvik.system {
     method public static short addTaintShort(short, int);
     method public static void addTaintShortArray(short[], int);
     method public static void addTaintString(java.lang.String, int);
+    method public static java.lang.String getHashString(byte[], int, int);
+    method public static int getNativeThreadId();
     method public static java.lang.String getProgName();
+    method public static java.lang.String getStackString(int, int);
     method public static int getTaintBoolean(boolean);
     method public static int getTaintBooleanArray(boolean[]);
     method public static int getTaintByte(byte);
@@ -29416,6 +29419,7 @@ package dalvik.system {
     method public static int getTaintShortArray(short[]);
     method public static int getTaintString(java.lang.String);
     method public static int incTmCounter();
+    method public static boolean isTMeasureAPP();
     method public static void log(java.lang.String);
     method public static void logPathFromFd(int);
     method public static void logPeerFromFd(int);

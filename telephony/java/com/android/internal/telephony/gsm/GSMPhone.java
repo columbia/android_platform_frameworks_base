@@ -856,7 +856,6 @@ public class GSMPhone extends PhoneBase {
     }
 
     public String getSubscriberId() {
-      Log.e("JIKK-IMSI/GSMPhone.java", "getSubscriberId() callded");
         return mIccRecords.getIMSI();
     }
 
@@ -1152,7 +1151,6 @@ public class GSMPhone extends PhoneBase {
 
     @Override
     public void handleMessage (Message msg) {
-      Log.e("JIKK-IMSI/GSMPhone.java", "handleMessage called");
         AsyncResult ar;
         Message onComplete;
 
