@@ -3,6 +3,7 @@ import getopt
 from Util import tuplify, getDist
 from ExecTrace import ExecTrace, BrLog, OutLog, OutEntry
 from LCS import LCS2
+from ThreadMatch import SimpleMatcher
 
 
 CORRECT_CHANNEL = 1
@@ -259,7 +260,9 @@ if __name__ == "__main__":
         with file(fname) as f:
             lines = f.readlines()
         lineList = parseLines(lines)
-        fargv.append(map(lambda x: ExecTrace(x), lineList))
+        eTrcList = map(lambda x: ExecTrace(x), lineList)
+        eTrcList_ = SimpleMatcher(eTrcList)
+        fargv.append(eTrcList_)
     else:
         fargv.append(verbose)
 

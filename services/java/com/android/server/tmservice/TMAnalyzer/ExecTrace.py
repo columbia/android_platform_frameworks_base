@@ -385,7 +385,7 @@ class OutLog(object):
         """
         keyLst = sorted(self.outEntTIdMap.keys())
         if tId is None:
-            ret = [None for _ in range(max(keyLst) + 1)]
+            ret = [[] for _ in range(max(keyLst) + 1)]
             for tId_, val in self.outEntTIdMap.items():
                 ret[tId_] = map(lambda x: x.getNumRepr(), val)
             return ret
@@ -802,12 +802,12 @@ class ExecTrace(object):
         brNumRepr = self.brChoice.getNumRepr(tId=tId)
 
         if self.tIdMatchMap:
-            retRepr = [[] for _ in range(max(self.tIdMatchMap.keys()))]
+            retRepr = [[] for _ in range(len(self.tIdMatchMap))]
             for newTId, oldTId in self.tIdMatchMap.items():
                 retRepr[newTId] = brNumRepr[oldTId]
 
-            assert(filter(lambda x: not x, retRepr) == [] and
-                   "Sanity check -- not expecting to see any remaining None")
+            #assert(filter(lambda x: not x, retRepr) == [] and
+            #       "Sanity check -- not expecting to see any remaining []")
 
             return retRepr
         else:
@@ -818,12 +818,12 @@ class ExecTrace(object):
         """
         outNumRepr = self.outLog.getNumRepr()
         if self.tIdMatchMap:
-            retRepr = [[] for _ in range(max(self.tIdMatchMap.keys()))]
+            retRepr = [[] for _ in range(len(self.tIdMatchMap))]
             for newTId, oldTId in self.tIdMatchMap.items():
                 retRepr[newTId] = outNumRepr[oldTId]
 
-            assert(filter(lambda x: not x, retRepr) == [] and
-                   "Sanity check -- not expecting to see any remaining None")
+            #assert(filter(lambda x: not x, retRepr) == [] and
+            #       "Sanity check -- not expecting to see any remaining []")
 
             return retRepr
         else:
@@ -839,7 +839,7 @@ class ExecTrace(object):
 
     def _getInMapStr(self):
         """
-        @return : String representation of input value (self.inputMap).
+        @return: String representation of input value (self.inputMap).
         """
         ret = ""
         output = StringIO()
@@ -857,7 +857,8 @@ class ExecTrace(object):
         """
         @return: Number of threads in the execution trace.
         """
-        return sorted(self.nMap["TIdMap"].keys())
+        #return sorted(self.nMap["TIdMap"].keys())
+        return range(len(self.nMap["TIdMap"].keys()))
 
     def getTIdMap(self):
         """
