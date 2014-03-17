@@ -385,7 +385,7 @@ class OutLog(object):
         """
         keyLst = sorted(self.outEntTIdMap.keys())
         if tId is None:
-            ret = [None in _ in range(max(keyLst) + 1)]
+            ret = [None for _ in range(max(keyLst) + 1)]
             for tId_, val in self.outEntTIdMap.items():
                 ret[tId_] = map(lambda x: x.getNumRepr(), val)
             return ret
@@ -558,8 +558,6 @@ class OutEntry(object):
 
     def updateHashList(self):
         """
-        @param hkey: Tuple composed of library name, method name, and offset.
-        This is added to cls.outHashList in sorted order.
         """
         if self.hkey not in self.outHashList:
             bisect.insort(self.outHashList, self.hkey)
@@ -639,6 +637,8 @@ class ExecTrace(object):
         self.inputMap = {inLoc: (inData.strip(), tag)}
         self.brChoice = BrLog(brLogLines, self)
         self.outLog = OutLog(outputLogLines, self)
+
+        self.tIdMatchMap = None
 
     @classmethod
     def _initNMap(cls, lines):
@@ -797,10 +797,37 @@ class ExecTrace(object):
             return 0
 
     def getBrNumRepr(self, tId=None):
-        return self.brChoice.getNumRepr(tId=tId)
+        """
+        """
+        brNumRepr = self.brChoice.getNumRepr(tId=tId)
+
+        if self.tIdMatchMap:
+            retRepr = [[] for _ in range(max(self.tIdMatchMap.keys()))]
+            for newTId, oldTId in self.tIdMatchMap.items():
+                retRepr[newTId] = brNumRepr[oldTId]
+
+            assert(filter(lambda x: not x, retRepr) == [] and
+                   "Sanity check -- not expecting to see any remaining None")
+
+            return retRepr
+        else:
+            return brNumRepr
 
     def getOutNumRepr(self, tId=None):
-        return self.outLog.getNumRepr()
+        """
+        """
+        outNumRepr = self.outLog.getNumRepr()
+        if self.tIdMatchMap:
+            retRepr = [[] for _ in range(max(self.tIdMatchMap.keys()))]
+            for newTId, oldTId in self.tIdMatchMap.items():
+                retRepr[newTId] = outNumRepr[oldTId]
+
+            assert(filter(lambda x: not x, retRepr) == [] and
+                   "Sanity check -- not expecting to see any remaining None")
+
+            return retRepr
+        else:
+            return outNumRepr
 
     def getNumRepr(self, tId=None):
         """

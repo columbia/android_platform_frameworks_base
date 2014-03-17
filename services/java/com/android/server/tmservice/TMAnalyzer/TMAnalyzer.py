@@ -15,7 +15,7 @@ ERROR_DETECTED = 1
 
 def parseLines(lines_):
     """
-    @param lines: lines to be parsed.
+    @param lines_: lines to be parsed.
     @return: list of ExecTrace.
     """
     # Remove comments.
@@ -55,7 +55,7 @@ def handleBrNoise(eTrcList, brChoiceList_=None, verbose=False):
     We assuemt that eTrcList contains instances of ExecTrace of the same
     inMap.
 
-    @param eTraceList: list of ExecTrace instances that share the same
+    @param eTrcList: list of ExecTrace instances that share the same
     inMapKey.
     @param brChoiceList_: previous inferred brChoice.
     @return: list of fixed branch choices which are common to all ExecTrace
@@ -149,7 +149,7 @@ def evaluateChannel(eTrcList0, eTrcList1, verbose=False):
     """
     @param eTrcList0: list of ExecTrace instances that share the same
     inMapKey.
-     @param eTrcList1: list of ExecTrace instances that share the same
+    @param eTrcList1: list of ExecTrace instances that share the same
     inMapKey, but different from that of eTrcList0.
    """
     inKey0, brChoice0, outLoc0 = _handleNoiseImpl(eTrcList0)

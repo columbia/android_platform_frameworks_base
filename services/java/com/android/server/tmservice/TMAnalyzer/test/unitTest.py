@@ -71,7 +71,7 @@ class TestOutLog(unittest.TestCase):
         for fname in self.fnameList:
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
-                #print OutLog(lines)
+                print OutLog(lines)
 
     def tearDown(self):
         pass
@@ -80,6 +80,7 @@ class TestOutLog(unittest.TestCase):
 class TestExecTrace(unittest.TestCase):
     basedir = "eTraces/"
     fnameList = ["etrace0.txt"]
+    tIdMapHash = {"etrace0.txt": {0: 1, 1: 12, 2: 13, 3: 18}}
 
     def setUp(self):
         pass
