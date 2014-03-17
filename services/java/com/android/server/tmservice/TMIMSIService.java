@@ -78,6 +78,7 @@ public class TMIMSIService extends TMService {
  */
   protected void run_over(int port_, String subcmd) {
     //signals that we begin another iteration
+    Log.e("DBG-jikk:", "subcmd:" + subcmd);
     if (!subcmd.equals("skip")) {
       next();
     } else {
