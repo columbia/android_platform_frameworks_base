@@ -385,10 +385,9 @@ class OutLog(object):
         """
         keyLst = sorted(self.outEntTIdMap.keys())
         if tId is None:
-            ret = []
-            for tId_ in range(max(keyLst) + 1):
-                ret.append(map(lambda x: x.getNumRepr(),
-                               self.outEntTIdMap[tId_]))
+            ret = [None in _ in range(max(keyLst) + 1)]
+            for tId_, val in self.outEntTIdMap.items():
+                ret[tId_] = map(lambda x: x.getNumRepr(), val)
             return ret
         else:
             if tId in keyLst:
@@ -617,6 +616,12 @@ class ExecTrace(object):
         # Neutralization map.
         self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
 
+        # init. Neutralization map.
+        tIdSet, initTMId = self._initNMap(lines)
+        self.nMap["TmIdBase"] = initTMId
+        for tId in tIdSet:
+            self.nMap["TIdMap"][tId] = 0
+
         # NOTE: tmId here is an event identifier that is different from that
         # of BrLog or OutLog
 
@@ -634,6 +639,46 @@ class ExecTrace(object):
         self.inputMap = {inLoc: (inData.strip(), tag)}
         self.brChoice = BrLog(brLogLines, self)
         self.outLog = OutLog(outputLogLines, self)
+
+    @classmethod
+    def _initNMap(cls, lines):
+        """
+        @param lines:
+        @return: TIdSet, tmId
+        """
+        tIdSet = set()
+        tmId = sys.maxint + 1
+
+        for line in lines:
+            tId = cls.parseTId(line)
+            if tId is not None:
+                tIdSet.add(tId)
+            tmId_ = cls.parseTMId(line)
+            if tmId_ is not None:
+                tmId = min(tmId_, tmId)
+        return tIdSet, tmId
+
+    @classmethod
+    def parseTId(cls, line):
+        if cls.isOutputLine(line):
+            tId = OutEntry.parseOutputLine(line)[2]
+        elif cls.isBranchLine(line):
+            tId = BrEntry.parseBrLine(line)[2]
+        else:
+            return None
+        return tId
+
+    @classmethod
+    def parseTMId(cls, line):
+        """
+        """
+        if cls.isOutputLine(line):
+            tmId = OutEntry.parseOutputLine(line)[1]
+        elif cls.isBranchLine(line):
+            tmId = BrEntry.parseBrLine(line)[1]
+        else:
+            return None
+        return tmId
 
     def getInMapKey(self):
         tmp = []
@@ -785,9 +830,16 @@ class ExecTrace(object):
         """
         @return: Number of threads in the execution trace.
         """
-        tIdList = self.brChoice.getTIdList() + self.outLog.getTIdList()
-        tIdSet = set(tIdList)
-        return list(tIdSet)
+        return sorted(self.nMap["TIdMap"].keys())
+
+    def getTIdMap(self):
+        """
+        """
+        tIdList = self.getTIdList()
+        tIdMap = {}
+        for i, tId in enumerate(tIdList):
+            tIdMap[i] = tId
+        return tIdMap
 
     def __str__(self):
         """

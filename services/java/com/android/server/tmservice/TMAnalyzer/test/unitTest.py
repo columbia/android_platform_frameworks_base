@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+import sys
 import unittest
+sys.path.append("../")
 
-from TMAnalyzer import BrEntry, BrLog, OutEntry, OutLog
+from ExecTrace import BrEntry, BrLog, OutEntry, OutLog, ExecTrace
 
 
 class TestBrLine(unittest.TestCase):
@@ -69,11 +71,39 @@ class TestOutLog(unittest.TestCase):
         for fname in self.fnameList:
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
-                print OutLog(lines)
+                #print OutLog(lines)
 
     def tearDown(self):
         pass
 
+
+class TestExecTrace(unittest.TestCase):
+    basedir = "eTraces/"
+    fnameList = ["etrace0.txt"]
+
+    def setUp(self):
+        pass
+
+    def testLog0(self):
+        for fname in self.fnameList:
+            with file(self.basedir + "/" + fname) as f:
+                lines = f.readlines()
+                eTrc = ExecTrace(lines)
+                print eTrc
+                tIdMap = eTrc.getTIdMap()
+                print tIdMap
+
+    def testTIdMap(self):
+        tIdMap_ = {0: 1, 1: 12, 2: 13, 3: 18}
+        with file(self.basedir + "/etrace0.txt") as f:
+            lines = f.readlines()
+            eTrc = ExecTrace(lines)
+            print eTrc
+            tIdMap = eTrc.getTIdMap()
+            self.assertEqual(tIdMap, tIdMap_)
+
+    def tearDown(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

@@ -18,11 +18,15 @@ def parseLines(lines_):
     @param lines: lines to be parsed.
     @return: list of ExecTrace.
     """
-    #remove comments
-    lines = filter(lambda x: not x.strip().startswith("#"), lines_)
-    it = iter(lines)
+    # Remove comments.
+    lines__ = filter(lambda x: not x.strip().startswith("#"), lines_)
 
+    # Remove empty line.
+    lines = filter(lambda x: x.strip(), lines__)
+
+    it = iter(lines)
     line = it.next()
+
     try:
         while True:
             if ExecTrace.isEventIdLine(line):
@@ -258,6 +262,11 @@ if __name__ == "__main__":
         fargv.append(map(lambda x: ExecTrace(x), lineList))
     else:
         fargv.append(verbose)
+
+    if verbose:
+        for i, eTrc in enumerate(fargv[0]):
+            print "*** Log {0} ***".format(i + 1)
+            print eTrc
 
     if len(args) == 1:
         handleNoise(*fargv)
