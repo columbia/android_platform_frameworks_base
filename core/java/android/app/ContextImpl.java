@@ -102,6 +102,7 @@ import com.android.internal.os.IDropBoxManagerService;
 
 import com.android.tmservice.ITMService;
 import com.android.tmservice.TMIMSIManager;
+import com.android.tmservice.TMIMEIManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -500,6 +501,17 @@ class ContextImpl extends Context {
                     }
                     ITMService service = ITMService.Stub.asInterface(b);
                     return new TMIMSIManager(service);
+                }});
+        registerService(TM_IMEI_SERVICE, new ServiceFetcher() {
+                public Object createService(ContextImpl ctx) {
+                    IBinder b = ServiceManager.getService(TM_IMEI_SERVICE);
+                    if (b == null) {
+                      //Error handling required. For now we just logging error message
+                      Log.e(TAG, "Failed to retrived " + TM_IMEI_SERVICE);
+
+                    }
+                    ITMService service = ITMService.Stub.asInterface(b);
+                    return new TMIMEIManager(service);
                 }});
     }
 

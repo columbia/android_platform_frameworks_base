@@ -86,6 +86,8 @@ import java.util.List;
 // begin WITH_TAINT_TRACKING
 import dalvik.system.Taint;
 // end WITH_TAINT_TRACKING
+import com.android.tmservice.ITMService;
+import com.android.tmservice.TMIMEIManager;
 
 /**
  * {@hide}
@@ -834,15 +836,32 @@ public class GSMPhone extends PhoneBase {
     }
 
     public String getDeviceId() {
-        return mImei;
+	String imei = mImei;
+	TMIMEIManager tmIMEIMgr = (TMIMEIManager)
+		mContext.getSystemService(Context.TM_IMEI_SERVICE);
+	
+	if (tmIMEIMgr != null) {
+		imei = tmIMEIMgr.getIMEI();
+		Taint.addTaintString(imei, tmIMEIMgr.getTag());
+	}
+        return imei;
     }
 
     public String getDeviceSvn() {
+      Log.e("JIKK-IMSI/GSMPhone.java", "getDeviceSvn() callded");
         return mImeiSv;
     }
 
     public String getImei() {
-        return mImei;
+ 	String imei = mImei;
+	TMIMEIManager tmIMEIMgr = (TMIMEIManager)
+		mContext.getSystemService(Context.TM_IMEI_SERVICE);
+	
+	if (tmIMEIMgr != null) {
+		imei = tmIMEIMgr.getIMEI();
+		Taint.addTaintString(imei, tmIMEIMgr.getTag());
+	}
+        return imei;
     }
 
     public String getEsn() {
@@ -1207,8 +1226,8 @@ public class GSMPhone extends PhoneBase {
 
                 mImei = (String)ar.result;
 // begin WITH_TAINT_TRACKING
-                Log.e(LOG_TAG, "GSMPhone:handlemessage called for " + mImei);
-                Taint.addTaintString(mImei, Taint.TAINT_IMEI);
+//                Log.e(LOG_TAG, "GSMPhone:handlemessage called for " + mImei);
+//                Taint.addTaintString(mImei, 12345);
 // end WITH_TAINT_TRACKING
             break;
 
@@ -1218,7 +1237,6 @@ public class GSMPhone extends PhoneBase {
                 if (ar.exception != null) {
                     break;
                 }
-
                 mImeiSv = (String)ar.result;
             break;
 

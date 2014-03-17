@@ -61,6 +61,7 @@ import com.android.server.wm.WindowManagerService;
 
 import com.android.server.tmservice.TMLocationService;
 import com.android.server.tmservice.TMIMSIService;
+import com.android.server.tmservice.TMIMEIService;
 
 import dalvik.system.VMRuntime;
 import dalvik.system.Zygote;
@@ -671,6 +672,14 @@ class ServerThread extends Thread {
               ServiceManager.addService(Context.TM_IMSI_SERVICE, new TMIMSIService(context));
             } catch (Throwable e) {
               reportWtf("starting TMIMSIService", e);
+            }
+	    
+	    //Adding TMIMEIService
+            try {
+              Slog.i(TAG, "TMIMEIService");
+              ServiceManager.addService(Context.TM_IMEI_SERVICE, new TMIMEIService(context));
+            } catch (Throwable e) {
+              reportWtf("starting TMIMEIService", e);
             }
         }
 

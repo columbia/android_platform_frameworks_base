@@ -36,7 +36,8 @@ LOCAL_SRC_FILES := $(call find-other-java-files,$(FRAMEWORKS_BASE_SUBDIRS))
 # Workaround: to build TMIMSIManager class write solution would be adding 
 # 'tmservice/' entry to build/core/pathmap.mk under FRAMEWORKS_BASE_SUBDIRS
 
-LOCAL_SRC_FILES += tmservice/java/com/android/tmservice/TMIMSIManager.java
+LOCAL_SRC_FILES += tmservice/java/com/android/tmservice/TMIMSIManager.java \
+		   tmservice/java/com/android/tmservice/TMIMEIManager.java
 
 # EventLogTags files.
 LOCAL_SRC_FILES += \
