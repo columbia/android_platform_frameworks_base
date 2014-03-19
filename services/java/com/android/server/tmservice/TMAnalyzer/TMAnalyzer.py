@@ -261,8 +261,8 @@ if __name__ == "__main__":
             lines = f.readlines()
         lineList = parseLines(lines)
         eTrcList = map(lambda x: ExecTrace(x), lineList)
-        eTrcList_ = SimpleMatcher(eTrcList)
-        fargv.append(eTrcList_)
+        #eTrcList_ = SimpleMatcher(eTrcList)
+        fargv.append(eTrcList)
     else:
         fargv.append(verbose)
 
@@ -270,6 +270,8 @@ if __name__ == "__main__":
         for i, eTrc in enumerate(fargv[0]):
             print "*** Log {0} ***".format(i + 1)
             print eTrc
+            print eTrc.getBrNumRepr()
+            print eTrc.getOutNumRepr()
 
     if len(args) == 1:
         handleNoise(*fargv)

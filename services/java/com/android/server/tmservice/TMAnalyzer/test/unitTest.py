@@ -4,6 +4,7 @@ import unittest
 sys.path.append("../")
 
 from ExecTrace import BrEntry, BrLog, OutEntry, OutLog, ExecTrace
+from TMAnalyzer import parseLines
 
 
 class TestBrLine(unittest.TestCase):
@@ -42,7 +43,7 @@ class TestBrChoice(unittest.TestCase):
         pass
 
 
-class TestOutEntry(unittest.TestCase):
+class _TestOutEntry(unittest.TestCase):
     basedir = "outLines/"
     fnameList = ["outLine0.txt"]
 
@@ -71,7 +72,7 @@ class TestOutLog(unittest.TestCase):
         for fname in self.fnameList:
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
-                print OutLog(lines)
+                #print OutLog(lines)
 
     def tearDown(self):
         pass
@@ -90,21 +91,44 @@ class TestExecTrace(unittest.TestCase):
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
                 eTrc = ExecTrace(lines)
-                print eTrc
+                #print eTrc
                 tIdMap = eTrc.getTIdMap()
-                print tIdMap
+                #print tIdMap
 
     def testTIdMap(self):
         tIdMap_ = {0: 1, 1: 12, 2: 13, 3: 18}
         with file(self.basedir + "/etrace0.txt") as f:
             lines = f.readlines()
             eTrc = ExecTrace(lines)
-            print eTrc
+            #print eTrc
             tIdMap = eTrc.getTIdMap()
             self.assertEqual(tIdMap, tIdMap_)
 
     def tearDown(self):
         pass
+
+
+class TestThreadMatch(unittest.TestCase):
+    basedir = "eTraces/"
+    fnameList = ["tmatch0.txt"]
+
+    def setUp(self):
+        pass
+
+    def testLog0(self):
+        for fname in self.fnameList:
+            with file(self.basedir + "/" + fname) as f:
+                lines = f.readlines()
+                linesList = parseLines(lines)
+
+                eTrc0 = ExecTrace(linesList[0])
+                eTrc1 = ExecTrace(linesList[1])
+                print eTrc0
+                print eTrc1
+
+    def tearDown(self):
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()

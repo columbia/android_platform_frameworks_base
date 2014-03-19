@@ -189,12 +189,14 @@ class BrLog(object):
 
         @return: numeric representation of branch choices.
         """
-        keyLst = sorted(self.brTIdMap.keys())
+        keyLst = range(len(self.nMap["TIdMap"]))
 
         if tId is None:
-            ret = []
+            ret = [[] for _ in keyLst]
             for tId_ in keyLst:
-                ret.append(map(lambda x: x.getNumRepr(), self.brTIdMap[tId_]))
+                if tId_ in self.brTIdMap:
+                    ret[tId_] = map(lambda x: x.getNumRepr(),
+                                    self.brTIdMap[tId_])
             return ret
         else:
             if tId in keyLst:
@@ -271,10 +273,7 @@ class BrLog(object):
         """
         @return: a list of thread IDs in branch choices.
         """
-        tIdSet = set(self.brTIdMap.keys())
-        tIdLst = list(tIdSet)
-        tIdLst.sort()
-        return tIdLst
+        return range(len(self.nMap["TIdMap"]))
 
 
 class OutLog(object):
@@ -337,10 +336,7 @@ class OutLog(object):
         """
         TODO:
         """
-        tIdSet = set(self.outEntTIdMap.keys())
-        tIdLst = list(tIdSet)
-        tIdLst.sort()
-        return tIdLst
+        return range(len(self.nMap["TIdMap"]))
 
     def __eq__(self, other):
         """
@@ -383,9 +379,9 @@ class OutLog(object):
         """
         Return numeric representation of branch choices.
         """
-        keyLst = sorted(self.outEntTIdMap.keys())
+        keyLst = range(len(self.nMap["TIdMap"]))
         if tId is None:
-            ret = [[] for _ in range(max(keyLst) + 1)]
+            ret = [[] for _ in keyLst]
             for tId_, val in self.outEntTIdMap.items():
                 ret[tId_] = map(lambda x: x.getNumRepr(), val)
             return ret
@@ -405,7 +401,13 @@ class OutLog(object):
         for tId in tIdList:
             print >> output, "== OutLog (TID {0}) ==".format(tId)
             outEntList = self.getOutLocListbyTId(tId)
+
+            #no outEnt for tId, just continue.
+            if not outEntList:
+                continue
+
             outLocMap = defaultdict(list)
+
             for outEnt in outEntList:
                 outLocMap[outEnt.outLoc].append(outEnt)
             else:
@@ -804,6 +806,10 @@ class ExecTrace(object):
         if self.tIdMatchMap:
             retRepr = [[] for _ in range(len(self.tIdMatchMap))]
             for newTId, oldTId in self.tIdMatchMap.items():
+                print "DBG0:", self.tIdMatchMap
+                print "DBG1:", newTId, retRepr
+                print "DBG2:", oldTId, brNumRepr
+
                 retRepr[newTId] = brNumRepr[oldTId]
 
             #assert(filter(lambda x: not x, retRepr) == [] and
