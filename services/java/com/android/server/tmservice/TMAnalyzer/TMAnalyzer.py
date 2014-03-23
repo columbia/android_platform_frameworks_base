@@ -25,6 +25,9 @@ def parseLines(lines_):
     # Remove empty line.
     lines = filter(lambda x: x.strip(), lines__)
 
+    if not lines:
+        return []
+
     it = iter(lines)
     line = it.next()
 
@@ -142,8 +145,10 @@ def handleNoise(eTrcList, verbose=False):
         print "Inkey::", inKey, ": count - ", len(eTrcList), "\n", \
             BrLog.numReprToStr(brChoice)
         print OutLog.numReprToStr(outLoc)
-    else:
-        print inKey, ":", len(eTrcList), ":", brChoice, ":", outLoc
+    #else:
+    #    print inKey, ":", len(eTrcList), ":", brChoice, ":", outLoc
+
+    return inKey, brChoice, outLoc
 
 
 def evaluateChannel(eTrcList0, eTrcList1, verbose=False):
@@ -261,8 +266,8 @@ if __name__ == "__main__":
             lines = f.readlines()
         lineList = parseLines(lines)
         eTrcList = map(lambda x: ExecTrace(x), lineList)
-        #eTrcList_ = SimpleMatcher(eTrcList)
-        fargv.append(eTrcList)
+        eTrcList_ = SimpleMatcher(eTrcList)
+        fargv.append(eTrcList_)
     else:
         fargv.append(verbose)
 

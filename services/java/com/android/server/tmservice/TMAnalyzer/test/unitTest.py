@@ -4,7 +4,8 @@ import unittest
 sys.path.append("../")
 
 from ExecTrace import BrEntry, BrLog, OutEntry, OutLog, ExecTrace
-from TMAnalyzer import parseLines
+from TMAnalyzer import parseLines, handleNoise
+from ThreadMatch import SimpleMatcher, ThreadMatcher
 
 
 class TestBrLine(unittest.TestCase):
@@ -91,18 +92,8 @@ class TestExecTrace(unittest.TestCase):
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
                 eTrc = ExecTrace(lines)
-                #print eTrc
                 tIdMap = eTrc.getTIdMap()
-                #print tIdMap
-
-    def testTIdMap(self):
-        tIdMap_ = {0: 1, 1: 12, 2: 13, 3: 18}
-        with file(self.basedir + "/etrace0.txt") as f:
-            lines = f.readlines()
-            eTrc = ExecTrace(lines)
-            #print eTrc
-            tIdMap = eTrc.getTIdMap()
-            self.assertEqual(tIdMap, tIdMap_)
+                self.assertEqual(tIdMap, self.tIdMapHash["etrace0.txt"])
 
     def tearDown(self):
         pass
@@ -116,15 +107,38 @@ class TestThreadMatch(unittest.TestCase):
         pass
 
     def testLog0(self):
+        br0 = [[6, 1, 3, 4, 25, 26, 28, 30, 38],
+               [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 11, 15, 17, 19, 21, 23, 12, 13],
+               [], [34, 36, 37, 34, 36, 37, 34, 36, 37, 35]]
+        out0 = [[], [5], [4], [3, 7, 8]]
+
+        br1 =[[1, 3, 4, 25, 26, 28, 30, 38, 6], [],
+              [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 11, 15, 17, 19, 21, 23, 12, 13],
+              [34, 36, 37, 34, 36, 37, 34, 36, 37, 35]]
+        out1 = [[], [0], [5], [3, 7, 8]]
+
         for fname in self.fnameList:
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
                 linesList = parseLines(lines)
 
+                self.assertEqual(len(linesList), 2)
+
                 eTrc0 = ExecTrace(linesList[0])
                 eTrc1 = ExecTrace(linesList[1])
+                self.assertEqual(eTrc0.getBrNumRepr(), br0)
+                self.assertEqual(eTrc0.getOutNumRepr(), out0)
+                self.assertEqual(eTrc1.getBrNumRepr(), br1)
+                self.assertEqual(eTrc1.getOutNumRepr(), out1)
+
+                eTrcList0 = SimpleMatcher([eTrc0, eTrc1])
+                eTrcList1 = SimpleMatcher([eTrc1, eTrc0])
+                self.assertEqual(handleNoise(eTrcList0),handleNoise(eTrcList1))
+
                 print eTrc0
                 print eTrc1
+
+                print ThreadMatcher(*eTrcList0)
 
     def tearDown(self):
         pass

@@ -176,8 +176,9 @@ class BrLog(object):
             # Sanity check -- no duplicate map entry.
             brEntList.append(brEnt)
 
-        tIdSet = set(map(lambda x: x.tId, brEntList))
-        for tId in tIdSet:
+        #tIdLst = set(map(lambda x: x.tId, brEntList))
+        tIdLst = range(len(self.nMap["TIdMap"]))
+        for tId in tIdLst:
             self.brTIdMap[tId] = filter(lambda x: x.tId == tId, brEntList)
             self.brTIdMap[tId].sort(key=lambda x: x.tmId)  # Sort by tmId
 
@@ -299,8 +300,9 @@ class OutLog(object):
         for line in lines:
             outEntList.append(OutEntry(line, self))
 
-        tIdSet = set(map(lambda x: x.tId, outEntList))
-        for tId in tIdSet:
+        #tIdLst = set(map(lambda x: x.tId, outEntList))
+        tIdLst = range(len(self.nMap["TIdMap"]))
+        for tId in tIdLst:
             tIdOutList = filter(lambda x: x.tId == tId, outEntList)
             tIdOutList.sort(key=lambda x: x.tmId)
             self.outEntTIdMap[tId] = tIdOutList
@@ -800,16 +802,15 @@ class ExecTrace(object):
 
     def getBrNumRepr(self, tId=None):
         """
+        @param tId: Thread Id
+        @return: Numerical representation in the form of N x M matrix.
         """
         brNumRepr = self.brChoice.getNumRepr(tId=tId)
 
-        if self.tIdMatchMap:
-            retRepr = [[] for _ in range(len(self.tIdMatchMap))]
+        if self.tIdMatchMap and tId is None:
+            # Prepare return variable.
+            retRepr = [[] for _ in self.tIdMatchMap]
             for newTId, oldTId in self.tIdMatchMap.items():
-                print "DBG0:", self.tIdMatchMap
-                print "DBG1:", newTId, retRepr
-                print "DBG2:", oldTId, brNumRepr
-
                 retRepr[newTId] = brNumRepr[oldTId]
 
             #assert(filter(lambda x: not x, retRepr) == [] and
@@ -821,10 +822,13 @@ class ExecTrace(object):
 
     def getOutNumRepr(self, tId=None):
         """
+        @param tId: Thread Id
+        @return: Numerical representation in the form of N x M matrix.
         """
         outNumRepr = self.outLog.getNumRepr()
-        if self.tIdMatchMap:
-            retRepr = [[] for _ in range(len(self.tIdMatchMap))]
+        if self.tIdMatchMap and tId is None:
+            # Prepare return variable.
+            retRepr = [[] for _ in self.tIdMatchMap]
             for newTId, oldTId in self.tIdMatchMap.items():
                 retRepr[newTId] = outNumRepr[oldTId]
 
@@ -861,15 +865,17 @@ class ExecTrace(object):
 
     def getTIdList(self):
         """
-        @return: Number of threads in the execution trace.
+        @return: list of *neutralized* thread ids.
         """
         #return sorted(self.nMap["TIdMap"].keys())
         return range(len(self.nMap["TIdMap"].keys()))
 
     def getTIdMap(self):
         """
+        @return: hash(dictionary) whose key is 'neutralized' thread id where
+        value is the 'old' thread id.
         """
-        tIdList = self.getTIdList()
+        tIdList = sorted(self.nMap["TIdMap"].keys())
         tIdMap = {}
         for i, tId in enumerate(tIdList):
             tIdMap[i] = tId
