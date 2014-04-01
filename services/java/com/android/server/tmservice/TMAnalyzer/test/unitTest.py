@@ -5,7 +5,7 @@ sys.path.append("../")
 
 from ExecTrace import BrEntry, BrLog, OutEntry, OutLog, ExecTrace
 from TMAnalyzer import parseLines, handleNoise
-from ThreadMatch import SimpleMatcher, ThreadMatcher
+from ThreadMatch import SimpleMatcher, ThreadMatcher, ExponentialMatcher
 
 
 class TestBrLine(unittest.TestCase):
@@ -133,12 +133,16 @@ class TestThreadMatch(unittest.TestCase):
 
                 eTrcList0 = SimpleMatcher([eTrc0, eTrc1])
                 eTrcList1 = SimpleMatcher([eTrc1, eTrc0])
-                self.assertEqual(handleNoise(eTrcList0),handleNoise(eTrcList1))
+                self.assertEqual(handleNoise(eTrcList0),
+                                 handleNoise(eTrcList1))
 
                 print eTrc0
                 print eTrc1
 
-                print ThreadMatcher(*eTrcList0)
+                #print ThreadMatcher(*eTrcList0)
+                maxVal, mLst = ExponentialMatcher(*eTrcList0)
+                self.assertEqual(maxVal, 42)
+                self.assertEqual(mLst, [[(0, 0), (1, 2), (2, 1), (3, 3)]])
 
     def tearDown(self):
         pass
