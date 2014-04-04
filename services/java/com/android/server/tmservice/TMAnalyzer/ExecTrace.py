@@ -176,8 +176,9 @@ class BrLog(object):
             # Sanity check -- no duplicate map entry.
             brEntList.append(brEnt)
 
-        tIdSet = set(map(lambda x: x.tId, brEntList))
-        for tId in tIdSet:
+        #tIdLst = set(map(lambda x: x.tId, brEntList))
+        tIdLst = range(len(self.nMap["TIdMap"]))
+        for tId in tIdLst:
             self.brTIdMap[tId] = filter(lambda x: x.tId == tId, brEntList)
             self.brTIdMap[tId].sort(key=lambda x: x.tmId)  # Sort by tmId
 
@@ -189,12 +190,14 @@ class BrLog(object):
 
         @return: numeric representation of branch choices.
         """
-        keyLst = sorted(self.brTIdMap.keys())
+        keyLst = range(len(self.nMap["TIdMap"]))
 
         if tId is None:
-            ret = []
+            ret = [[] for _ in keyLst]
             for tId_ in keyLst:
-                ret.append(map(lambda x: x.getNumRepr(), self.brTIdMap[tId_]))
+                if tId_ in self.brTIdMap:
+                    ret[tId_] = map(lambda x: x.getNumRepr(),
+                                    self.brTIdMap[tId_])
             return ret
         else:
             if tId in keyLst:
@@ -271,10 +274,7 @@ class BrLog(object):
         """
         @return: a list of thread IDs in branch choices.
         """
-        tIdSet = set(self.brTIdMap.keys())
-        tIdLst = list(tIdSet)
-        tIdLst.sort()
-        return tIdLst
+        return range(len(self.nMap["TIdMap"]))
 
 
 class OutLog(object):
@@ -300,8 +300,9 @@ class OutLog(object):
         for line in lines:
             outEntList.append(OutEntry(line, self))
 
-        tIdSet = set(map(lambda x: x.tId, outEntList))
-        for tId in tIdSet:
+        #tIdLst = set(map(lambda x: x.tId, outEntList))
+        tIdLst = range(len(self.nMap["TIdMap"]))
+        for tId in tIdLst:
             tIdOutList = filter(lambda x: x.tId == tId, outEntList)
             tIdOutList.sort(key=lambda x: x.tmId)
             self.outEntTIdMap[tId] = tIdOutList
@@ -337,10 +338,7 @@ class OutLog(object):
         """
         TODO:
         """
-        tIdSet = set(self.outEntTIdMap.keys())
-        tIdLst = list(tIdSet)
-        tIdLst.sort()
-        return tIdLst
+        return range(len(self.nMap["TIdMap"]))
 
     def __eq__(self, other):
         """
@@ -383,12 +381,11 @@ class OutLog(object):
         """
         Return numeric representation of branch choices.
         """
-        keyLst = sorted(self.outEntTIdMap.keys())
+        keyLst = range(len(self.nMap["TIdMap"]))
         if tId is None:
-            ret = []
-            for tId_ in range(max(keyLst) + 1):
-                ret.append(map(lambda x: x.getNumRepr(),
-                               self.outEntTIdMap[tId_]))
+            ret = [[] for _ in keyLst]
+            for tId_, val in self.outEntTIdMap.items():
+                ret[tId_] = map(lambda x: x.getNumRepr(), val)
             return ret
         else:
             if tId in keyLst:
@@ -406,7 +403,13 @@ class OutLog(object):
         for tId in tIdList:
             print >> output, "== OutLog (TID {0}) ==".format(tId)
             outEntList = self.getOutLocListbyTId(tId)
+
+            #no outEnt for tId, just continue.
+            if not outEntList:
+                continue
+
             outLocMap = defaultdict(list)
+
             for outEnt in outEntList:
                 outLocMap[outEnt.outLoc].append(outEnt)
             else:
@@ -559,8 +562,6 @@ class OutEntry(object):
 
     def updateHashList(self):
         """
-        @param hkey: Tuple composed of library name, method name, and offset.
-        This is added to cls.outHashList in sorted order.
         """
         if self.hkey not in self.outHashList:
             bisect.insort(self.outHashList, self.hkey)
@@ -617,6 +618,12 @@ class ExecTrace(object):
         # Neutralization map.
         self.nMap = {"TmIdBase": sys.maxint + 1, "TIdMap": defaultdict(int)}
 
+        # init. Neutralization map.
+        tIdSet, initTMId = self._initNMap(lines)
+        self.nMap["TmIdBase"] = initTMId
+        for tId in tIdSet:
+            self.nMap["TIdMap"][tId] = 0
+
         # NOTE: tmId here is an event identifier that is different from that
         # of BrLog or OutLog
 
@@ -634,6 +641,48 @@ class ExecTrace(object):
         self.inputMap = {inLoc: (inData.strip(), tag)}
         self.brChoice = BrLog(brLogLines, self)
         self.outLog = OutLog(outputLogLines, self)
+
+        self.tIdMatchMap = None
+
+    @classmethod
+    def _initNMap(cls, lines):
+        """
+        @param lines:
+        @return: TIdSet, tmId
+        """
+        tIdSet = set()
+        tmId = sys.maxint + 1
+
+        for line in lines:
+            tId = cls.parseTId(line)
+            if tId is not None:
+                tIdSet.add(tId)
+            tmId_ = cls.parseTMId(line)
+            if tmId_ is not None:
+                tmId = min(tmId_, tmId)
+        return tIdSet, tmId
+
+    @classmethod
+    def parseTId(cls, line):
+        if cls.isOutputLine(line):
+            tId = OutEntry.parseOutputLine(line)[2]
+        elif cls.isBranchLine(line):
+            tId = BrEntry.parseBrLine(line)[2]
+        else:
+            return None
+        return tId
+
+    @classmethod
+    def parseTMId(cls, line):
+        """
+        """
+        if cls.isOutputLine(line):
+            tmId = OutEntry.parseOutputLine(line)[1]
+        elif cls.isBranchLine(line):
+            tmId = BrEntry.parseBrLine(line)[1]
+        else:
+            return None
+        return tmId
 
     def getInMapKey(self):
         tmp = []
@@ -752,10 +801,43 @@ class ExecTrace(object):
             return 0
 
     def getBrNumRepr(self, tId=None):
-        return self.brChoice.getNumRepr(tId=tId)
+        """
+        @param tId: Thread Id
+        @return: Numerical representation in the form of N x M matrix.
+        """
+        brNumRepr = self.brChoice.getNumRepr(tId=tId)
+
+        if self.tIdMatchMap and tId is None:
+            # Prepare return variable.
+            retRepr = [[] for _ in self.tIdMatchMap]
+            for newTId, oldTId in self.tIdMatchMap.items():
+                retRepr[newTId] = brNumRepr[oldTId]
+
+            #assert(filter(lambda x: not x, retRepr) == [] and
+            #       "Sanity check -- not expecting to see any remaining []")
+
+            return retRepr
+        else:
+            return brNumRepr
 
     def getOutNumRepr(self, tId=None):
-        return self.outLog.getNumRepr()
+        """
+        @param tId: Thread Id
+        @return: Numerical representation in the form of N x M matrix.
+        """
+        outNumRepr = self.outLog.getNumRepr()
+        if self.tIdMatchMap and tId is None:
+            # Prepare return variable.
+            retRepr = [[] for _ in self.tIdMatchMap]
+            for newTId, oldTId in self.tIdMatchMap.items():
+                retRepr[newTId] = outNumRepr[oldTId]
+
+            #assert(filter(lambda x: not x, retRepr) == [] and
+            #       "Sanity check -- not expecting to see any remaining []")
+
+            return retRepr
+        else:
+            return outNumRepr
 
     def getNumRepr(self, tId=None):
         """
@@ -767,7 +849,7 @@ class ExecTrace(object):
 
     def _getInMapStr(self):
         """
-        @return : String representation of input value (self.inputMap).
+        @return: String representation of input value (self.inputMap).
         """
         ret = ""
         output = StringIO()
@@ -783,11 +865,21 @@ class ExecTrace(object):
 
     def getTIdList(self):
         """
-        @return: Number of threads in the execution trace.
+        @return: list of *neutralized* thread ids.
         """
-        tIdList = self.brChoice.getTIdList() + self.outLog.getTIdList()
-        tIdSet = set(tIdList)
-        return list(tIdSet)
+        #return sorted(self.nMap["TIdMap"].keys())
+        return range(len(self.nMap["TIdMap"].keys()))
+
+    def getTIdMap(self):
+        """
+        @return: hash(dictionary) whose key is 'neutralized' thread id where
+        value is the 'old' thread id.
+        """
+        tIdList = sorted(self.nMap["TIdMap"].keys())
+        tIdMap = {}
+        for i, tId in enumerate(tIdList):
+            tIdMap[i] = tId
+        return tIdMap
 
     def __str__(self):
         """

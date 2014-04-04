@@ -63,7 +63,8 @@ def tuplify(lst):
 
 def getDist(numRepr0, numRepr1):
     """
-    @param numRepr:
+    @param numRepr0:
+    @param numRepr1:
     """
     numList0 = map(lambda x: len(x), numRepr0)
     numList1 = map(lambda x: len(x), numRepr1)

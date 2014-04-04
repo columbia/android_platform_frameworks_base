@@ -3,6 +3,7 @@ import getopt
 from Util import tuplify, getDist
 from ExecTrace import ExecTrace, BrLog, OutLog, OutEntry
 from LCS import LCS2
+from ThreadMatch import SimpleMatcher
 
 
 CORRECT_CHANNEL = 1
@@ -15,14 +16,21 @@ ERROR_DETECTED = 1
 
 def parseLines(lines_):
     """
-    @param lines: lines to be parsed.
+    @param lines_: lines to be parsed.
     @return: list of ExecTrace.
     """
-    #remove comments
-    lines = filter(lambda x: not x.strip().startswith("#"), lines_)
-    it = iter(lines)
+    # Remove comments.
+    lines__ = filter(lambda x: not x.strip().startswith("#"), lines_)
 
+    # Remove empty line.
+    lines = filter(lambda x: x.strip(), lines__)
+
+    if not lines:
+        return []
+
+    it = iter(lines)
     line = it.next()
+
     try:
         while True:
             if ExecTrace.isEventIdLine(line):
@@ -51,7 +59,7 @@ def handleBrNoise(eTrcList, brChoiceList_=None, verbose=False):
     We assuemt that eTrcList contains instances of ExecTrace of the same
     inMap.
 
-    @param eTraceList: list of ExecTrace instances that share the same
+    @param eTrcList: list of ExecTrace instances that share the same
     inMapKey.
     @param brChoiceList_: previous inferred brChoice.
     @return: list of fixed branch choices which are common to all ExecTrace
@@ -137,15 +145,17 @@ def handleNoise(eTrcList, verbose=False):
         print "Inkey::", inKey, ": count - ", len(eTrcList), "\n", \
             BrLog.numReprToStr(brChoice)
         print OutLog.numReprToStr(outLoc)
-    else:
-        print inKey, ":", len(eTrcList), ":", brChoice, ":", outLoc
+    #else:
+    #    print inKey, ":", len(eTrcList), ":", brChoice, ":", outLoc
+
+    return inKey, brChoice, outLoc
 
 
 def evaluateChannel(eTrcList0, eTrcList1, verbose=False):
     """
     @param eTrcList0: list of ExecTrace instances that share the same
     inMapKey.
-     @param eTrcList1: list of ExecTrace instances that share the same
+    @param eTrcList1: list of ExecTrace instances that share the same
     inMapKey, but different from that of eTrcList0.
    """
     inKey0, brChoice0, outLoc0 = _handleNoiseImpl(eTrcList0)
@@ -255,9 +265,18 @@ if __name__ == "__main__":
         with file(fname) as f:
             lines = f.readlines()
         lineList = parseLines(lines)
-        fargv.append(map(lambda x: ExecTrace(x), lineList))
+        eTrcList = map(lambda x: ExecTrace(x), lineList)
+        eTrcList_ = SimpleMatcher(eTrcList)
+        fargv.append(eTrcList_)
     else:
         fargv.append(verbose)
+
+    if verbose:
+        for i, eTrc in enumerate(fargv[0]):
+            print "*** Log {0} ***".format(i + 1)
+            print eTrc
+            print eTrc.getBrNumRepr()
+            print eTrc.getOutNumRepr()
 
     if len(args) == 1:
         handleNoise(*fargv)

@@ -41,7 +41,7 @@ def LCS(x, y, reconFlag=True):
     if reconFlag:
         return recon(n, m)
     else:
-        return table(n, m)
+        return table[n, m]
 
 
 def LCS2(x, y):
