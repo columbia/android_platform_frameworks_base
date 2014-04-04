@@ -241,7 +241,7 @@ public abstract class TMService extends ITMService.Stub {
                 TMService tmSvc = null;
                 String[] tokens = line.split(" ");
 
-                if (tokens.length != 4) {
+                if (tokens.length != 2) {
                     Log.v(TAG, "unexpected input: " + line);
                     continue;
                 }
