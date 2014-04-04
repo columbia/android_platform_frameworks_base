@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import sys
 import unittest
+import StringIO
 
 sys.path.append("../")
+
 from ExecTrace import BrEntry, BrLog, OutEntry, OutLog, ExecTrace
 from TMAnalyzer import parseLines, handleNoise
-from ThreadMatch import SimpleMatcher, ExponentialMatcher, MatcherForMany, \
-    print_tab, matrix
+from ThreadMatch import SimpleMatcher, ExponentialMatcher, ExponentialMatcherImpl, MatcherForMany, print_tab, matrix
 
 
 class TestBrLine(unittest.TestCase):
@@ -16,36 +17,28 @@ class TestBrLine(unittest.TestCase):
         pass
 
     def testBrLine0(self):
-        with file(self.basedir + "/" + "brLines0.txt") as f:
+        with file(self.basedir + "/" + "brLines0.in") as f:
             lines = f.readlines()
 
+        with file(self.basedir + "/" + "brLines0.out") as f:
+            out0 = f.read()
+        with file(self.basedir + "/" + "brLogs0.out") as f:
+            out1 = f.read()
+
+
+        buf = StringIO.StringIO()
         for line in lines:
             if line.strip():
                 brLine = BrEntry(line)
-                print brLine
+                print >> buf, brLine
+
+        self.assertEqual(out0, buf.getvalue())
 
     def tearDown(self):
         pass
 
 
-class TestBrChoice(unittest.TestCase):
-    basedir = "brChoices/"
-    fnameList = ["brchoice0.txt"]
-
-    def setUp(self):
-        pass
-
-    def testBrChoice0(self):
-        for fname in self.fnameList:
-            with file(self.basedir + "/" + fname) as f:
-                lines = f.readlines()
-                print BrLog(lines)
-
-    def tearDown(self):
-        pass
-
-
-class _TestOutEntry(unittest.TestCase):
+class TestOutEntry(unittest.TestCase):
     basedir = "outLines/"
     fnameList = ["outLine0.txt"]
 
@@ -102,7 +95,6 @@ class TestExecTrace(unittest.TestCase):
 
 class TestThreadMatch(unittest.TestCase):
     basedir = "eTraces/"
-    fnameList = ["tmatch0.txt"]
 
     def setUp(self):
         pass
@@ -120,7 +112,8 @@ class TestThreadMatch(unittest.TestCase):
               [34, 36, 37, 34, 36, 37, 34, 36, 37, 35]]
         out1 = [[], [0], [5], [3, 7, 8]]
 
-        for fname in self.fnameList:
+        fnameList = ["tmatch0.txt"]
+        for fname in fnameList:
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
                 linesList = parseLines(lines)
@@ -139,26 +132,28 @@ class TestThreadMatch(unittest.TestCase):
                 self.assertEqual(handleNoise(eTrcList0),
                                  handleNoise(eTrcList1))
 
-                print eTrc0
-                print eTrc1
-
                 maxVal, mLst = ExponentialMatcher(*eTrcList0)
                 self.assertEqual(maxVal, 42)
                 self.assertEqual(mLst, [[(0, 0), (1, 2), (2, 1), (3, 3)]])
 
                 eTrcList0_ = MatcherForMany(eTrcList0)
-                for eTrc in eTrcList0_:
-                    print eTrc
 
     def testMatch1(self):
         """
+        test method for 4x4 matrix.
         """
         d_ = {(0, 0): 2, (0, 1): 8, (0, 2): 1, (0, 3): 3,
                 (1, 0): 10, (1, 1): 2, (1, 2): 1, (1, 3): 3,
                 (2, 0): 2, (2, 1): 1, (2, 2): 2, (2, 3): 2,
                 (3, 0): 3, (3, 1): 0, (3, 2): 2, (3, 3): 2}
         d = matrix(d_, 4, 4)
-        print print_tab(d)
+        # print_tab(d)
+        maxVal, mLst = ExponentialMatcherImpl(d)
+        self.assertEqual(maxVal, 22)
+        self.assertEqual(mLst,
+                         [[(0, 1), (1, 0), (2, 2), (3, 3)],
+                          [(0, 1), (1, 0), (2, 3), (3, 2)]]
+                         )
 
     def tearDown(self):
         pass
