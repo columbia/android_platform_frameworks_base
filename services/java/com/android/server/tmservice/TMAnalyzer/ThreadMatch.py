@@ -16,6 +16,11 @@ class matrix(dict):
             dict.__init__(*[self], **kwargs)
             self.m = m
             self.n = n
+        elif len(args) == 4:  # [self, dict, m, n]
+            self, d, m, n = args
+            dict.__init__(*[self, d], **kwargs)
+            self.m = m
+            self.n = n
         else:
             dict.__init__(*args, **kwargs)
             self = args[0]
@@ -37,6 +42,7 @@ def get_LCS_tab(eTrc0, eTrc1):
             LCS_tab[i, j] = LCS(eTrc0.getNumRepr(tId=i),
                                 eTrc1.getNumRepr(tId=j),
                                 False)
+    print "DBG:", LCS_tab, LCS_tab.m, LCS_tab.n
     return LCS_tab
 
 
@@ -114,7 +120,7 @@ def print_tab(tab):
     for j in range(tab.m):
         print ""
         for i in range(tab.n):
-            print tab[i, j],
+            print "{:3d}".format(tab[i, j]),
     print ""
 
 
@@ -148,13 +154,14 @@ def ExponentialMatcher(eTrc0_, eTrc1_):
         eTrc0 = eTrc1_
         eTrc1 = eTrc0_
 
-    n = len(eTrc0.getTIdList())
-    m = len(eTrc1.getTIdList())
-
     # n <= m.
 
     LCS_tab = get_LCS_tab(eTrc0, eTrc1)
-    it = itertools.permutations(range(m), n)
+    return _ExponentialMatcher(LCS_tab, switched)
+
+
+def _ExponentialMatcher(LCS_tab, switched):
+    it = itertools.permutations(range(LCS_tab.m), LCS_tab.n)
     retMap = defaultdict(list)
     try:
         while True:
@@ -184,14 +191,19 @@ def MatcherForMany(eTrcLst_, matcher=ExponentialMatcher):
     """
     """
     eTrcList = sorted(eTrcLst_, key=lambda x: len(x.getTIdList()))
+    # eTrc0 to be the anchor ExecTrace.
     eTrc0 = eTrcList[0]
     l = len(eTrc0.getTIdList())
     for i in range(l):
         eTrc0.tIdMatchMap[i] = i
     for eTrc1 in eTrcList[1:]:
         _, mLst = matcher(eTrc0, eTrc1)
-        for i, j in mLst:
-            eTrc1.tIdMatchMap[j] = i
+        #XXX: what we gonna do? if there's more than one?
+        for m in mLst:
+            for i, j in m:
+                eTrc1.tIdMatchMap[j] = i
+
+    return eTrcLst_
 
 if __name__ == "__main__":
     pass

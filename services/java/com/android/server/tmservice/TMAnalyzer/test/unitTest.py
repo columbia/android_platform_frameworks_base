@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 import sys
 import unittest
-sys.path.append("../")
 
+sys.path.append("../")
 from ExecTrace import BrEntry, BrLog, OutEntry, OutLog, ExecTrace
 from TMAnalyzer import parseLines, handleNoise
-from ThreadMatch import SimpleMatcher, ThreadMatcher, ExponentialMatcher
+from ThreadMatch import SimpleMatcher, ExponentialMatcher, MatcherForMany, \
+    print_tab, matrix
 
 
 class TestBrLine(unittest.TestCase):
@@ -69,11 +70,11 @@ class TestOutLog(unittest.TestCase):
     def setUp(self):
         pass
 
-    def testLog0(self):
+    def _testLog0(self):
         for fname in self.fnameList:
             with file(self.basedir + "/" + fname) as f:
                 lines = f.readlines()
-                #print OutLog(lines)
+                print OutLog(lines)
 
     def tearDown(self):
         pass
@@ -106,14 +107,16 @@ class TestThreadMatch(unittest.TestCase):
     def setUp(self):
         pass
 
-    def testLog0(self):
+    def testMatch0(self):
         br0 = [[6, 1, 3, 4, 25, 26, 28, 30, 38],
-               [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 11, 15, 17, 19, 21, 23, 12, 13],
+               [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 11, 15, 17,
+                19, 21, 23, 12, 13],
                [], [34, 36, 37, 34, 36, 37, 34, 36, 37, 35]]
         out0 = [[], [5], [4], [3, 7, 8]]
 
-        br1 =[[1, 3, 4, 25, 26, 28, 30, 38, 6], [],
-              [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 11, 15, 17, 19, 21, 23, 12, 13],
+        br1 = [[1, 3, 4, 25, 26, 28, 30, 38, 6], [],
+              [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 11, 15, 17,
+               19, 21, 23, 12, 13],
               [34, 36, 37, 34, 36, 37, 34, 36, 37, 35]]
         out1 = [[], [0], [5], [3, 7, 8]]
 
@@ -139,10 +142,23 @@ class TestThreadMatch(unittest.TestCase):
                 print eTrc0
                 print eTrc1
 
-                #print ThreadMatcher(*eTrcList0)
                 maxVal, mLst = ExponentialMatcher(*eTrcList0)
                 self.assertEqual(maxVal, 42)
                 self.assertEqual(mLst, [[(0, 0), (1, 2), (2, 1), (3, 3)]])
+
+                eTrcList0_ = MatcherForMany(eTrcList0)
+                for eTrc in eTrcList0_:
+                    print eTrc
+
+    def testMatch1(self):
+        """
+        """
+        d_ = {(0, 0): 2, (0, 1): 8, (0, 2): 1, (0, 3): 3,
+                (1, 0): 10, (1, 1): 2, (1, 2): 1, (1, 3): 3,
+                (2, 0): 2, (2, 1): 1, (2, 2): 2, (2, 3): 2,
+                (3, 0): 3, (3, 1): 0, (3, 2): 2, (3, 3): 2}
+        d = matrix(d_, 4, 4)
+        print print_tab(d)
 
     def tearDown(self):
         pass
