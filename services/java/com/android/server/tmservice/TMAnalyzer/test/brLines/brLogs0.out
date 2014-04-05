@@ -1,0 +1,9 @@
+== BR (TID 0) ==
+	BR::592 (0) :: 0 :: Ledu/columbia/gpsapp/MainActivity .sendMessage @ 26 :: True
+	BR::592 (0) :: 1 :: Ledu/columbia/gpsapp/MainActivity .sendMessage @ 35 :: True
+	BR::592 (0) :: 2 :: Ledu/columbia/gpsapp/MainActivity .sendMessage @ 181 :: False
+	BR::592 (0) :: 3 :: Ledu/columbia/gpsapp/MainActivity$Msg .toString @ 7 :: True
+	BR::592 (0) :: 4 :: Ledu/columbia/gpsapp/MainActivity$Msg .toString @ 317 :: False
+	BR::592 (0) :: 5 :: Ledu/columbia/gpsapp/MainActivity$Msg .toString @ 341 :: False
+	BR::592 (0) :: 6 :: Ledu/columbia/gpsapp/MainActivity$Msg .toString @ 351 :: False
+
