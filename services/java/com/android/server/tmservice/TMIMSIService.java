@@ -120,13 +120,13 @@ public class TMIMSIService extends TMService {
                 continue;
             }
             try {
-                int mcc = Integer.parseInt(entry[0]);
-                int mnc = Integer.parseInt(entry[1]);
-                int msin = Integer.parseInt(entry[2]);
+                int mcc = Integer.parseInt(entry[0].trim());
+                int mnc = Integer.parseInt(entry[1].trim());
+                int msin = Integer.parseInt(entry[2].trim());
 
                 imsiList.add(new Tuple<Integer, Integer, Integer>(mcc, mnc, msin));
             } catch (NumberFormatException ne) {
-                Log.v(TAG, "ERROR: Malformed number exception: " + line);
+                Log.v(TAG, "ERROR: Malformed number exception: " + line + " " + entry[0] + " " + entry[1] + " " + entry[2]);
                 continue;
             }
 
@@ -169,6 +169,7 @@ public class TMIMSIService extends TMService {
 
     protected void refresh() {
         // TODO Auto-generated method stub
+        Log.v("TM-MSG", "refresh called");
         initialize();
     }
 }
