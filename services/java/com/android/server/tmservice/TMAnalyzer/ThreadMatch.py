@@ -117,9 +117,9 @@ def ThreadMatcher(eTrc0_, eTrc1_):
 
 
 def print_tab(tab):
-    for j in range(tab.m):
+    for j in range(tab.n):
         print ""
-        for i in range(tab.n):
+        for i in range(tab.m):
             print "{:3d}".format(tab[i, j]),
     print ""
 

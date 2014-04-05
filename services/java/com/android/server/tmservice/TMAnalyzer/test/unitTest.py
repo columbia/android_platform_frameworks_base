@@ -160,6 +160,17 @@ class TestThreadMatch(unittest.TestCase):
         d = matrix(d_, 4, 4)
         print print_tab(d)
 
+    def testMatch2(self):
+        """
+        """
+        d_ = {(0, 0): 2, (1, 0): 8, (2, 0): 1, (3, 0): 3,
+                (0, 1): 2, (1, 1): 8, (2, 1): 1, (3, 1): 3,
+                (0, 2): 2, (1, 2): 8, (2, 2): 1, (3, 2): 3,
+                (0, 3): 2, (1, 3): 8, (2, 3): 1, (3, 3): 3}
+
+        d = matrix(d_, 4, 4)
+        print print_tab(d)
+
     def tearDown(self):
         pass
 
