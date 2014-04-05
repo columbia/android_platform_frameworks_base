@@ -11,7 +11,7 @@ class matrix(dict):
     dict type that has row and column elements to represent matrix object.
     """
     def __init__(*args, **kwargs):
-        if len(args) == 3:  # [self, m , n]
+        if len(args) == 3:  # [self, m, n]
             self, m, n = args
             dict.__init__(*[self], **kwargs)
             self.m = m
@@ -42,7 +42,6 @@ def get_LCS_tab(eTrc0, eTrc1):
             LCS_tab[i, j] = LCS(eTrc0.getNumRepr(tId=i),
                                 eTrc1.getNumRepr(tId=j),
                                 False)
-    print "DBG:", LCS_tab, LCS_tab.m, LCS_tab.n
     return LCS_tab
 
 
@@ -157,10 +156,10 @@ def ExponentialMatcher(eTrc0_, eTrc1_):
     # n <= m.
 
     LCS_tab = get_LCS_tab(eTrc0, eTrc1)
-    return _ExponentialMatcher(LCS_tab, switched)
+    return ExponentialMatcherImpl(LCS_tab, switched)
 
 
-def _ExponentialMatcher(LCS_tab, switched):
+def ExponentialMatcherImpl(LCS_tab, switched=False):
     it = itertools.permutations(range(LCS_tab.m), LCS_tab.n)
     retMap = defaultdict(list)
     try:
@@ -184,7 +183,7 @@ def _ExponentialMatcher(LCS_tab, switched):
     if retMap:
         maxVal = sorted(retMap.keys())[-1]
         return maxVal, retMap[maxVal]
-    return None
+    return 0, None
 
 
 def MatcherForMany(eTrcLst_, matcher=ExponentialMatcher):
