@@ -160,7 +160,7 @@ class _TestThreadMatch(unittest.TestCase):
                 (2, 0): 2, (2, 1): 1, (2, 2): 2, (2, 3): 2,
                 (3, 0): 3, (3, 1): 0, (3, 2): 2, (3, 3): 2}
         d = matrix(d_, 4, 4)
-        # print_tab(d)
+        print_tab(d)
         maxVal, mLst = ExponentialMatcherImpl(d)
         self.assertEqual(maxVal, 22)
         self.assertEqual(mLst,
@@ -175,8 +175,8 @@ class _TestThreadMatch(unittest.TestCase):
         d_ = {(0, 0): 2, (0, 1): 8, (0, 2): 1, (0, 3): 3, (0, 4): 3,
                 (1, 0): 10, (1, 1): 2, (1, 2): 1, (1, 3): 3, (1, 4): 3,
                 (2, 0): 2, (2, 1): 1, (2, 2): 2, (2, 3): 2, (2, 4): 2,
-                (3, 0): 3, (3, 1): 0, (3, 2): 2, (3, 3): 2, (2, 4): 2}
-        d = matrix(d_, 5, 4)
+                (3, 0): 3, (3, 1): 0, (3, 2): 2, (3, 3): 2, (3, 4): 2}
+        d = matrix(d_, 4, 5)
         print_tab(d)
         maxVal, mLst = ExponentialMatcherImpl(d)
         self.assertEqual(maxVal, 22)

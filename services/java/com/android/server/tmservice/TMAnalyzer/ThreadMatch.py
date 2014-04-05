@@ -11,7 +11,7 @@ class matrix(dict):
     dict type that has row and column elements to represent matrix object.
     """
     def __init__(*args, **kwargs):
-        if len(args) == 3:  # [self, m , n]
+        if len(args) == 3:  # [self, m, n]
             self, m, n = args
             dict.__init__(*[self], **kwargs)
             self.m = m
@@ -116,9 +116,9 @@ def ThreadMatcher(eTrc0_, eTrc1_):
 
 
 def print_tab(tab):
-    for j in range(tab.m):
+    for j in range(tab.n):
         print ""
-        for i in range(tab.n):
+        for i in range(tab.m):
             print "{:3d}".format(tab[i, j]),
     print ""
 
