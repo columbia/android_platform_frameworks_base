@@ -1,7 +1,0 @@
-BR::592 (0) :: 0 :: Ledu/columbia/gpsapp/MainActivity .sendMessage @ 26 :: True
-BR::592 (0) :: 0 :: Ledu/columbia/gpsapp/MainActivity .sendMessage @ 35 :: True
-BR::592 (0) :: 0 :: Ledu/columbia/gpsapp/MainActivity .sendMessage @ 181 :: False
-BR::592 (0) :: 0 :: Ledu/columbia/gpsapp/MainActivity$Msg .toString @ 7 :: True
-BR::592 (0) :: 0 :: Ledu/columbia/gpsapp/MainActivity$Msg .toString @ 317 :: False
-BR::592 (0) :: 0 :: Ledu/columbia/gpsapp/MainActivity$Msg .toString @ 341 :: False
-BR::592 (0) :: 0 :: Ledu/columbia/gpsapp/MainActivity$Msg .toString @ 351 :: False

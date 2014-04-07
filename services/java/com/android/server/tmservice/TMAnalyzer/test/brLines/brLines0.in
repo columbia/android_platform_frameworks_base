@@ -1,7 +1,0 @@
-E/dalvikvmtm(  592): 63|1 |001a|Ledu/columbia/gpsapp/MainActivity;.sendMessage|| if-gez| > 
-E/dalvikvmtm(  592): 64|1 |0023|Ledu/columbia/gpsapp/MainActivity;.sendMessage|| if-nez| > 
-E/dalvikvmtm(  592): 65|1 |00b5|Ledu/columbia/gpsapp/MainActivity;.sendMessage|| if-nez| < 
-E/dalvikvmtm(  592): 66|1 |0007|Ledu/columbia/gpsapp/MainActivity$Msg;.toString|| if-nez| > 
-E/dalvikvmtm(  592): 67|1 |013d|Ledu/columbia/gpsapp/MainActivity$Msg;.toString|| if-ne| < 
-E/dalvikvmtm(  592): 68|1 |0155|Ledu/columbia/gpsapp/MainActivity$Msg;.toString|| if-nez| < 
-E/dalvikvmtm(  592): 69|1 |015f|Ledu/columbia/gpsapp/MainActivity$Msg;.toString|| if-nez| < 
