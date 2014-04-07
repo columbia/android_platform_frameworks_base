@@ -160,14 +160,15 @@ def ExponentialMatcher(eTrc0_, eTrc1_):
 
 
 def ExponentialMatcherImpl(LCS_tab, switched=False):
-    it = itertools.permutations(range(LCS_tab.m), LCS_tab.n)
+    assert(LCS_tab.m <= LCS_tab.n)
+    it = itertools.permutations(range(LCS_tab.n), LCS_tab.m)
     retMap = defaultdict(list)
     try:
         while True:
             l = it.next()
             sum = 0
             match = []
-            for i, j in enumerate(l):
+            for i, j  in enumerate(l):
                 sum += LCS_tab[i, j]
                 if switched:
                     match.append((j, i))

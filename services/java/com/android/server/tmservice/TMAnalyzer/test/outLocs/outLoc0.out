@@ -1,0 +1,12 @@
+== OutLog (TID 0) ==
+	* libcore.os.send0 *
+		592 (0):: 37:: libcore.os.send0@|{bb767d0eefdf212f9bfa97a39129cad5d494fc7ed5529e94ed49382ead3ac3b}| :: 0
+== OutLog (TID 1) ==
+	* libcore.os.send0 *
+		592 (1):: 36:: libcore.os.send0@|{6a7fcdc96251b7b6cf6c29881d5c8b842106ab839d9ffd7c476d6bbcef14a4}| :: 0
+== OutLog (TID 2) ==
+	* libcore.os.send0 *
+		592 (2):: 0:: libcore.os.send0@|{ca342e51b2ac7ad587922f7d605ee7c1c98bbb97de40762a34737ad579c6f10}| :: 10
+		592 (2):: 4:: libcore.os.send0@|{93cef7da50cf4cece1338f8235b415ca50a1246bca421752855f3bcadfe20d5}| :: 10
+		592 (2):: 8:: libcore.os.send0@|{f0236a2dce82d1821423cb3dd7aa1f4298c2479199ab96724afaa6b267d9df}| :: 10
+

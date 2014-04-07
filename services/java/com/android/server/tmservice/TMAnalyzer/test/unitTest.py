@@ -17,9 +17,10 @@ class TestBrLine(unittest.TestCase):
         reload(ExecTrace)
 
     def testBrLine0(self):
+        """
+        """
         with file(self.basedir + "/" + "brLines0.in") as f:
             lines = f.readlines()
-
         with file(self.basedir + "/" + "brLines0.out") as f:
             out0 = f.read()
         with file(self.basedir + "/" + "brLogs0.out") as f:
@@ -36,8 +37,6 @@ class TestBrLine(unittest.TestCase):
         brLog = ExecTrace.BrLog(lines)
         print >> buf1, brLog
 
-        print buf1.getvalue()
-
         self.assertEqual(out0, buf0.getvalue())
         self.assertEqual(out1, buf1.getvalue())
 
@@ -47,17 +46,23 @@ class TestBrLine(unittest.TestCase):
 
 class TestOutEntry(unittest.TestCase):
     basedir = "outLines/"
-    fnameList = ["outLine0.txt"]
+    fnameList = ["outLine0"]
 
     def setUp(self):
         reload(ExecTrace)
 
-    def _testEntry0(self):
+    def testEntry0(self):
         for fname in self.fnameList:
-            with file(self.basedir + "/" + fname) as f:
+            buf = StringIO.StringIO()
+            with file(self.basedir + "/" + fname + ".in") as f:
                 lines = f.readlines()
                 for line in lines:
-                    print ExecTrace.OutEntry(line)
+                    print >> buf, ExecTrace.OutEntry(line)
+
+            with file(self.basedir + "/" + fname + ".out") as f:
+                out = f.read()
+
+            self.assertEqual(buf.getvalue().strip(), out.strip())
 
     def tearDown(self):
         pass
@@ -65,16 +70,22 @@ class TestOutEntry(unittest.TestCase):
 
 class TestOutLog(unittest.TestCase):
     basedir = "outLocs/"
-    fnameList = ["outLoc0.txt"]
+    fnameList = ["outLoc0"]
 
     def setUp(self):
         reload(ExecTrace)
 
     def testLog0(self):
         for fname in self.fnameList:
-            with file(self.basedir + "/" + fname) as f:
+            buf = StringIO.StringIO()
+            with file(self.basedir + "/" + fname + ".in") as f:
                 lines = f.readlines()
-                print ExecTrace.OutLog(lines)
+                print >> buf, ExecTrace.OutLog(lines)
+
+            with file(self.basedir + "/" + fname + ".out") as f:
+                out = f.read()
+
+            self.assertEqual(buf.getvalue().strip(), out.strip())
 
     def tearDown(self):
         pass
@@ -100,7 +111,7 @@ class TestExecTrace(unittest.TestCase):
         pass
 
 
-class _TestThreadMatch(unittest.TestCase):
+class TestExpMatch(unittest.TestCase):
     basedir = "eTraces/"
 
     def setUp(self):
@@ -160,7 +171,7 @@ class _TestThreadMatch(unittest.TestCase):
                 (2, 0): 2, (2, 1): 1, (2, 2): 2, (2, 3): 2,
                 (3, 0): 3, (3, 1): 0, (3, 2): 2, (3, 3): 2}
         d = matrix(d_, 4, 4)
-        print_tab(d)
+        #print_tab(d)
         maxVal, mLst = ExponentialMatcherImpl(d)
         self.assertEqual(maxVal, 22)
         self.assertEqual(mLst,
@@ -170,31 +181,38 @@ class _TestThreadMatch(unittest.TestCase):
 
     def testMatch2(self):
         """
-        test method for 4x4 matrix.
+        test method for 4x5 matrix.
         """
         d_ = {(0, 0): 2, (0, 1): 8, (0, 2): 1, (0, 3): 3, (0, 4): 3,
                 (1, 0): 10, (1, 1): 2, (1, 2): 1, (1, 3): 3, (1, 4): 3,
                 (2, 0): 2, (2, 1): 1, (2, 2): 2, (2, 3): 2, (2, 4): 2,
                 (3, 0): 3, (3, 1): 0, (3, 2): 2, (3, 3): 2, (3, 4): 2}
         d = matrix(d_, 4, 5)
-        print_tab(d)
+        #print_tab(d)
         maxVal, mLst = ExponentialMatcherImpl(d)
         self.assertEqual(maxVal, 22)
-        self.assertEqual(mLst,
-                         [[(0, 1), (1, 0), (2, 2), (3, 3)],
-                          [(0, 1), (1, 0), (2, 3), (3, 2)]]
-                         )
+        self.assertEqual(mLst, [[(0, 1), (1, 0), (2, 2), (3, 3)],
+                                [(0, 1), (1, 0), (2, 2), (3, 4)],
+                                [(0, 1), (1, 0), (2, 3), (3, 2)],
+                                [(0, 1), (1, 0), (2, 3), (3, 4)],
+                                [(0, 1), (1, 0), (2, 4), (3, 2)],
+                                [(0, 1), (1, 0), (2, 4), (3, 3)]])
 
-    def testMatch2(self):
+    def testMatch3(self):
         """
         """
         d_ = {(0, 0): 2, (1, 0): 8, (2, 0): 1, (3, 0): 3,
-                (0, 1): 2, (1, 1): 8, (2, 1): 1, (3, 1): 3,
-                (0, 2): 2, (1, 2): 8, (2, 2): 1, (3, 2): 3,
-                (0, 3): 2, (1, 3): 8, (2, 3): 1, (3, 3): 3}
+                (0, 1): 3, (1, 1): 4, (2, 1): 0, (3, 1): 1,
+                (0, 2): 2, (1, 2): 8, (2, 2): 3, (3, 2): 2,
+                (0, 3): 1, (1, 3): 6, (2, 3): 2, (3, 3): 3,
+                (0, 4): 5, (1, 4): 2, (2, 4): 1, (3, 4): 5,
+                (0, 5): 5, (1, 5): 4, (2, 5): 4, (3, 5): 2
+              }
 
-        d = matrix(d_, 4, 4)
-        print print_tab(d)
+        d = matrix(d_, 4, 6)
+        maxVal, mLst = ExponentialMatcherImpl(d)
+        self.assertEqual(maxVal, 21)
+        self.assertEqual(mLst, [[(0, 5), (1, 0), (2, 2), (3, 4)]])
 
     def tearDown(self):
         pass
