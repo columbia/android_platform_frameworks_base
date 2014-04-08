@@ -10,6 +10,7 @@ from ThreadMatch import SimpleMatcher, ExponentialMatcher, \
     ExponentialMatcherImpl, MatcherForMany, print_tab, matrix
 
 
+
 class TestBrLine(unittest.TestCase):
     basedir = "brLines/"
 
@@ -111,13 +112,13 @@ class TestExecTrace(unittest.TestCase):
         pass
 
 
-class TestExpMatch(unittest.TestCase):
+class TestMatcher(unittest.TestCase):
     basedir = "eTraces/"
 
     def setUp(self):
         reload(ExecTrace)
 
-    def testMatch0(self):
+    def testExpMatcher0(self):
         br0 = [[6, 1, 3, 4, 25, 26, 28, 30, 36],
                [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 11, 15, 17,
                 19, 21, 23, 12, 13],
@@ -142,6 +143,7 @@ class TestExpMatch(unittest.TestCase):
                 eTrc1 = ExecTrace.ExecTrace(linesList[1])
                 self.assertEqual(eTrc0.getBrNumRepr(), br0)
 
+                self.assertEqual(eTrc0.getBrNumRepr(), br0)
                 self.assertEqual(eTrc0.getOutNumRepr(), out0)
                 self.assertEqual(eTrc1.getBrNumRepr(), br1)
                 self.assertEqual(eTrc1.getOutNumRepr(), out1)
@@ -152,7 +154,7 @@ class TestExpMatch(unittest.TestCase):
                                  handleNoise(eTrcList1))
 
                 maxVal, mLst = ExponentialMatcher(*eTrcList0)
-                self.assertEqual(maxVal, 42)
+                self.assertEqual(maxVal, 48)
                 self.assertEqual(mLst, [[(0, 0), (1, 2), (2, 1), (3, 3)]])
 
                 eTrcList0_ = MatcherForMany(eTrcList0)
@@ -162,7 +164,7 @@ class TestExpMatch(unittest.TestCase):
                 self.assertEqual(eTrcList0_[1].tIdMatchMap,
                                  {0: 0, 1: 2, 2: 1, 3: 3})
 
-    def testMatch1(self):
+    def testExpMatcher1(self):
         """
         test method for 4x4 matrix.
         """
@@ -179,7 +181,7 @@ class TestExpMatch(unittest.TestCase):
                           [(0, 1), (1, 0), (2, 3), (3, 2)]]
                          )
 
-    def testMatch2(self):
+    def testExpMatcher2(self):
         """
         test method for 4x5 matrix.
         """
@@ -198,7 +200,7 @@ class TestExpMatch(unittest.TestCase):
                                 [(0, 1), (1, 0), (2, 4), (3, 2)],
                                 [(0, 1), (1, 0), (2, 4), (3, 3)]])
 
-    def testMatch3(self):
+    def testExpMatcher3(self):
         """
         """
         d_ = {(0, 0): 2, (1, 0): 8, (2, 0): 1, (3, 0): 3,
@@ -217,6 +219,14 @@ class TestExpMatch(unittest.TestCase):
     def tearDown(self):
         pass
 
+
+class TestMatcherForMany(unittest.TestCase):
+    basedir = "eTraces/"
+    def setUp(self):
+        reload(ExecTrace)
+
+    def testMatcherForMany0(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

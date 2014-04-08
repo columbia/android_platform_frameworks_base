@@ -168,7 +168,7 @@ def ExponentialMatcherImpl(LCS_tab, switched=False):
             l = it.next()
             sum = 0
             match = []
-            for i, j  in enumerate(l):
+            for i, j in enumerate(l):
                 sum += LCS_tab[i, j]
                 if switched:
                     match.append((j, i))
@@ -189,9 +189,12 @@ def ExponentialMatcherImpl(LCS_tab, switched=False):
 
 def MatcherForMany(eTrcLst_, matcher=ExponentialMatcher):
     """
+    Updates ExecTrace's tIdMatchMap.
     """
     eTrcList = sorted(eTrcLst_, key=lambda x: len(x.getTIdList()))
-    # eTrc0 to be the anchor ExecTrace.
+    # eTrc0 is one with the least thread count and it is to be the anchor
+    # ExecTrace.
+
     eTrc0 = eTrcList[0]
     l = len(eTrc0.getTIdList())
     for i in range(l):

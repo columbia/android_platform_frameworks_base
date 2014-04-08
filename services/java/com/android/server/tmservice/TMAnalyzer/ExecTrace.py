@@ -604,6 +604,8 @@ class ExecTrace(object):
                       'libcore.os.write0',
                       'libcore.os.write1']
 
+    DELIMITER = -1
+
     def __init__(self, lines):
         """
         constructor method.
@@ -841,11 +843,26 @@ class ExecTrace(object):
 
     def getNumRepr(self, tId=None):
         """
-        FIXME: now, it only consider BrChoice as ExecTrace's signature.
-        we need a way to combine BrChoice and OutLoc into a single
-        representation.
+        Now, getNumRepr considers BrNumRepr(branch chocies) and OutNumRepr
+        (output logs) at the same time. Both entries are combined into a single
+        array by having self.DELIMETER(-1) in between.
         """
-        return self.getBrNumRepr(tId=tId)
+        if tId:
+            ret = self.getBrNumRepr(tId=tId)
+            ret.append(self.DELIMITER)
+            ret += self.getOutNumRepr(tId=tId)
+            return ret
+
+        else:
+            ret = []
+            brNumRepr = self.getBrNumRepr()
+            outNumRepr = self.getOutNumRepr()
+
+            assert(len(brNumRepr) == len(outNumRepr))
+
+            for b, o in zip(brNumRepr, outNumRepr):
+                ret.append(b + [self.DELIMITER] + o)
+            return ret
 
     def _getInMapStr(self):
         """
