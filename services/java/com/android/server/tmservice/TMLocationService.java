@@ -10,6 +10,7 @@ import com.android.server.location.GpsLocationProvider;
 
 import dalvik.system.Taint;
 
+import android.os.RemoteException;
 import android.os.ServiceManager;
 
 /**
@@ -81,7 +82,7 @@ public class TMLocationService extends TMService{
                 longitude + "::" + locationManager.getGpsProvider());
 
     //Signals that we begin another iteration
-    Taint.TMLog("runover |" + Taint.incTmCounter() + "|" + latitude + "| "
+    Taint.TMLog("runover |" + Taint.incTmCounter() + "|gps|" + latitude + ", "
                 + longitude + "| " + Integer.toHexString(getTag()));
 
 	/* Marios*/
@@ -183,4 +184,24 @@ public class TMLocationService extends TMService{
     }
 */
   }
+
+public double getLatitude() throws RemoteException {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+public double getLongitude() throws RemoteException {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+public int getDevId() throws RemoteException {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+protected void refresh() {
+	// TODO Auto-generated method stub
+	
+}
 }

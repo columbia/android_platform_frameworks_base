@@ -1,9 +1,13 @@
 package com.android.server.tmservice;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import android.os.RemoteException;
 import android.util.Log;
 import android.content.Context;
 
@@ -85,8 +89,8 @@ public class TMIMSIService extends TMService {
       tag = getNextTag(tag);
     }
 
-    Taint.TMLog("runover |" + Taint.incTmCounter() + "|"+ imsi + " | "+ " | "
-                + Integer.toHexString(tag));
+    Taint.TMLog("runover |" + Taint.incTmCounter() + "|imsi |"+ imsi + " | "+
+            " | " + Integer.toHexString(tag));
   }
 
   /**
@@ -103,27 +107,69 @@ public class TMIMSIService extends TMService {
     //init. private(service specific) variables.
     imsi = String.format("%03d%03d%09d", mcc, mnc, msin);
 
+    initialize();
+  }
+  private void initialize() {
+    try {
+        String line;
+        BufferedReader br = new BufferedReader(new FileReader("/data/local/tmp/imsi.lst"));
+        while ((line = br.readLine()) != null) { // while loop begins here
+            String entry[] = line.split(",");
+            if (entry.length != 3) {
+                Log.v(TAG, "ERROR: Malformed line entry: " + line);
+                continue;
+            }
+            try {
+                int mcc = Integer.parseInt(entry[0].trim());
+                int mnc = Integer.parseInt(entry[1].trim());
+                int msin = Integer.parseInt(entry[2].trim());
 
-    /*
-     * http://en.wikipedia.org/wiki/Mobile_country_code
-     */
+                imsiList.add(new Tuple<Integer, Integer, Integer>(mcc, mnc, msin));
+            } catch (NumberFormatException ne) {
+                Log.v(TAG, "ERROR: Malformed number exception: " + line + " " + entry[0] + " " + entry[1] + " " + entry[2]);
+                continue;
+            }
 
-    //South Korean providers
-    imsiList.add(new Tuple<Integer, Integer, Integer>(450, 02, 1));
-    imsiList.add(new Tuple<Integer, Integer, Integer>(450, 03, 1));
-    // ...
+        } // end while
+        br.close();
+    } catch (IOException e) {
+        //South Korean providers
+        imsiList.add(new Tuple<Integer, Integer, Integer>(450, 02, 1));
+        imsiList.add(new Tuple<Integer, Integer, Integer>(450, 03, 1));
+        // ...
 
-    //GB providers
-    imsiList.add(new Tuple<Integer, Integer, Integer>(234, 00, 1));  //BT
-    imsiList.add(new Tuple<Integer, Integer, Integer>(234, 01, 1));  //Vectone Mobile
-    // ...
+        //GB providers
+        imsiList.add(new Tuple<Integer, Integer, Integer>(234, 00, 1));  //BT
+        imsiList.add(new Tuple<Integer, Integer, Integer>(234, 01, 1));  //Vectone Mobile
+        // ...
 
-
-    //US providers
-    imsiList.add(new Tuple<Integer, Integer, Integer>(310, 053, 1));  //Virgin Mobile
-    imsiList.add(new Tuple<Integer, Integer, Integer>(310, 054, 1));  //Alltel US
-    // ...
+        //US providers
+        imsiList.add(new Tuple<Integer, Integer, Integer>(310, 053, 1));  //Virgin Mobile
+        imsiList.add(new Tuple<Integer, Integer, Integer>(310, 054, 1));  //Alltel US
+        // ...
+    }
 
     it = imsiList.iterator();
   }
+
+    public double getLatitude() throws RemoteException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public double getLongitude() throws RemoteException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public int getDevId() throws RemoteException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    protected void refresh() {
+        // TODO Auto-generated method stub
+        Log.v("TM-MSG", "refresh called");
+        initialize();
+    }
 }
