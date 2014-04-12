@@ -55,6 +55,11 @@ public abstract class TMService extends ITMService.Stub {
     return "000000000000000";
   }
 
+  public String getIMEI() {
+    assert (false);
+    return "000000000000000";
+  }
+
   /**
    * Method to get next TAG value. We want use different TAG values for
    * different test instances.
