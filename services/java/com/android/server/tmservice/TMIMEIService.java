@@ -100,8 +100,10 @@ public class TMIMEIService extends TMService {
 
     //init. private(service specific) variables.
     imei = String.format("%d%05d%d", tac, md, lc);
+    initialize();
+  }
 
-
+  private void initialize() {
     /*
      * http://en.wikipedia.org/wiki/Type_Allocation_Code
      */
@@ -123,5 +125,11 @@ public class TMIMEIService extends TMService {
     // ...
 
     it = imeiList.iterator();
+  }
+
+  protected void refresh() {
+    // TODO Auto-generated method stub
+    Log.v("TM-MSG", "refresh called");
+    initialize();
   }
 }
