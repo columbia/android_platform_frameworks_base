@@ -59,6 +59,8 @@ import org.apache.harmony.security.provider.cert.X509CertImpl;
 import org.apache.harmony.xnet.provider.jsse.OpenSSLDSAPrivateKey;
 import org.apache.harmony.xnet.provider.jsse.OpenSSLRSAPrivateKey;
 
+import dalvik.system.Taint;
+
 class BrowserFrame extends Handler {
 
     private static final String LOGTAG = "webkit";
@@ -271,6 +273,14 @@ class BrowserFrame extends Handler {
             stringByEvaluatingJavaScriptFromString(
                     url.substring("javascript:".length()));
         } else {
+            if (Taint.isTMeasureAPP()) {
+                int tag = Taint.getTaintString(url);
+                if (tag != Taint.TAINT_CLEAR) {
+                    String tstr = "0x" + Integer.toHexString(tag);
+                    //TODO: url need to be parsed into url location, request string.
+                    Taint.TMLog("BrowserFrame|" + Taint.incTmCounter() + "|" + Taint.getNativeThreadId() + "|{" + url + "}|" + tstr + "|" + url + "|"+ Taint.getStackString(3, -1) + "\n");
+                }
+            }
             nativeLoadUrl(url, extraHeaders);
         }
         mLoadInitFromJava = false;

@@ -29373,6 +29373,7 @@ package dalvik.system {
 
   public final class Taint {
     ctor public Taint();
+    method public static void TMHashLog(java.lang.String);
     method public static void TMLog(java.lang.String);
     method public static boolean addTaintBoolean(boolean, int);
     method public static void addTaintBooleanArray(boolean[], int);
@@ -29423,6 +29424,7 @@ package dalvik.system {
     method public static boolean isTMeasureAPP();
     method public static void log(java.lang.String);
     method public static void logPathFromFd(int);
+    method public static java.lang.String logPathFromFdRetStr(int);
     method public static void logPeerFromFd(int);
     method public static boolean setTaintBoolean(boolean, int);
     method public static void setTaintBooleanArray(boolean[], int);
