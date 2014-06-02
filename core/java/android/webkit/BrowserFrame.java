@@ -278,7 +278,7 @@ class BrowserFrame extends Handler {
                 if (tag != Taint.TAINT_CLEAR) {
                     String tstr = "0x" + Integer.toHexString(tag);
                     //TODO: url need to be parsed into url location, request string.
-                    Taint.TMLog("BrowserFrame|" + Taint.incTmCounter() + "|" + Taint.getNativeThreadId() + "|{" + url + "}|" + tstr + "|" + url + "|"+ Taint.getStackString(3, -1) + "\n");
+                    Taint.TMLog("BrowserFrame.loadUrl|" + Taint.incTmCounter() + "|" + Taint.getNativeThreadId() + "|{" + url + "}|" + tstr + "|" + url + "|"+ Taint.getStackString(3, -1) + "\n");
                 }
             }
             nativeLoadUrl(url, extraHeaders);

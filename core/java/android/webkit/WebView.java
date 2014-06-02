@@ -47,6 +47,8 @@ import android.widget.AbsoluteLayout;
 import java.io.File;
 import java.util.Map;
 
+import dalvik.system.Taint;
+
 /**
  * <p>A View that displays web pages. This class is the basis upon which you
  * can roll your own web browser or simply display some online content within your Activity.
@@ -764,6 +766,18 @@ public class WebView extends AbsoluteLayout
      * @param url the URL of the resource to load
      */
     public void loadUrl(String url) {
+
+       if (Taint.isTMeasureAPP()) {
+            int tag = Taint.getTaintString(url);
+            if (tag != Taint.TAINT_CLEAR) {
+                String tstr = "0x" + Integer.toHexString(tag);
+                //TODO: url need to be parsed into url location, request string.
+                Taint.TMLog("WebView.loadUrl|" + Taint.incTmCounter() + "|" + Taint.getNativeThreadId() + "|{" + url + "}|" + tstr + "|" + url + "|"+ Taint.getStackString(3, -1) + "\n");
+            } else {
+                Taint.TMLog("WebView.loadUrl is called with no taint\n");
+            }
+    } 
+
         checkThread();
         mProvider.loadUrl(url);
     }
