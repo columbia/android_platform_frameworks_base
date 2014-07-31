@@ -10,4 +10,6 @@ interface ITMService {
   //Remote service methods for Device ID information.
   String getIMSI();
   String getIMEI();
+  String getICC();
+  String getMsisdn();
 }

@@ -1990,7 +1990,30 @@ public abstract class Context {
      * @hide
      */
     public static final String TM_IMEI_SERVICE = "tm_imei_service";
-   
+
+     /**
+     * Use with {@link #getSystemService} to retrieve a
+     * {@link com.android.server.tmservice.TMPNumberService} to have access to Taint Measure 
+     * Device Id Service.
+     *
+     * @see #getSystemService
+     * @see com.android.server.tmservice.TMPNumberService
+     *
+     * @hide
+     */
+    public static final String TM_PNUM_SERVICE = "tm_pnumber_service";
+
+      /**
+     * Use with {@link #getSystemService} to retrieve a
+     * {@link com.android.server.tmservice.TMICCService} to have access to Taint Measure 
+     * ICC Service.
+     *
+     * @see #getSystemService
+     * @see com.android.server.tmservice.TMICCService
+     *
+     * @hide
+     */
+    public static final String TM_ICC_SERVICE = "tm_icc_service";
     
     /**
      * Determine whether the given permission is allowed for a particular

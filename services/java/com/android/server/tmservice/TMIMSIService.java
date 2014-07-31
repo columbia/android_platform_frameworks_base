@@ -162,11 +162,6 @@ public class TMIMSIService extends TMService {
         return 0;
     }
 
-    public int getDevId() throws RemoteException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
     protected void refresh() {
         // TODO Auto-generated method stub
         Log.v("TM-MSG", "refresh called");

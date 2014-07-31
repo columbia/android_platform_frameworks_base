@@ -62,6 +62,8 @@ import com.android.server.wm.WindowManagerService;
 import com.android.server.tmservice.TMLocationService;
 import com.android.server.tmservice.TMIMSIService;
 import com.android.server.tmservice.TMIMEIService;
+import com.android.server.tmservice.TMPNumService;
+import com.android.server.tmservice.TMICCService;
 
 import dalvik.system.VMRuntime;
 import dalvik.system.Zygote;
@@ -681,7 +683,23 @@ class ServerThread extends Thread {
             } catch (Throwable e) {
               reportWtf("starting TMIMEIService", e);
             }
-        }
+
+        //Adding TMPNumService
+            try {
+              Slog.i(TAG, "TMPNumService");
+              ServiceManager.addService(Context.TM_PNUM_SERVICE, new TMPNumService(context));
+            } catch (Throwable e) {
+              reportWtf("starting TMPNumService", e);
+            }
+ 
+        //Adding TMICCService
+            try {
+              Slog.i(TAG, "TMICCService");
+              ServiceManager.addService(Context.TM_ICC_SERVICE, new TMPNumService(context));
+            } catch (Throwable e) {
+              reportWtf("starting TMICCService", e);
+            }
+   }
 
         // Before things start rolling, be sure we have decided whether
         // we are in safe mode.

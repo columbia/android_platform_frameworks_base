@@ -47,6 +47,7 @@ import com.android.internal.telephony.IccRefreshResponse;
 
 import com.android.tmservice.ITMService;
 import com.android.tmservice.TMIMSIManager;
+import com.android.tmservice.TMPNumManager;
 
 import java.util.ArrayList;
 
@@ -270,7 +271,18 @@ public class SIMRecords extends IccRecords {
     }
 
     public String getMsisdnNumber() {
-        return msisdn;
+        String retMsisdn = msisdn;
+
+        TMPNumManager tmPNumMgr = (TMPNumManager) 
+                mContext.getSystemService(Context.TM_PNUM_SERVICE);
+        
+        if (tmPNumMgr != null) {
+            retMsisdn = tmPNumMgr.getMsisdn();
+            int tag = tmPNumMgr.getTag();
+            Taint.addTaintString(retMsisdn, tag);
+          }        
+ 
+        return retMsisdn;
     }
 
     @Override
@@ -814,7 +826,7 @@ public class SIMRecords extends IccRecords {
 
                 iccid = IccUtils.bcdToString(data, 0, data.length);
 // begin WITH_TAINT_TRACKING
-                Taint.addTaintString(iccid, Taint.TAINT_ICCID);
+                //Taint.addTaintString(iccid, Taint.TAINT_ICCID);
 // end WITH_TAINT_TRACKING
 
                 log("iccid: " + iccid);

@@ -56,6 +56,21 @@ public abstract class TMService extends ITMService.Stub {
   }
 
   public String getIMEI() {
+    assert(false);
+    return "000000000000000";
+  }
+
+  public int getDevId() {
+    assert(false);
+    return 0;
+  }
+
+  public String getMsisdn() {
+    assert (false);
+    return "000000000000000";
+  }
+
+  public String getICC() {
     assert (false);
     return "000000000000000";
   }

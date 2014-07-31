@@ -70,6 +70,8 @@ static void checkAndClearExceptionFromCallback(JNIEnv* env, const char* methodNa
 
 static void location_callback(GpsLocation* location)
 {
+    //JIKK: callback disabled to provide *fake* GPS location.
+    /* 
     JNIEnv* env = AndroidRuntime::getJNIEnv();
     env->CallVoidMethod(mCallbacksObj, method_reportLocation, location->flags,
             (jdouble)location->latitude, (jdouble)location->longitude,
@@ -77,25 +79,35 @@ static void location_callback(GpsLocation* location)
             (jfloat)location->speed, (jfloat)location->bearing,
             (jfloat)location->accuracy, (jlong)location->timestamp);
     checkAndClearExceptionFromCallback(env, __FUNCTION__);
+    */
 }
 
 static void status_callback(GpsStatus* status)
 {
+    //JIKK: callback disabled to provide *fake* GPS location.
+    /*
     JNIEnv* env = AndroidRuntime::getJNIEnv();
     env->CallVoidMethod(mCallbacksObj, method_reportStatus, status->status);
     checkAndClearExceptionFromCallback(env, __FUNCTION__);
+    */
 }
 
 static void sv_status_callback(GpsSvStatus* sv_status)
 {
+    //JIKK: callback disabled to provide *fake* GPS location.
+    /*
     JNIEnv* env = AndroidRuntime::getJNIEnv();
     memcpy(&sGpsSvStatus, sv_status, sizeof(sGpsSvStatus));
     env->CallVoidMethod(mCallbacksObj, method_reportSvStatus);
     checkAndClearExceptionFromCallback(env, __FUNCTION__);
+    */
 }
 
 static void nmea_callback(GpsUtcTime timestamp, const char* nmea, int length)
 {
+    //JIKK: callback disabled to provide *fake* GPS location.
+   
+    /* 
     JNIEnv* env = AndroidRuntime::getJNIEnv();
     // The Java code will call back to read these values
     // We do this to avoid creating unnecessary String objects
@@ -103,6 +115,7 @@ static void nmea_callback(GpsUtcTime timestamp, const char* nmea, int length)
     sNmeaStringLength = length;
     env->CallVoidMethod(mCallbacksObj, method_reportNmea, timestamp);
     checkAndClearExceptionFromCallback(env, __FUNCTION__);
+    */
 }
 
 static void set_capabilities_callback(uint32_t capabilities)

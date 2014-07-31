@@ -5,6 +5,10 @@ import java.lang.InterruptedException;
 import java.lang.Thread;
 import java.util.*;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
+
 import android.content.Context;
 import android.util.Log;
 import com.android.server.LocationManagerService;
@@ -24,14 +28,62 @@ public class TMLocationService extends TMService{
   private Thread mThread = null;
   private LocationManagerService locationManager = null;
   private GpsLocationProvider gpsProvider = null;
-  private List<Tuple<Double, Double, Integer>> coordList =
-    new ArrayList<Tuple<Double, Double, Integer>>();
+  private List<CoordTag> coordList = new ArrayList<CoordTag>();
+  private Iterator<CoordTag> it;
   private int coordPtr = 0;
 
   private Double longitude_ = 0.0;
   private Double latitude_ = 0.0;
 
   protected static String TAG = "TMLocationService";
+  protected static int SLEEP_TIME = 2000;
+  protected static String gpsPath = "/data/local/tmp/gps.list";
+
+  private class CoordTag {
+    private Double long_;
+    private Double lat_;
+    private int tag = 0;
+    private boolean validFlag = false;
+
+    public CoordTag(String line) {
+      StringTokenizer st = new StringTokenizer(line);
+
+      if (st.countTokens() == 2) {
+        try {
+          long_ = Double.parseDouble(st.nextToken());
+          lat_ =  Double.parseDouble(st.nextToken());
+          validFlag = true;
+        } catch (NullPointerException ne) {
+          long_ = 0.0;
+          lat_ = 0.0;
+          validFlag = false;
+        } catch (NumberFormatException ne) {
+          long_ = 0.0;
+          lat_ = 0.0;
+          validFlag = false;
+        }
+      }  else {
+        long_ = 0.0;
+        lat_ = 0.0;
+        validFlag = false;
+      }
+    }
+
+    public boolean isValid() {
+      return validFlag;
+    }
+
+    public Double getLatitude() {
+      return lat_;
+    }
+
+    public Double getLongitude() {
+      return long_;
+    }
+    public int getTag() {
+      return tag;
+    }
+  }
 
   private class GpsReportThread extends Thread {
     private boolean updateFlag = true;
@@ -39,13 +91,18 @@ public class TMLocationService extends TMService{
       Log.v(TAG, "GPS thread started");
       while (updateFlag) {
         try {
-          Thread.sleep(2000);
+          Thread.sleep(SLEEP_TIME);
         } catch (InterruptedException ie) {
           break;
         }
 
-        invokeReportGpsLocation(37.33, 126.58, tag);
+        if (longitude_ != 0 && latitude_ != 0) {
+          invokeReportGpsLocation(longitude_, latitude_, tag);
+        }
       }
+    }
+    protected void finalize() throws Throwable {
+      updateFlag = false;
     }
   }
 
@@ -92,17 +149,8 @@ public class TMLocationService extends TMService{
 	}
 
     //fake value pair for GPS location
-    latitude_ = coordList.get(coordPtr).x;
-    longitude_ = coordList.get(coordPtr).y;
-
-    //Default port to connect for monkey control
-    int port = 10000;
-    if (port_ != 0) {
-      port = port_;
-    }
-
-    Log.v(TAG, "run_over - location:" + latitude_ + " :" +
-                longitude_ + "::" + locationManager.getGpsProvider());
+    latitude_ = coordList.get(coordPtr).getLatitude();
+    longitude_ = coordList.get(coordPtr).getLongitude();
 
     //Signals that we begin another iteration
     Taint.TMLog("runover |" + Taint.incTmCounter() + "|gps|" + latitude_ + ", "
@@ -110,19 +158,6 @@ public class TMLocationService extends TMService{
 
 	/* Marios*/
     next();
-
-    //update made to GpsLocation service
-    //invokeReportGpsLocation(latitude_.doubleValue(), longitude_.doubleValue(), tag);
-
-    //initiating run_over
-    String[] msgs = {"run_over"};
-    try {
-      sockClient("10.0.2.2", port, msgs);
-    } catch (IOException e) {
-      Log.e(TAG, "run_over: failed with socket connection error: " + e.toString());
-      return;
-    }
-//	next();
   }
 
   public static int randInt(int min, int max) {
@@ -150,85 +185,83 @@ public class TMLocationService extends TMService{
     mThread = new GpsReportThread();
     mThread.start();
     Log.v(TAG, "GPS Thread assigned");
-
-    /* Seoul - 1 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    37.33,
-			    126.58,
-			    new Integer(randInt(0, 32))));
-    /* New York - 2 */    
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    40.42,
-			    74.0,
-			    new Integer(randInt(0, 32))));
-    /* Washington - 3 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    38.54,
-			    77.2,
-			    new Integer(randInt(0, 32))));
-    /* Athens - 4 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    37.59,
-			    23.43,
-			    new Integer(randInt(0, 32))));
-    /* Madrid - 5 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    40.25,
-			    3.42,
-			    new Integer(randInt(0, 32))));
-    /* London - 6 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    51.30,
-			    0.7,
-			    new Integer(randInt(0, 32))));
-    /* Paris - 7 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    48.51,
-			    2.21,
-			    new Integer(randInt(0, 32))));
-    /* Beijing - 8 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    39.54,
-			    116.24,
-			    new Integer(randInt(0, 32))));
-    /* Rome - 9 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    41.53,
-			    12.28,
-			    new Integer(randInt(0, 32))));
-    /* Tokyo - 10 */
-    coordList.add(new Tuple<Double, Double, Integer>(
-			    35.41,
-			    139.41,
-			    new Integer(randInt(0, 32))));
-/*
-	// Init. random coordinates
-    for (int i = 0 ; i < ENTRY_MAX; i++) {
-      coordList.add(new Tuple<Double, Double, Integer>(
-                      new Double(randInt(0, 20)),
-                      new Double(randInt(0, 20)),
-                      new Integer(randInt(0, 32))));
-    }
-*/
+    
+    initialize();
   }
 
-public double getLatitude() throws RemoteException {
-	// TODO Auto-generated method stub
-	return 0;
-}
 
-public double getLongitude() throws RemoteException {
-	// TODO Auto-generated method stub
-	return 0;
-}
+  private void initialize() {
+    BufferedReader br = null;
+    String line = null;
+    CoordTag coord = null;
 
-public int getDevId() throws RemoteException {
-	// TODO Auto-generated method stub
-	return 0;
-}
+    try {
+      br = new BufferedReader( new InputStreamReader( new FileInputStream(gpsPath)));
+      while ((line = br.readLine()) != null) {
+        coord = new CoordTag(line); 
+        if (coord.isValid()) 
+          coordList.add(coord);
+      }
+      it = coordList.iterator();
+    } catch (IOException ie) {
+        /* Seoul - 1 */
 
-protected void refresh() {
-	// TODO Auto-generated method stub
-	
-}
+        /* 
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    37.33,
+                    126.58,
+                    new Integer(randInt(0, 32))));
+        // New York - 2
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    40.42,
+                    74.0,
+                    new Integer(randInt(0, 32))));
+        // Washington - 3
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    38.54,
+                    77.2,
+                    new Integer(randInt(0, 32))));
+        // Athens - 4
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    37.59,
+                    23.43,
+                    new Integer(randInt(0, 32))));
+        // Madrid - 5
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    40.25,
+                    3.42,
+                    new Integer(randInt(0, 32))));
+        // London - 6
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    51.30,
+                    0.7,
+                    new Integer(randInt(0, 32))));
+        // Paris - 7
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    48.51,
+                    2.21,
+                    new Integer(randInt(0, 32))));
+        // Beijing - 8
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    39.54,
+                    116.24,
+                    new Integer(randInt(0, 32))));
+        // Rome - 9
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    41.53,
+                    12.28,
+                    new Integer(randInt(0, 32))));
+        // Tokyo - 10
+        coordList.add(new Tuple<Double, Double, Integer>(
+                    35.41,
+                    139.41,
+                    new Integer(randInt(0, 32))));
+        */
+    }
+  }
+
+  protected void refresh() {
+    Log.v(TAG, "refresh called");
+    initialize();
+  }
 }
