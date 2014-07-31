@@ -38,7 +38,7 @@ public class TMIMEIService extends TMService {
   Iterator<Tuple<Integer, Integer, Integer>> it;
 
   public String getIMEI() {
-    Log.e("IMEIService", "getIMEI called:0");
+    Log.e("IMEIService", "getIMEI called:");
     return imei;
   }
 

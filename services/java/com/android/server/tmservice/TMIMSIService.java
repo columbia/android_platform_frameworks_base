@@ -152,19 +152,9 @@ public class TMIMSIService extends TMService {
     it = imsiList.iterator();
   }
 
-    public double getLatitude() throws RemoteException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public double getLongitude() throws RemoteException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    protected void refresh() {
-        // TODO Auto-generated method stub
-        Log.v("TM-MSG", "refresh called");
-        initialize();
-    }
+  protected void refresh() {
+    // TODO Auto-generated method stub
+    Log.v("TM-MSG", "refresh called");
+    initialize();
+  }
 }
