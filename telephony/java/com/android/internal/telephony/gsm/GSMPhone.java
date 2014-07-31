@@ -848,7 +848,6 @@ public class GSMPhone extends PhoneBase {
     }
 
     public String getDeviceSvn() {
-      Log.e("JIKK-IMSI/GSMPhone.java", "getDeviceSvn() callded");
         return mImeiSv;
     }
 

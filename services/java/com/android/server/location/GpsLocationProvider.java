@@ -783,6 +783,7 @@ public class GpsLocationProvider implements LocationProviderInterface {
     }
 
     private void updateStatus(int status, int svCount) {
+        Log.d(TAG, "updateStatus called:" + status + "::" + svCount);
         if (status != mStatus || svCount != mSvCount) {
             mStatus = status;
             mSvCount = svCount;

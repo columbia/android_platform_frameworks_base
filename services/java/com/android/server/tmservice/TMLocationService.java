@@ -1,6 +1,8 @@
 package com.android.server.tmservice;
 
 import java.io.IOException;
+import java.lang.InterruptedException;
+import java.lang.Thread;
 import java.util.*;
 
 import android.content.Context;
@@ -19,13 +21,33 @@ import android.os.ServiceManager;
  *
  */
 public class TMLocationService extends TMService{
+  private Thread mThread = null;
   private LocationManagerService locationManager = null;
   private GpsLocationProvider gpsProvider = null;
   private List<Tuple<Double, Double, Integer>> coordList =
     new ArrayList<Tuple<Double, Double, Integer>>();
   private int coordPtr = 0;
 
+  private Double longitude_ = 0.0;
+  private Double latitude_ = 0.0;
+
   protected static String TAG = "TMLocationService";
+
+  private class GpsReportThread extends Thread {
+    private boolean updateFlag = true;
+    public void run() {
+      Log.v(TAG, "GPS thread started");
+      while (updateFlag) {
+        try {
+          Thread.sleep(2000);
+        } catch (InterruptedException ie) {
+          break;
+        }
+
+        invokeReportGpsLocation(37.33, 126.58, tag);
+      }
+    }
+  }
 
   /**
    *
@@ -41,6 +63,7 @@ public class TMLocationService extends TMService{
   }
 
   private void invokeReportGpsLocation(double longitude, double latitude, int tag) {
+    
     if (IsGpsProviderAvailable()) {
       //we are not changing the altitude
       gpsProvider.tmReportGpsLocation(longitude, latitude, (double) 1.0, tag);
@@ -69,8 +92,8 @@ public class TMLocationService extends TMService{
 	}
 
     //fake value pair for GPS location
-    Double latitude = coordList.get(coordPtr).x;
-    Double longitude = coordList.get(coordPtr).y;
+    latitude_ = coordList.get(coordPtr).x;
+    longitude_ = coordList.get(coordPtr).y;
 
     //Default port to connect for monkey control
     int port = 10000;
@@ -78,18 +101,18 @@ public class TMLocationService extends TMService{
       port = port_;
     }
 
-    Log.v(TAG, "run_over - location:" + latitude + " :" +
-                longitude + "::" + locationManager.getGpsProvider());
+    Log.v(TAG, "run_over - location:" + latitude_ + " :" +
+                longitude_ + "::" + locationManager.getGpsProvider());
 
     //Signals that we begin another iteration
-    Taint.TMLog("runover |" + Taint.incTmCounter() + "|gps|" + latitude + ", "
-                + longitude + "| " + Integer.toHexString(getTag()));
+    Taint.TMLog("runover |" + Taint.incTmCounter() + "|gps|" + latitude_ + ", "
+                + longitude_ + "| " + Integer.toHexString(getTag()));
 
 	/* Marios*/
     next();
 
     //update made to GpsLocation service
-    invokeReportGpsLocation(latitude.doubleValue(), longitude.doubleValue(), tag);
+    //invokeReportGpsLocation(latitude_.doubleValue(), longitude_.doubleValue(), tag);
 
     //initiating run_over
     String[] msgs = {"run_over"};
@@ -123,6 +146,10 @@ public class TMLocationService extends TMService{
 
     GpsLocationProvider gpsProvider = locationManager.getGpsProvider();
     Log.v(TAG, "LocationManager:" + locationManager +  " gpsProvider:" + gpsProvider);
+
+    mThread = new GpsReportThread();
+    mThread.start();
+    Log.v(TAG, "GPS Thread assigned");
 
     /* Seoul - 1 */
     coordList.add(new Tuple<Double, Double, Integer>(
