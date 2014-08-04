@@ -1946,6 +1946,7 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
                         boolean passive = (msg.arg1 == 1);
 
 // begin WITH_TAINT_TRACKING
+/*
                         int tag = Taint.TAINT_LOCATION;
                         if (LocationManager.GPS_PROVIDER.equals(provider)) {
                             tag |= Taint.TAINT_LOCATION_GPS;
@@ -1967,6 +1968,7 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
                         if (location.hasAccuracy()) {
                             location.setAccuracy(Taint.addTaintFloat(location.getAccuracy(), tag));
                         }    
+*/
 // end WITH_TAINT_TRACKING 
 
                         if (!passive) {

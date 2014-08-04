@@ -1079,7 +1079,8 @@ public class GpsLocationProvider implements LocationProviderInterface {
 
   private void reportLocation(int flags, double latitude, double longitude, double altitude,
             float speed, float bearing, float accuracy, long timestamp) {
-         int tag = Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS;
+        int tag = 0;
+        tag |= (Taint.TAINT_LOCATION | Taint.TAINT_LOCATION_GPS);
          reportLocationImpl(flags, latitude, longitude, altitude, speed, bearing,  accuracy, timestamp, tag);
   }
   

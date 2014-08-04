@@ -30,13 +30,13 @@ public class TMLocationService extends TMService{
   private GpsLocationProvider gpsProvider = null;
   private List<CoordTag> coordList = new ArrayList<CoordTag>();
   private Iterator<CoordTag> it;
-  private int coordPtr = 0;
+  private int coordIdx = 0;
 
   private Double longitude_ = 0.0;
   private Double latitude_ = 0.0;
 
   protected static String TAG = "TMLocationService";
-  protected static int SLEEP_TIME = 2000;
+  protected static int SLEEP_TIME = 5000;
   protected static String gpsPath = "/data/local/tmp/gps.list";
 
   private class CoordTag {
@@ -97,6 +97,7 @@ public class TMLocationService extends TMService{
         }
 
         if (longitude_ != 0 && latitude_ != 0) {
+          //Log.v(TAG, "invokeReportGpsLocation called from Thread");
           invokeReportGpsLocation(longitude_, latitude_, tag);
         }
       }
@@ -135,29 +136,37 @@ public class TMLocationService extends TMService{
 
   public void next() {
       //iterate over prepared <lati, long> pairs
-      coordPtr = (coordPtr + 1) % ENTRY_MAX;
+      coordIdx = (coordIdx + 1) % coordList.size();
       tag = getNextTag(tag);
+      Log.v(TAG, "next() called tag set to " + tag);
   }
 
   protected void run_over(int port_, String subcmd) {
-    Log.v(TAG, "run_over invoked with " + port_ + " and " + subcmd);
-
-	if (!subcmd.equals("skip")) {
-		next();
-	} else {
-		tag = getNextTag(tag);
-	}
+    Log.v(TAG, "run_over invoked with " + port_ + " and subcmd: " + subcmd + "coordIdx: " + coordIdx + "tag:" + tag);
 
     //fake value pair for GPS location
-    latitude_ = coordList.get(coordPtr).getLatitude();
-    longitude_ = coordList.get(coordPtr).getLongitude();
+    if (coordList.size() == 0) {
+        initialize();
+    }
 
-    //Signals that we begin another iteration
-    Taint.TMLog("runover |" + Taint.incTmCounter() + "|gps|" + latitude_ + ", "
-                + longitude_ + "| " + Integer.toHexString(getTag()));
+    if (coordList.size() != 0) {
+        try {
+            latitude_ = coordList.get(coordIdx).getLatitude();
+            longitude_ = coordList.get(coordIdx).getLongitude();
+        } catch (IndexOutOfBoundsException ie) {
+            Log.v(TAG, "IndexOutOfBoundsException for size " + coordList.size() + " index: " + coordIdx);
+        }
 
-	/* Marios*/
-    next();
+        //Signals that we begin another iteration
+        Taint.TMLog("runover |" + Taint.incTmCounter() + "|gps|" + latitude_ + ", "
+                    + longitude_ + "| " + Integer.toHexString(getTag()));
+
+    	if (!subcmd.equals("skip")) {
+            next();
+        }
+    } else {
+        Log.v(TAG, "No coordinates provided. Make sure to have /data/local/tmp/gps.list in place.");
+    }
   }
 
   public static int randInt(int min, int max) {
@@ -194,14 +203,17 @@ public class TMLocationService extends TMService{
     BufferedReader br = null;
     String line = null;
     CoordTag coord = null;
+    coordIdx = 0;
 
     try {
       br = new BufferedReader( new InputStreamReader( new FileInputStream(gpsPath)));
       while ((line = br.readLine()) != null) {
         coord = new CoordTag(line); 
         if (coord.isValid()) 
+          Log.v(TAG, "Coord added: lat: " + coord.getLatitude() + ", long: " + coord.getLongitude());
           coordList.add(coord);
       }
+
       it = coordList.iterator();
     } catch (IOException ie) {
         /* Seoul - 1 */
