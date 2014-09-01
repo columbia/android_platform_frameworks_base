@@ -69,7 +69,8 @@ static void checkAndClearExceptionFromCallback(JNIEnv* env, const char* methodNa
 }
 
 static void location_callback(GpsLocation* location)
-{
+{      
+    ALOGD("location_callback: %ld %ld\n", location->latitude, location->longitude);
     //JIKK: callback disabled to provide *fake* GPS location.
     /* 
     JNIEnv* env = AndroidRuntime::getJNIEnv();
@@ -84,6 +85,7 @@ static void location_callback(GpsLocation* location)
 
 static void status_callback(GpsStatus* status)
 {
+    ALOGD("status_callback: \n");
     //JIKK: callback disabled to provide *fake* GPS location.
     /*
     JNIEnv* env = AndroidRuntime::getJNIEnv();
@@ -95,27 +97,29 @@ static void status_callback(GpsStatus* status)
 static void sv_status_callback(GpsSvStatus* sv_status)
 {
     //JIKK: callback disabled to provide *fake* GPS location.
-    /*
     JNIEnv* env = AndroidRuntime::getJNIEnv();
     memcpy(&sGpsSvStatus, sv_status, sizeof(sGpsSvStatus));
+    /*
+    ALOGD("sv_status_callback:");
     env->CallVoidMethod(mCallbacksObj, method_reportSvStatus);
-    checkAndClearExceptionFromCallback(env, __FUNCTION__);
     */
+    checkAndClearExceptionFromCallback(env, __FUNCTION__);
 }
 
 static void nmea_callback(GpsUtcTime timestamp, const char* nmea, int length)
 {
     //JIKK: callback disabled to provide *fake* GPS location.
-   
-    /* 
+     
+    //ALOGD("nmea_callback: %s", nmea);
     JNIEnv* env = AndroidRuntime::getJNIEnv();
     // The Java code will call back to read these values
     // We do this to avoid creating unnecessary String objects
     sNmeaString = nmea;
     sNmeaStringLength = length;
+    /* 
     env->CallVoidMethod(mCallbacksObj, method_reportNmea, timestamp);
-    checkAndClearExceptionFromCallback(env, __FUNCTION__);
     */
+    checkAndClearExceptionFromCallback(env, __FUNCTION__);
 }
 
 static void set_capabilities_callback(uint32_t capabilities)

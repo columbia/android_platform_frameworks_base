@@ -163,7 +163,11 @@ public class TMLocationService extends TMService{
 
     	if (!subcmd.equals("skip")) {
             next();
+        } else {
+            //only increase tag value in this case.
+            tag = getNextTag(tag);
         }
+    
     } else {
         Log.v(TAG, "No coordinates provided. Make sure to have /data/local/tmp/gps.list in place.");
     }

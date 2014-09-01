@@ -96,6 +96,10 @@ import java.util.Set;
  * {@hide}
  */
 public class LocationManagerService extends ILocationManager.Stub implements Runnable {
+
+    static double lat_ = 0;
+    static double long_ = 0;
+
     private static final String TAG = "LocationManagerService";
     private static final boolean LOCAL_LOGV = false;
 
@@ -1944,6 +1948,22 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
                         Location location = (Location) msg.obj;
                         String provider = location.getProvider();
                         boolean passive = (msg.arg1 == 1);
+
+                        //if(LOCAL_LOGV) {
+                        if(true) {
+                            Log.e(TAG, "LocationWorkerHandler.handleMessage Lat:" + location.getLatitude() 
+                                + " Long: " + location.getLongitude() + " provider: " + provider + " passive?: " 
+                                + passive  + " message: " + msg);
+                        }
+
+                    if (provider == "gps") {
+                            lat_ = location.getLatitude();
+                            long_ = location.getLongitude();
+                        } else {
+                            if (lat_ != 0 || long_ != 0)
+                            location.setLatitude(lat_);
+                            location.setLongitude(long_);
+                        }
 
 // begin WITH_TAINT_TRACKING
 /*
